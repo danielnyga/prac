@@ -1,0 +1,14 @@
+# create and train kb from dbs
+praclearn --dbs [...]/prac/pracmodules/prop_extraction/db/ts_stanford_wn_man.db --mln [...]/prac/pracmodules/prop_extraction/mln/parsing.mln FirstOrderLogic --module prop_extraction
+
+praclearn --dbs [...]/prac/pracmodules/obj_recognition/db/natLan.db --mln [...]/prac/pracmodules/obj_recognition/mln/objInf.mln FirstOrderLogic --module obj_recognition
+
+#------------------------------------------------------------------------------
+
+# infer using kb
+pracobjrec -r -m [...]/prac/pracmodules/obj_recognition/mln/trained.mln FuzzyLogic 'It is a yellow oval fruit.' 
+
+#------------------------------------------------------------------------------
+
+# k-fold cross validation
+pracxfold --dbs [...]/prac/pracmodules/o    bj_recognition/db/natLan.db --mln [...]/prac/pracmodules/obj_recognition/mln/objInf.mln --predicate object --domain cluster --folder folderName --module obj_recognition --multicore --folds 10

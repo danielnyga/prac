@@ -1,0 +1,249 @@
+// fill a pan with water .
+
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+1.00 ac_word(fill, AC_FILL)
+
+//pan
+1.00 has_pos(pan,NN)
+1.00 has_sense(pan,pan.n.01)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+---
+
+//If you put in too little batter to begin with , pour in some extra batter to fill in the gap .
+//fill
+1.00 has_pos(fill-2,VB)
+1.00 has_sense(fill-2,fill.v.09)
+1.00 ac_word(fill-2,AC_FILL)
+
+//gap
+1.00 has_pos(gap,NN)
+1.00 has_sense(gap,opening.n.01)
+
+//batter
+1.00 has_pos(batter,NN)
+1.00 has_sense(batter,batter.n.02)
+---
+
+// fill the mug with the froth , leaving about an inch of space .
+//fill
+1.00 has_pos(fill-3,VB)
+1.00 has_sense(fill-3,fill.v.01)
+1.00 ac_word(fill-3,AC_FILL)
+
+//mug
+1.00 has_pos(mug,NN)
+1.00 has_sense(mug,mug.n.04)
+
+//froth
+1.00 has_pos(froth,NN)
+1.00 has_sense(froth,foam.n.01)
+
+---
+
+//fill the metal pitcher with a cup of milk 
+
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+1.00 ac_word(fill,AC_FILL)
+
+//pitcher
+1.00 has_pos(pitcher,NN)
+1.00 has_sense(pitcher,pitcher.n.02)
+
+//milk
+1.00 has_pos(milk,NN)
+1.00 has_sense(milk,milk.n.01)
+
+---
+
+// fill the kettle with boiling water .
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+1.00 ac_word(fill,AC_FILL)
+
+//kettle
+1.00 has_pos(kettle,NN)
+1.00 has_sense(kettle,kettle.n.01)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+
+---
+
+// slice the pizza into eight separate slice.
+//Slice
+1.00 has_pos(slice-1, VB)
+1.00 has_sense(slice-1, slice.v.03)
+1.00 ac_word(slice-1,AC_SLICE)
+
+//pizza
+1.00 has_pos(pizza, NN)
+1.00 has_sense(pizza, pizza.n.01)
+
+//slice
+1.00 has_pos(slice-2, NN)
+1.00 has_sense(slice-2, piece.n.08)
+
+---
+// Slice some onion and pepper .
+1.00 has_sense(slice, slice.v.03)
+1.00 ac_word(slice,AC_SLICE)
+1.0 has_sense(onion-3,onion.n.01)
+1.0 has_sense(pepper-5,pepper.n.04)
+1.0 has_pos(slice,VB)
+1.0 has_pos(onion-3,NN)
+1.0 has_pos(pepper-5,NN)
+
+---
+// slice each cheese thinly .
+//slice
+1.00 has_pos(slice, VB)
+1.00 has_sense(slice, slice.v.03)
+1.00 ac_word(slice,AC_SLICE)
+
+//cheese
+1.00 has_pos(cheese, NN)
+1.00 has_sense(cheese, cheese.n.01)
+
+---
+// slice the banana use a small knife .
+//Slice
+1.00 has_pos(slice, VB)
+1.00 has_sense(slice, slice.v.03)
+1.00 ac_word(slice,AC_SLICE)
+
+//banana
+1.00 has_pos(banana, NN) 
+1.00 has_sense(banana, banana.n.02)
+
+//knife
+1.00 has_pos(knife, NN) 
+1.00 has_sense(knife, knife.n.01)
+
+---
+// Finely slice the remaining flesh .
+//Slice
+1.00 has_pos(slice, VB)
+1.00 has_sense(slice, slice.v.03)
+1.00 ac_word(slice,AC_SLICE)
+
+//flesh
+1.00 has_pos(flesh, NN) 
+1.00 has_sense(flesh, flesh.n.01)
+
+---
+
+// cut the meat with a chopper
+1.00 has_sense(cut-1,cut.v.01)
+1.00 ac_word(cut-1,AC_CUT)
+1.00 has_sense(meat,meat.n.01)
+1.00 has_sense(chopper,cleaver.n.01)
+1.00 has_pos(cut-1,VB)
+1.00 has_pos(meat,NN)
+1.00 has_pos(chopper,NN)
+
+---
+
+// Carefully cut the cabbage.
+1.00 has_sense(cut-2,cut.v.01)
+1.00 ac_word(cut-2,AC_CUT)
+1.00 has_sense(cabbage-4,cabbage.n.01)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(cabbage-4,NN)
+
+---
+
+// Thinly cut remaining lemon .
+1.00 has_sense(cut-2,cut.v.01)
+1.00 ac_word(cut-2,AC_CUT)
+1.00 has_sense(lemon-4,lemon.n.01)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(lemon-4,NN)
+
+---
+
+// finely cut the bacon and grate the parmesan .
+1.00 has_sense(cut-2,cut.v.01)
+1.00 ac_word(cut-2,AC_CUT)
+1.00 has_sense(bacon-4,bacon.n.01)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(bacon-4,NN)
+
+---
+
+//cut the bread with a knife.
+
+1.00 has_pos(cut, VB)
+1.00 has_sense(cut, cut.v.01)
+1.00 ac_word(cut,AC_CUT)
+1.00 has_pos(bread, NN) 
+1.00 has_sense(bread, bread.n.01)
+1.00 has_pos(knife, NN) 
+1.00 has_sense(knife, knife.n.01)
+
+---
+
+// put salt and pepper or whatever you put on your eggs .
+1.00 has_sense(put-1,put.v.01)
+1.00 ac_word(put-1,AC_PUT)
+1.00 has_sense(salt-2,salt.n.02)
+1.00 has_sense(pepper-4,pepper.n.03)
+1.00 has_sense(eggs-11,egg.n.02)
+1.00 has_pos(put-1,VB)
+1.00 has_pos(salt-2,NN)
+1.00 has_pos(pepper-4,NN)
+1.00 has_pos(eggs-11,NN)
+
+---
+
+// put the chicken back into the pan-
+1.00 has_sense(put-1,put.v.01)
+1.00 ac_word(put-1,AC_PUT)
+1.00 has_sense(chicken-3,chicken.n.01)
+1.00 has_sense(pan-7,pan.n.03)
+1.00 has_pos(put-1,VB)
+1.00 has_pos(chicken-3,NN)
+1.00 has_pos(pan-7,NN)
+
+---
+
+// put the pizza on the pan.
+1.00 has_sense(put-1,put.v.01)
+1.00 ac_word(put-1,AC_PUT)
+1.00 has_sense(pizza-3,pizza.n.01)
+1.00 has_sense(pan-6,pan.n.03)
+1.00 has_pos(put-1,VB)
+1.00 has_pos(pizza-3,NN)
+1.00 has_pos(pan-6,NN)
+
+---
+
+// put the beef and onion on a plate .
+1.00 has_sense(put-1,put.v.01)
+1.00 ac_word(put-1,AC_PUT)
+1.00 has_sense(beef-3,beef.n.02)
+1.00 has_sense(onion-5,onion.n.01)
+1.00 has_sense(plate-8,plate.n.04)
+1.00 has_pos(put-1,VB)
+1.00 has_pos(beef-3,NN)
+1.00 has_pos(onion-5,NN)
+1.00 has_pos(plate-8,NN)
+
+---
+
+// put whipped_cream on the cake .
+1.00 has_sense(put-1,put.v.01)
+1.00 ac_word(put-1,AC_PUT)
+1.00 has_sense(whipped_cream-2,whipped_cream.n.01)
+1.00 has_sense(cake-4, cake.n.03)
+1.00 has_pos(put-1,VB)
+1.00 has_pos(whipped_cream-2,NN)
+1.00 has_pos(cake-4,NN)

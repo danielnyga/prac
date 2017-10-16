@@ -1,0 +1,11 @@
+#include "$PRAC_HOME/pracmodules/senses_and_roles/mln/predicates.mln"
+#include "$PRAC_HOME/pracmodules/nl_parsing/mln/predicates.mln"
+#include "$PRAC_HOME/pracmodules/wn_senses/mln/predicates.mln"
+#include "$PRAC_HOME/pracmodules/ac_recognition/mln/predicates.mln"
+
+0 has_pos(?w1,VB) ^ is_a(?s1,+?c1) ^  has_sense(?w1,?s1) ^ action_core(?w1,+?ac)
+0 has_pos(?w1,VBG) ^ is_a(?s1,+?c1) ^  has_sense(?w1,?s1) ^ action_core(?w1,+?ac)
+0 has_pos(?w1,?p) ^ !action_core(?w1,+?ac) ^ ?p =/= VB ^ ?p =/= VBG
+0 prepc_with(?w1,?w2) ^ !action_core(?w1,+?ac) ^ ?w1 =/= ?w2
+
+

@@ -1,0 +1,4 @@
+python-apt
+texlive-full
+default-jre
+dvipng

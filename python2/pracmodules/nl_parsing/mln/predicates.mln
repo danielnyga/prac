@@ -1,0 +1,211 @@
+
+/* ****************************************************************************
+ * PROBABILISTIC ROBOT ACTION CORES SYNTACTIC PREDICATE DEFINITIONS
+ *
+ * (C) 2011-2013 by Daniel Nyga (nyga@cs.tum.edu)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ ******************************************************************************/
+
+/*
+ * Part-of-speech tags
+ */
+has_pos(word, pos?)
+
+/*
+ * objects -- direct, indirect, passive and active speech
+ */
+dobj(word,word)
+iobj(word,word)
+pobj(word,word)
+obj(word,word)
+root(root, word)
+
+
+/*
+ * SUBJECTS
+ */
+agent(word,word)
+csubj(word,word)
+csubjpass(word,word)
+nsubj(word,word)
+nsubjpass(word,word)
+subj(word,word)
+
+/*
+ * DETERMINERS AND CONJUNCTIONS
+ */
+aux(word,word)
+auxpass(word,word)
+cc(word,word)
+conj(word,word)
+conj_and(word,word)
+conj_but(word,word)
+conj_negcc(word,word)
+conj_or(word,word)
+conj_yet(word,word)
+det(word,word)
+det_predet(word,word)
+preconj(word,word)
+pred(word,word)
+predet(word,word)
+
+/*
+ * PREPOSITIONS
+ */
+prep(word,word)
+nmod(word,word)
+nmod_'s(word,word)
+nmod_about(word,word)
+nmod_above(word,word)
+nmod_according_to(word,word)
+nmod_across(word,word)
+nmod_after(word,word)
+nmod_agent(word, word)
+nmod_along_with(word,word)
+nmod_around(word,word)
+nmod_as(word,word)
+nmod_at(word,word)
+nmod_before(word,word)
+nmod_behind(word,word)
+nmod_below(word,word)
+nmod_between(word,word)
+nmod_by(word,word)
+nmod_by_means_of(word,word)
+nmod_during(word,word)
+nmod_except(word,word)
+nmod_for(word,word)
+nmod_form(word,word)
+nmod_from(word,word)
+nmod_if(word,word)
+nmod_in(word,word)
+nmod_in_case_of(word,word)
+nmod_in_front_of(word,word)
+nmod_inside(word,word)
+nmod_into(word,word)
+nmod_like(word,word)
+nmod_near(word,word)
+nmod_next_to(word,word)
+nmod_npmod(word,word)
+nmod_of(word,word)
+nmod_off(word,word)
+nmod_on(word,word)
+nmod_on_top_of(word,word)
+nmod_onto(word,word)
+nmod_out(word,word)
+nmod_out_of(word,word)
+nmod_outside_of(word,word)
+nmod_over(word,word)
+nmod_per(word,word)
+nmod_poss(word,word)
+nmod_prep(word,word)
+nmod_such_as(word,word)
+nmod_through(word,word)
+nmod_till(word,word)
+nmod_tmod(word,word)
+nmod_to(word,word)
+nmod_together_with(word,word)
+nmod_towards(word,word)
+nmod_under(word,word)
+nmod_underneath(word,word)
+nmod_until(word,word)
+nmod_up(word,word)
+nmod_upon(word,word)
+nmod_with(word,word)
+nmod_without(word,word)
+prepc_according_to(word,word)
+prepc_around(word,word)
+prepc_before(word,word)
+prepc_depending_on(word,word)
+prepc_for(word,word)
+prepc_in(word,word)
+prepc_of(word,word)
+prepc_on(word,word)
+prepc_over(word,word)
+prepc_until(word,word)
+prepc_with(word,word)
+
+/*
+ * MODIFIERS
+ */
+acl(word,word)
+acl_at(word,word)
+acl_relcl(word,word)
+advcl(word,word)
+advcl_as(word,word)
+advcl_for(word,word)
+advcl_in(word,word)
+advcl_into(word,word)
+advcl_on(word,word)
+advcl_till(word,word)
+advcl_until(word,word)
+advmod(word,word)
+amod(word,word)
+appos(word,word)
+arg(word,word)
+expl(word,word)
+mod(word,word)
+mwe(word,word)
+neg(word,word)
+nn(word,word)
+npadvmod(word,word)
+nummod(word,word)
+poss(word,word)
+possessive(word,word)
+prt(word,word)
+quantmod(word,word)
+rcmod(word,word)
+tmod(word,word)
+vmod(word,word)
+
+/*
+ * NUMBERS
+ */
+number(word,word)
+
+
+/*
+ * ADJECTIVES
+ */
+acomp(word,word)
+
+/*
+ * MISC
+ */
+
+case(word,word)
+ccomp(word,word)
+comp(word,word)
+compound(word,word)
+compound_prt(word,word)
+cop(word,word)
+dep(word,word)
+discourse(word,word)
+goeswith(word,word)
+mark(word,word)
+measure(word,word)
+null(word,word)
+parataxis(word,word)
+pcomp(word,word)
+punct(word,word)
+ref(word,word)
+relcl(word,word)
+values(word,word)
+xcomp(word,word)

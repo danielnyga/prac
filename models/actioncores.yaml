@@ -1,0 +1,173 @@
+# ACTION CORE DEFINITIONS
+# 
+# (C) 2012 by Daniel Nyga
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+action_core: Adding
+action_roles: ['theme','goal','action_verb','unit','amount']
+required_action_roles: ['theme','goal','action_verb']
+---
+action_core: Arranging
+action_roles: ['action_verb','obj_to_be_arranged']
+---
+action_core: Baking
+action_roles: ['theme','action_verb']
+---
+action_core: Cooking
+action_roles: ['obj_to_be_cooked','action_verb']
+---
+action_core: Cooling
+action_roles: ['action_verb','amount','location','obj_to_be_cooled','unit']
+---
+action_core: Cutting
+action_roles: ['action_verb', 'amount', 'obj_to_be_cut', 'unit', 'utensil']
+required_action_roles: ['obj_to_be_cut','utensil','action_verb']
+cram_plan: "(perform (an action (type cut-object) (an object (type {obj_to_be_cut}){obj_to_be_cut_props})(count (unit {unit}){unit_props}(number {amount}){amount_props})))"
+---
+action_core: Evaluating
+action_roles: ['obj_to_be_evaluated','attribute','action_verb']
+---
+action_core: Filling
+action_roles: ['stuff','goal','action_verb']
+---
+action_core: Flavouring
+action_roles: ['spice','goal','action_verb']
+---
+action_core: Flipping
+action_roles: ['obj_to_be_flipped','action_verb','utensil']
+---
+action_core: Grabbing
+action_roles: ['obj_to_be_grabbed','action_verb','location']
+required_action_roles: ['obj_to_be_grabbed','action_verb']
+cram_plan: "(perform (an action (type grab-object) (an object (type {obj_to_be_grabbed}){obj_to_be_grabbed_props}) (source (a location (on {location}){location_props}))))"
+---
+action_core: Lifting
+action_roles: ['obj_to_be_lifted','action_verb']
+cram_plan: "(perform (an action (type lift-object) (an object (type {obj_to_be_lifted}){obj_to_be_lifted_props})))"
+---
+action_core: Mixing
+action_roles: ['content','action_verb']
+---
+action_core: Neutralizing
+action_roles: ['neutralizee','neutralizer','action_verb','amount','unit']
+required_action_roles: ['neutralizee','neutralizer','action_verb']
+---
+action_core: Opening
+action_roles: ['obj_to_be_opened','action_verb']
+---
+action_core: OpeningADoor
+action_roles: ['obj_to_be_opened','action_verb']
+cram_plan: "(perform (an action (type open-door) (a location (on {obj_to_be_opened}){obj_to_be_opened_props})))"
+---
+action_core: OperatingATap
+action_roles: ['liquid','goal','action_verb','amount','unit']
+cram_plan: "(perform (an action (type operate-tap) (source (an object (type faucet.n.01) (contains (a substance (type {liquid}){liquid_props}))))(count (unit {unit}){unit_props}(number {amount}){amount_props})(a location (in {goal}){goal_props})))"
+---
+action_core: Pipetting
+action_roles: ['content','goal','action_verb','amount','unit']
+cram_plan: "(perform (an action (type use-pipette) (source (an object (type container.n.01) (contains (a substance (type {content}){content_props}))))(count (unit {unit}){unit_props}(number {amount}){amount_props}))(a location (in {goal}){goal_props}))"
+---
+action_core: Pouring
+action_roles: ['stuff','goal','action_verb','unit','amount']
+required_action_roles: ['stuff','goal','action_verb']
+cram_plan: "(perform (an action (type pour-from-container) (source (an object (type container.n.01) (contains (a substance (type {stuff}){stuff_props}))))(count (unit {unit}){unit_props}(number {amount}){amount_props}))(a location (in {goal}){goal_props}))"
+---
+action_core: Preheating
+action_roles: ['obj_to_be_heated','temperature_unit','temperature_setting','action_verb']
+required_action_roles: ['obj_to_be_heated','action_verb']
+---
+action_core: Pressing
+action_roles: ['obj_to_be_pressed','action_verb','location']
+cram_plan: "(perform (an action (type press-object) (an object (type {obj_to_be_pressed}){obj_to_be_pressed_props})(target (a location (on {location}){location_props}))))"
+---
+action_core: Pulling
+action_roles: ['obj_to_be_pulled','action_verb']
+cram_plan: "(perform (an action (type pull-object) (an object (type {obj_to_be_pulled}){obj_to_be_pulled_props})))"
+---
+action_core: Putting
+action_roles: ['obj_to_be_put','action_verb','location']
+cram_plan: "(perform (an action (type put-object) (an object (type {obj_to_be_put}){obj_to_be_put_props})(target (a location (on {location}){location_props}))))"
+---
+action_core: Removing
+action_roles: ['action_verb','location','obj_to_be_removed']
+cram_plan: "(perform (an action (type remove-object) (an object (type {obj_to_be_removed}){obj_to_be_removed_props})(a location (on {location}){location_props})))"
+---
+action_core: Rolling
+action_roles: ['theme','action_verb']
+cram_plan: "(perform (an action (type roll-out-object) (an object (type {theme}){theme_props})))"
+---
+action_core: Serving
+action_roles: ['theme','action_verb']
+---
+action_core: Shaking
+action_roles: ['obj_to_be_shaken','action_verb','unit','amount']
+cram_plan: "(perform (an action (type shake) (an object (type {obj_to_be_shaken}){obj_to_be_shaken_props})(count (unit {unit}){unit_props}(number {amount}){amount_props})))"
+---
+action_core: Spooning
+action_roles: ['substance','goal','action_verb']
+cram_plan: "(perform (an action (type use-spoon) (source (an object (type container.n.01) (contains (a substance (type {substance}){substance_props}))))(a location (on {goal}){goal_props})))"
+---
+action_core: Spreading
+action_roles: ['substance','goal','action_verb']
+cram_plan: "(perform (an action (type spread) (source (an object (type container.n.01) (contains (a substance (type {substance}){substance_props}))))(a location (on {goal}){goal_props})))"
+---
+action_core: Sprinkling
+action_roles: ['substance','goal','action_verb']
+cram_plan: "(perform (an action (type sprinkle) (source (an object (type container.n.01) (contains (a substance (type {substance}){substance_props}))))(a location (on {goal}){goal_props})))"
+---
+action_core: Starting
+action_roles: ['obj_to_be_started','action_verb']
+---
+action_core: Stirring
+action_roles: ['action_verb','content']
+cram_plan: "(perform (an action (type use-whisk) (a location (in container.n.01) (contains (a substance (type {content}){content_props})))))"
+---
+action_core: Storing
+action_roles: ['obj_to_be_stored','action_verb','location']
+---
+action_core: Taking
+required_action_roles: ['obj_to_be_taken','action_verb']
+action_roles: ['action_verb','obj_to_be_taken','location']
+cram_plan: "(perform (an action (type take-object) (an object (type {obj_to_be_taken}){obj_to_be_taken_props})(source (a location (on {location}){location_props}))))"
+---
+action_core: Turning
+action_roles: ['obj_to_be_turned','action_verb']
+cram_plan: "(perform (an action (type rotate-joint) (an object (type {obj_to_be_turned}){obj_to_be_turned_props})))"
+---
+action_core: TurningOnElectricalDevice
+action_roles: ['device','action_verb']
+cram_plan: "(perform (an action (type turn-on-device) (an object (type {device}){device_props})))"
+---
+action_core: Unscrewing
+action_roles: ['obj_to_be_unscrewed','action_verb']
+cram_plan: "(perform (an action (type unscrew) (an object (type {obj_to_be_unscrewed}){obj_to_be_unscrewed_props})))"
+---
+action_core: UsingMeasuringCup
+action_roles: ['content','goal','action_verb','amount','unit']
+cram_plan: "(perform (an action (type use-measuring-cup) (source (an object (type container.n.01) (contains (a substance (type {content}){content_props}))))(count (unit {unit}){unit_props}(number {amount}){amount_props}))(a location (to {goal}){goal_props}))"
+---
+action_core: UsingSpiceJar
+action_roles: ['content','goal','action_verb']
+cram_plan: "(perform (an action (type pour-from-spice-jar) (source (an object (type container.n.01) (contains (a substance (type {content}){content_props}))))(a location (to {goal}){goal_props})))"
+---
+action_core: Waiting
+action_roles: ['unit','action_verb','amount']
+cram_plan: "(perform (an action (type idle) (count (unit {unit}){unit_props}(number {amount}){amount_props})))"

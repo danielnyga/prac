@@ -1,0 +1,179 @@
+//Stir the milk
+1.00 has_sense(stir-9,stir.v.01)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(milk,NN)
+1.00 has_sense(milk,milk.n.01)
+
+---
+
+//Stir the coke
+1.00 has_sense(stir-9,stir.v.01)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(coke,NN)
+1.00 has_sense(coke,coca_cola.n.01)
+
+---
+
+//Stir the water
+1.00 has_sense(stir-9,stir.v.01)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+
+---
+
+//Stir the tea
+1.00 has_sense(stir-9,stir.v.01)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(tea,NN)
+1.00 has_sense(tea,tea.n.01)
+
+---
+
+//Stir the coffee
+1.00 has_sense(stir-9,stir.v.01)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(coffee,NN)
+1.00 has_sense(coffee,coffee.n.01)
+
+---
+
+//Stir the juice
+1.00 has_sense(stir-9,stir.v.01)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(juice,NN)
+1.00 has_sense(juice,juice.n.01)
+
+---
+
+//Stir the cappuccino
+1.00 has_sense(stir-9,stir.v.01)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(cappuccino,NN)
+1.00 has_sense(cappuccino,cappuccino.n.01)
+
+---
+
+//Stir the wine
+1.00 has_sense(stir-9,stir.v.01)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(wine,NN)
+1.00 has_sense(wine,wine.n.01)
+
+---
+
+//Stir the whiskey
+1.00 has_sense(stir-9,stir.v.01)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(whiskey,NN)
+1.00 has_sense(whiskey,whiskey.n.01)
+
+---
+
+//Stir the champagne
+1.00 has_sense(stir-9,stir.v.01)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(champagne,NN)
+1.00 has_sense(champagne,champagne.n.01)
+
+---
+
+//Stir the egg
+1.00 has_sense(stir-9,stir.v.08)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(egg,NN)
+1.00 has_sense(egg,egg.n.02)
+
+---
+
+//Stir the butter
+1.00 has_sense(stir-9,stir.v.08)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(butter,NN)
+1.00 has_sense(butter,butter.n.01)
+
+---
+
+//Stir the sugar
+1.00 has_sense(stir-9,stir.v.08)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(sugar,NN)
+1.00 has_sense(sugar,sugar.n.01)
+
+---
+
+//Stir the salt
+1.00 has_sense(stir-9,stir.v.08)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(salt,NN)
+1.00 has_sense(salt,salt.n.02)
+
+---
+
+//Stir the cream
+1.00 has_sense(stir-9,stir.v.08)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(cream,NN)
+1.00 has_sense(cream,cream.n.02)
+
+---
+
+//Stir the vegetable
+1.00 has_sense(stir-9,stir.v.08)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(vegetable,NN)
+1.00 has_sense(vegetable,vegetable.n.01)
+
+---
+
+//Stir the apples
+1.00 has_sense(stir-9,stir.v.08)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(apple,NN)
+1.00 has_sense(apple,apple.n.01)
+
+---
+
+//Stir the banana
+1.00 has_sense(stir-9,stir.v.08)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(banana,NN)
+1.00 has_sense(banana,banana.n.02)
+
+---
+
+//Stir the peanut
+1.00 has_sense(stir-9,stir.v.08)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(peanut,NN)
+1.00 has_sense(peanut,peanut.n.04)
+
+---
+
+//Stir the tomato
+1.00 has_sense(stir-9,stir.v.08)
+1.00 has_pos(stir-9,VB)
+
+1.00 has_pos(tomato,NN)
+1.00 has_sense(tomato,tomato.n.01)
+
+

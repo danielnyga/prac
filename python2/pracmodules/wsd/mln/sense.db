@@ -1,0 +1,622 @@
+// fill a pan with water .
+//with
+1.00 prep_with(fill,water)
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//pan
+1.00 has_pos(pan,NN)
+1.00 has_sense(pan,pan.n.01)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+
+---
+
+//If you put in too little batter to begin with , pour in some extra batter to fill in the gap .
+//fill
+1.00 has_pos(fill-2,VB)
+1.00 has_sense(fill-2,fill.v.09)
+
+//gap
+1.00 has_pos(gap,NN)
+1.00 has_sense(gap,opening.n.01)
+
+//batter
+1.00 has_pos(batter,NN)
+1.00 has_sense(batter,batter.n.02)
+
+---
+
+// fill the mug with the froth , leaving about an inch of space .
+//fill
+1.00 has_pos(fill-3,VB)
+1.00 has_sense(fill-3,fill.v.01)
+
+//mug
+1.00 has_pos(mug,NN)
+1.00 has_sense(mug,mug.n.04)
+
+//froth
+1.00 has_pos(froth,NN)
+1.00 has_sense(froth,foam.n.01)
+
+---
+//fill the metal pitcher with a cup of milk 
+
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//pitcher
+1.00 has_pos(pitcher,NN)
+1.00 has_sense(pitcher,pitcher.n.02)
+
+//milk
+1.00 has_pos(milk,NN)
+1.00 has_sense(milk,milk.n.01)
+---
+// fill the kettle with boiling water .
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//kettle
+1.00 has_pos(kettle,NN)
+1.00 has_sense(kettle,kettle.n.01)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+
+---
+// Fill the jar
+// Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+
+// jar
+1.00 has_pos(jar,NN)
+1.00 has_sense(jar,jar.n.01)
+
+---
+// Fill remain space in jar with gravy .
+// Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+// jar
+1.00 has_pos(jar,NN)
+1.00 has_sense(jar,jar.n.01)
+
+//gravy
+1.00 has_pos(gravy,NN)
+1.00 has_sense(gravy,gravy.n.01)
+
+---
+
+// You can also fill a large bowl with ice .
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//bowl
+1.00 has_pos(bowl,NN)
+1.00 has_sense(bowl,bowl.n.01)
+
+//ice
+1.00 has_pos(ice,NN)
+1.00 has_sense(ice,ice.n.01)
+
+---
+// Fill remainder of glass with milk .
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//glass
+1.00 has_pos(glass,NN)
+1.00 has_sense(glass,glass.n.02)
+
+//milk
+1.00 has_pos(milk,NN)
+1.00 has_sense(milk,milk.n.01)
+
+---
+// fill the teapot to the top with hot water .
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//teapot
+1.00 has_pos(teapot,NN)
+1.00 has_sense(teapot,teapot.n.01)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+
+---
+//Fill the pot with water.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//pot
+1.00 has_pos(pot,NN)
+1.00 has_sense(pot,pot.n.01)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+
+---
+//Fill the bottle with juice.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//bottle
+1.00 has_pos(bottle,NN)
+1.00 has_sense(bottle,bottle.n.01)
+
+//juice
+1.00 has_pos(juice,NN)
+1.00 has_sense(juice,fruit_juice.n.01)
+
+---
+//Fill the saltcellar with salt.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//saltcellar
+1.00 has_pos(saltcellar,NN)
+1.00 has_sense(saltcellar,saltcellar.n.01)
+
+//salt
+1.00 has_pos(salt,NN)
+1.00 has_sense(salt,salt.n.02)
+
+---
+//Fill a carafe with whisky.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//carafe
+1.00 has_pos(carafe,NN)
+1.00 has_sense(carafe,carafe.n.01)
+
+//whisky
+1.00 has_pos(whisky,NN)
+1.00 has_sense(whisky,whiskey.n.01)
+
+---
+//Fill a blender with apples.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//blender
+1.00 has_pos(blender,NN)
+1.00 has_sense(blender,blender.n.01)
+
+//apples
+1.00 has_pos(apples,NN)
+1.00 has_sense(apples,apple.n.01)
+
+---
+//Fill a thermos_flask with coffee.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//thermos_flask
+1.00 has_pos(thermos_flask,NN)
+1.00 has_sense(thermos_flask,thermos.n.01)
+
+//coffee
+1.00 has_pos(coffee,NN)
+1.00 has_sense(coffee,coffee.n.01)
+
+---
+//Fill a wok with rice.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//wok
+1.00 has_pos(wok,NN)
+1.00 has_sense(wok,wok.n.01)
+
+//rice
+1.00 has_pos(rice,NN)
+1.00 has_sense(rice,rice.n.01)
+
+---
+//Fill a cup with cola.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//cup
+1.00 has_pos(cup,NN)
+1.00 has_sense(cup,cup.n.01)
+
+//cola
+1.00 has_pos(cola,NN)
+1.00 has_sense(cola,cola.n.02)
+
+---
+//Fill a measuring_cup with meal.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//measuring_cup
+1.00 has_pos(measuring_cup,NN)
+1.00 has_sense(measuring_cup,measuring_cup.n.01)
+
+//meal
+1.00 has_pos(meal,NN)
+1.00 has_sense(meal,meal.n.03)
+
+---
+//Fill the opening with curd.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.09)
+
+//opening
+1.00 has_pos(opening,NN)
+1.00 has_sense(opening,opening.n.01)
+
+//curd
+1.00 has_pos(curd,NN)
+1.00 has_sense(curd,curd.n.01)
+
+---
+// slice the pizza into eight separate slice.
+//Slice
+1.00 has_pos(slice-1, VB)
+1.00 has_sense(slice-1, slice.v.03)
+
+//pizza
+1.00 has_pos(pizza, NN)
+1.00 has_sense(pizza, pizza.n.01)
+
+//slice
+1.00 has_pos(slice-2, NN)
+1.00 has_sense(slice-2, piece.n.08)
+
+---
+// finish with a slice of tomato , onion and mustard and ketchup .
+//slice
+1.00 has_pos(slice,NN)
+1.00 has_sense(slice, piece.n.08)
+
+//tomato
+1.00 has_pos(tomato,NN)
+1.00 has_sense(tomato, tomato.n.01)
+
+//onion
+1.00 has_pos(onion,NN)
+1.00 has_sense(onion, onion.n.03)
+
+//mustard
+1.00 has_pos(mustard,NN)
+1.00 has_sense(mustard, mustard.n.02)
+
+//ketchup
+1.00 has_pos(ketchup,NN)
+1.00 has_sense(ketchup, catsup.n.01)
+
+---
+// slice each cheese thinly .
+//slice
+1.00 has_pos(slice, VB)
+1.00 has_sense(slice, slice.v.03)
+
+//cheese
+1.00 has_pos(cheese, NN)
+1.00 has_sense(cheese, cheese.n.01)
+
+---
+// slice the banana use a small knife .
+//Slice
+1.00 has_pos(slice, VB)
+1.00 has_sense(slice, slice.v.03)
+
+//banana
+1.00 has_pos(banana, NN) 
+1.00 has_sense(banana, banana.n.02)
+
+//knife
+1.00 has_pos(knife, NN) 
+1.00 has_sense(knife, knife.n.01)
+
+---
+// Finely slice the remaining flesh .
+//Slice
+1.00 has_pos(slice, VB)
+1.00 has_sense(slice, slice.v.03)
+
+//flesh
+1.00 has_pos(flesh, NN) 
+1.00 has_sense(flesh, flesh.n.01)
+
+---
+// Brush the bottom of a slice of bread with olive_oil .
+//slice
+1.00 has_pos(slice, NN)
+1.00 has_sense(slice,piece.n.08)
+
+//bread
+1.00 has_pos(bread, NN)
+1.00 has_sense(bread,bread.n.01)
+
+//olive_oil
+1.00 has_pos(olive_oil, NN)
+1.00 has_sense(olive_oil,olive_oil.n.01)
+
+---
+// add your rib and cover.
+//add
+1.00 has_pos(add,VB)
+1.00 has_sense(add, add.v.01)
+
+//rib
+1.00 has_pos(rib,NN)
+1.00 has_sense(rib, rib.n.03)
+
+//cover
+1.00 has_pos(cover,VB)
+1.00 has_sense(cover, cover.v.01)
+
+---
+// add sugar and butter to mixing_bowl and beat well .
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(sugar-2,sugar.n.01)
+1.00 has_sense(butter-4,butter.n.01)
+1.00 has_sense(mixing_bowl-6,mixing_bowl.n.01)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(sugar-2,NN)
+1.00 has_pos(butter-4,NN)
+1.00 has_pos(mixing_bowl-6,NN)
+
+---
+// Remove pan from the burner and add the butter and vanilla .
+1.00 has_sense(burner-5,burner.n.02)
+1.00 has_sense(add-7,add.v.01)
+1.00 has_sense(butter-9,butter.n.01)
+1.00 has_sense(vanilla-11,vanilla.n.02)
+1.00 has_sense(pan-2, pan.n.01)
+1.00 has_pos(pan-2,NN)
+1.00 has_pos(burner-5,NN)
+1.00 has_pos(add-7,VB)
+1.00 has_pos(butter-9,NN)
+1.00 has_pos(vanilla-11,NN)
+
+---
+// then add the top slice right away .
+1.00 has_sense(add-2,add.v.01)
+1.00 has_sense(slice-5,piece.n.08)
+1.00 has_pos(add-2,VB)
+1.00 has_pos(slice-5,NN)
+
+---
+
+// chop chicken into appropriate size and add into finished corn .
+1.00 has_sense(chop-1,chop.v.01)
+1.00 has_sense(chicken-2,chicken.n.01)
+1.00 has_sense(add-7,add.v.01)
+1.00 has_sense(corn-10,corn.n.02)
+1.00 has_pos(chop-1,VB)
+1.00 has_pos(chicken-2,NN)
+1.00 has_pos(add-7,VB)
+1.00 has_pos(corn-10,NN)
+
+---
+// cool for 10 minutes , then cut into slice and serve while still warm .
+1.00 has_sense(cut-7,cut.v.01)
+1.00 has_sense(slice-9,piece.n.08)
+1.00 has_sense(serve-11,serve.v.05)
+1.00 has_pos(cut-7,VB)
+1.00 has_pos(slice-9,NN)
+1.00 has_pos(serve-11,VB)
+
+---
+// Cut the squash in half .
+1.00 has_sense(squash-3,squash.n.02)
+1.00 has_pos(Cut-1,VB)
+1.00 has_pos(squash-3,NN)
+1.00 has_sense(Cut-1, cut.v.01)
+
+---
+// cut slits in the bag .
+1.00 has_sense(cut-1,cut.n.16)
+1.00 has_sense(bag-5,bag.n.01)
+1.00 has_pos(cut-1,VB)
+1.00 has_pos(bag-5,NN)
+
+---
+// hull the strawberries and cut into slice .
+1.00 has_sense(hull-1,hull.v.01)
+1.00 has_sense(strawberries-3,strawberry.n.01)
+1.00 has_sense(cut-5,cut.v.01)
+1.00 has_sense(slice-7,piece.n.08)
+1.00 has_pos(hull-1,VB)
+1.00 has_pos(strawberries-3,NNS)
+1.00 has_pos(cut-5,VB)
+1.00 has_pos(slice-7,NN)
+
+---
+// cut_up some onion and pepper .
+1.0 has_sense(cut_up-1,carve.v.03)
+1.0 has_sense(onion-3,onion.n.01)
+1.0 has_sense(pepper-5,pepper.n.04)
+1.0 has_pos(cut_up-1,VB)
+1.0 has_pos(onion-3,NN)
+1.0 has_pos(pepper-5,NN)
+
+---
+// put salt and pepper or whatever you put on your eggs .
+1.00 has_sense(put-1,put.v.01)
+1.00 has_sense(salt-2,salt.n.02)
+1.00 has_sense(pepper-4,pepper.n.03)
+1.00 has_sense(put-8,put.v.01)
+1.00 has_sense(egg-11,egg.n.02)
+1.00 has_pos(put-1,VB)
+1.00 has_pos(salt-2,NN)
+1.00 has_pos(pepper-4,NN)
+1.00 has_pos(put-8,VB)
+1.00 has_pos(egg-11,NN)
+
+---
+// put more sauce .
+1.00 has_sense(put-1,put.v.01)
+1.00 has_sense(sauce-3,sauce.n.01)
+1.00 has_pos(put-1,VB)
+1.00 has_pos(sauce-3,NN)
+
+---
+// put the pizza on the pan and then stick the pizza in the oven .
+1.0 has_sense(put-1,put.v.01)
+1.0 has_sense(pizza-3,pizza.n.01)
+1.0 has_sense(pan-6,pan.n.01)
+1.0 has_sense(stick-9,lodge.v.02)
+1.0 has_sense(oven-14,oven.n.01)
+1.0 has_pos(put-1,VB)
+1.0 has_pos(pizza-3,NN)
+1.0 has_pos(pan-6,NN)
+1.0 has_pos(stick-9,VB)
+1.0 has_pos(oven-14,NN)
+
+---
+// put them in a bowl and blend them .
+1.0 has_sense(put-1,put.v.01)
+1.0 has_sense(bowl-5,bowl.n.01)
+1.0 has_sense(blend-7,blend.v.01)
+1.0 has_pos(put-1,VB)
+1.0 has_pos(bowl-5,NN)
+1.0 has_pos(blend-7,VB)
+---
+
+// put the beef and onion on a plate .
+1.00 has_sense(put-1,put.v.01)
+1.00 has_sense(beef-3,beef.n.02)
+1.00 has_sense(onion-5,onion.n.01)
+1.00 has_sense(plate-8,plate.n.04)
+1.00 has_pos(put-1,VB)
+1.00 has_pos(beef-3,NN)
+1.00 has_pos(onion-5,NN)
+1.00 has_pos(plate-8,NN)
+
+---
+// You need a bowl and a fork to mix with .
+1.00 has_sense(bowl-4,bowl.n.01)
+1.00 has_sense(fork-7,fork.n.01)
+1.00 has_sense(mix-9,blend.v.03)
+1.00 has_pos(bowl-4,NN)
+1.00 has_pos(fork-7,NN)
+1.00 has_pos(mix-9,VB)
+---
+
+// mix carefully so that you do n't destroy the avocado .
+1.00 has_sense(mix-1,blend.v.03)
+1.00 has_sense(avocado-10,avocado.n.01)
+1.00 has_pos(mix-1,VB)
+1.00 has_pos(avocado-10,NN)
+---
+
+// add vanilla and mix into egg mixture .
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(vanilla-2,vanilla.n.02)
+1.00 has_sense(egg-6,egg.n.02)
+1.00 has_sense(mix-4, blend.v.03)
+1.00 has_sense(mixture-7,concoction.n.01)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(vanilla-2,NN)
+1.00 has_pos(mix-4,VB)
+1.00 has_pos(egg-6,NN)
+1.00 has_pos(mixture-7,NN)
+
+---
+
+// get a bowl and mix the blue_cheese , walnut , and pear together .
+1.00 has_sense(get-1,get.v.01)
+1.00 has_sense(bowl-3,bowl.n.01)
+1.00 has_sense(mix-5,blend.v.03)
+1.00 has_sense(blue_cheese-7,bleu.n.01)
+1.00 has_sense(walnut-9,walnut.n.01)
+1.00 has_sense(pear-12,pear.n.01)
+1.00 has_pos(get-1,VB)
+1.00 has_pos(bowl-3,NN)
+1.00 has_pos(mix-5,VB)
+1.00 has_pos(blue_cheese-7,NN)
+1.00 has_pos(walnut-9,NN)
+1.00 has_pos(pear-12,NN)
+
+---
+
+// add the eggs and butter and mix until dough come together .
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(eggs-3,egg.n.02)
+1.00 has_sense(butter-5,butter.n.01)
+1.00 has_sense(mix-7,mix.v.04)
+1.00 has_sense(dough-9,dough.n.01)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(eggs-3,NN)
+1.00 has_pos(butter-5,NN)
+1.00 has_pos(mix-7,VB)
+1.00 has_pos(dough-9,NN)
+
+---
+
+// pour the boiling water into the rice mixture .
+1.00 has_sense(pour-1,pour.v.01)
+1.00 has_sense(water-4,water.n.06)
+1.00 has_sense(rice-7,rice.n.01)
+1.00 has_sense(mixture-8,concoction.n.01)
+1.00 has_pos(pour-1,VB)
+1.00 has_pos(water-4,NN)
+1.00 has_pos(rice-7,NN)
+1.00 has_pos(mixture-8,NN)
+
+---
+
+// pour the liquid down the sink .
+1.00 has_sense(pour-1,pour.v.01)
+1.00 has_sense(liquid-3,liquid.n.01)
+1.00 has_sense(sink-6,sink.n.01)
+1.00 has_pos(pour-1,VB)
+1.00 has_pos(liquid-3,NN)
+1.00 has_pos(sink-6,NN)
+
+---
+
+// take the shaker and pour the Bacardi rum into it .
+1.00 has_sense(take-1,take.v.04)
+1.00 has_sense(shaker-3,shaker.n.03)
+1.00 has_sense(pour-5,decant.v.01)
+1.00 has_sense(rum-8,rum.n.01)
+1.00 has_pos(take-1,VB)
+1.00 has_pos(shaker-3,NN)
+1.00 has_pos(pour-5,VB)
+1.00 has_pos(rum-8,NN)
+
+---
+
+// pour the bread mix into the pan .
+1.00 has_sense(pour-1,pour.v.01)
+1.00 has_sense(bread-3,bread.n.01)
+1.00 has_sense(mix-4,mix.n.03)
+1.00 has_sense(pan-7,pan.n.01)
+1.00 has_pos(pour-1,VB)
+1.00 has_pos(bread-3,NN)
+1.00 has_pos(mix-4,NN)
+1.00 has_pos(pan-7,NN)

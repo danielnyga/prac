@@ -1,0 +1,201 @@
+// cut the pizza into eight separate slices.
+//cut
+1.00 has_pos(cut-1, VB)
+1.00 has_sense(cut-1, cut.v.01)
+
+//pizza
+1.00 has_pos(pizza, NN)
+1.00 has_sense(pizza, pizza.n.01)
+
+//slices
+1.00 has_pos(slice-2, NN)
+1.00 has_sense(slice-2, piece.n.08)
+
+---
+// cut each cheese thinly .
+//cut
+1.00 has_pos(cut, VB)
+1.00 has_sense(cut, cut.v.01)
+
+//cheese
+1.00 has_pos(cheese, NN)
+1.00 has_sense(cheese, cheese.n.01)
+
+---
+// cut the banana use a small knife .
+//cut
+1.00 has_pos(cut, VB)
+1.00 has_sense(cut, cut.v.01)
+
+//banana
+1.00 has_pos(banana, NN) 
+1.00 has_sense(banana, banana.n.02)
+
+//knife
+1.00 has_pos(knife, NN) 
+1.00 has_sense(knife, knife.n.01)
+
+---
+// Finely cut the remaining flesh .
+//cut
+1.00 has_pos(cut, VB)
+1.00 has_sense(cut, cut.v.01)
+
+//flesh
+1.00 has_pos(flesh, NN) 
+1.00 has_sense(flesh, flesh.n.01)
+
+---
+//cut the tomato with a knife.
+
+1.00 has_pos(cut, VB)
+1.00 has_sense(cut, cut.v.01)
+
+1.00 has_pos(tomato, NN) 
+1.00 has_sense(tomato, tomato.n.01)
+
+1.00 has_pos(knife, NN) 
+1.00 has_sense(knife, knife.n.01)
+
+---
+// cut the mushroom .
+1.00 has_sense(cut-1,cut.v.01)
+1.00 has_sense(mushroom-3,mushroom.n.05)
+1.00 has_pos(cut-1,VB)
+1.00 has_pos(mushroom-3,NN)
+
+---
+
+// cut the meat with a chopper
+1.00 has_sense(cut-1,cut.v.01)
+1.00 has_sense(meat,meat.n.01)
+1.00 has_sense(chopper,cleaver.n.01)
+1.00 has_pos(cut-1,VB)
+1.00 has_pos(meat,NN)
+1.00 has_pos(chopper,NN)
+
+---
+
+// Carefully cut the cabbage.
+1.00 has_sense(cut-2,cut.v.01)
+1.00 has_sense(cabbage-4,cabbage.n.01)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(cabbage-4,NN)
+
+---
+
+// Thinly cut remaining lemon .
+1.00 has_sense(cut-2,cut.v.01)
+1.00 has_sense(lemon-4,lemon.n.01)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(lemon-4,NN)
+
+---
+
+// finely cut the bacon and grate the parmesan .
+1.00 has_sense(cut-2,cut.v.01)
+1.00 has_sense(bacon-4,bacon.n.01)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(bacon-4,NN)
+
+---
+
+// cut the  potato into slices.
+1.00 has_sense(cut-2,cut.v.01)
+1.00 has_sense(potato-3,potato.n.01)
+1.00 has_sense(slices,piece.n.08)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(potato-3,NN)
+1.00 has_pos(slices,NN)
+
+---
+
+//cut the bread with a knife.
+
+1.00 has_pos(cut, VB)
+1.00 has_sense(cut, cut.v.01)
+
+1.00 has_pos(bread, NN) 
+1.00 has_sense(bread, bread.n.01)
+
+1.00 has_pos(knife, NN) 
+1.00 has_sense(knife, knife.n.01)
+
+---
+
+//cut the egg into slices.
+
+1.00 has_sense(cut-2,cut.v.01)
+1.00 has_sense(egg-3,egg.n.02)
+1.00 has_sense(slices,piece.n.08)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(egg-3,NN)
+1.00 has_pos(slices,NN)
+
+---
+
+//cut the lemon.
+
+1.00 has_sense(cut-2,cut.v.01)
+1.00 has_sense(lemon-3,lemon.n.01)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(lemon-3,NN)
+
+---
+//cut the zucchini.
+1.00 has_sense(cut-2,cut.v.01)
+1.00 has_sense(zucchini,zucchini.n.01)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(zucchini,NN)
+
+---
+//cut the vegetables with a knife.
+
+1.00 has_pos(cut, VB)
+1.00 has_sense(cut, cut.v.01)
+
+1.00 has_pos(vegetable, NN) 
+1.00 has_sense(vegetable, vegetable.n.01)
+
+1.00 has_pos(knife, NN) 
+1.00 has_sense(knife, knife.n.01)
+---
+
+//cut the orange into slices.
+
+1.00 has_sense(cut-2,cut.v.01)
+1.00 has_sense(orange-3,orange.n.01)
+1.00 has_sense(slices,piece.n.08)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(orange-3,NN)
+1.00 has_pos(slices,NN)
+
+---
+//cut the spring_onion with a knife.
+
+1.00 has_pos(cut, VB)
+1.00 has_sense(cut, cut.v.01)
+
+1.00 has_pos(spring_onion, NN) 
+1.00 has_sense(spring_onion, green_onion.n.01)
+
+1.00 has_pos(knife, NN) 
+1.00 has_sense(knife, knife.n.01)
+
+---
+
+//cut the olive.
+1.00 has_sense(cut-2,cut.v.01)
+1.00 has_sense(olive,olive.n.01)
+1.00 has_pos(cut-2,VB)
+1.00 has_pos(olive,NN)
+
+---
+
+// take a fork and cut the cake into 4 piece .
+1.00 has_sense(fork-3,fork.n.01)
+1.00 has_sense(cut-5,cut.v.01)
+1.00 has_sense(cake-7,cake.n.03)
+1.00 has_pos(fork-3,NN)
+1.00 has_pos(cut-5,VB)
+1.00 has_pos(cake-7,NN)

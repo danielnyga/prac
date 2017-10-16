@@ -1,0 +1,3 @@
+condition(word,name)
+event(word,name)
+cs_name(name)

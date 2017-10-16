@@ -1,0 +1,195 @@
+// add your rib.
+//add
+1.00 has_pos(add,VB)
+1.00 has_sense(add, add.v.01)
+
+//rib
+1.00 has_pos(rib,NN)
+1.00 has_sense(rib, rib.n.03)
+
+---
+
+// add sugar and butter to mixing_bowl and beat well .
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(sugar-2,sugar.n.01)
+1.00 has_sense(butter-4,butter.n.01)
+1.00 has_sense(mixing_bowl-6,mixing_bowl.n.01)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(sugar-2,NN)
+1.00 has_pos(butter-4,NN)
+1.00 has_pos(mixing_bowl-6,NN)
+
+---
+// Remove pan from the burner and add the butter and vanilla .
+1.00 has_sense(add-7,add.v.01)
+1.00 has_sense(butter-9,butter.n.01)
+1.00 has_sense(vanilla-11,vanilla.n.02)
+1.00 has_sense(pan-2, pan.n.03)
+1.00 has_pos(pan-2,NN)
+1.00 has_pos(add-7,VB)
+1.00 has_pos(butter-9,NN)
+1.00 has_pos(vanilla-11,NN)
+
+---
+// Add eggs.
+1.00 has_sense(add-7,add.v.01)
+1.00 has_sense(eggs-2, egg.n.02)
+1.00 has_pos(eggs-2,NN)
+1.00 has_pos(add-7,VB)
+
+---
+
+// Add the butter to the pan.
+1.00 has_sense(add-7,add.v.01)
+1.00 has_sense(butter-9,butter.n.01)
+1.00 has_sense(pan-2, pan.n.03)
+1.00 has_pos(pan-2,NN)
+1.00 has_pos(add-7,VB)
+1.00 has_pos(butter-9,NN)
+
+---
+
+// Add the vanilla to the pan.
+1.00 has_sense(add-7,add.v.01)
+1.00 has_sense(vanilla-11,vanilla.n.02)
+1.00 has_sense(pan-2, pan.n.03)
+1.00 has_pos(pan-2,NN)
+1.00 has_pos(add-7,VB)
+1.00 has_pos(vanilla-11,NN)
+
+---
+// Add some vegetables
+1.00 has_sense(add-7,add.v.01)
+1.00 has_sense(vegetables,vegetable.n.01)
+1.00 has_pos(add-7,VB)
+1.00 has_pos(vegetables,NN)
+
+---
+// Add some beans to the pot
+1.00 has_sense(add-7,add.v.01)
+1.00 has_sense(beans,bean.n.01)
+1.00 has_pos(add-7,VB)
+1.00 has_pos(beans,NN)
+1.00 has_pos(pot,NN)
+1.00 has_sense(pot,pot.n.01)
+
+---
+
+// add flour and eggs to mixing_bowl and beat well .
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(flour-2,flour.n.01)
+1.00 has_sense(eggs-4,egg.n.02)
+1.00 has_sense(mixing_bowl-6,mixing_bowl.n.01)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(flour-2,NN)
+1.00 has_pos(eggs-4,NN)
+1.00 has_pos(mixing_bowl-6,NN)
+
+---
+
+// add some salt to the meat.
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(salt-2,salt.n.02)
+1.00 has_sense(meat-4,meat.n.01)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(salt-2,NN)
+1.00 has_pos(meat-4,NN)
+
+---
+
+//Add the onion.
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(onion-2,onion.n.03)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(onion-2,NN)
+
+---
+//Add some fries to the steak.
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(steak-2,steak.n.01)
+1.00 has_sense(fries,french_fries.n.01)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(steak-2,NN)
+1.00 has_pos(fries,NN)
+
+---
+
+//Add some dressing to the salad.
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(dressing-2,dressing.n.01)
+1.00 has_sense(salad,salad.n.01)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(dressing-2,NN)
+1.00 has_pos(salad,NN)
+
+---
+
+//Add some ingredients.
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(ingredient-2,ingredient.n.03)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(ingredient-2,NN)
+
+---
+
+//Add some asparagus and salad.
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(asparagus-2,asparagus.n.02)
+1.00 has_sense(salad,salad.n.01)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(asparagus-2,NN)
+1.00 has_pos(salad,NN)
+
+---
+
+//Add some milk and water.
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(milk-2,milk.n.01)
+1.00 has_sense(water,water.n.06)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(milk-2,NN)
+1.00 has_pos(water,NN)
+
+---
+
+//Add corn to the dish.
+
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(corn-2,corn.n.03)
+1.00 has_sense(dish,dish.n.02)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(corn-2,NN)
+1.00 has_pos(dish,NN)
+
+---
+
+//Add an sliced apple.
+
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(apple,apple.n.01)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(apple,NN)
+
+---
+
+//Add some cream to the sauce.
+
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(cream-2,cream.n.02)
+1.00 has_sense(sauce,sauce.n.01)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(cream-2,NN)
+1.00 has_pos(sauce,NN)
+
+---
+
+//Add some ingredients and cream to the mixture.
+1.00 has_sense(add-1,add.v.01)
+1.00 has_sense(ingredient-2,ingredient.n.03)
+1.00 has_pos(add-1,VB)
+1.00 has_pos(ingredient-2,NN)
+1.00 has_sense(cream-2,cream.n.02)
+1.00 has_pos(cream-2,NN)
+1.00 has_sense(mixture,concoction.n.01)
+1.00 has_pos(mixture,NN)
+

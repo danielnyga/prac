@@ -1,0 +1,156 @@
+// fill a pan with water .
+
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+1.00 ac_word(fill, AC_FILL)
+
+//pan
+1.00 has_pos(pan,NN)
+1.00 has_sense(pan,pan.n.01)
+1.00 ac_word(pan, AC_NONE)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+1.00 ac_word(water, AC_NONE)
+---
+
+//If you put in too little batter to begin with , pour in some extra batter to fill in the gap .
+//fill
+1.00 has_pos(fill-2,VB)
+1.00 has_sense(fill-2,fill.v.09)
+1.00 ac_word(fill-2,AC_FILL)
+
+//gap
+1.00 has_pos(gap,NN)
+1.00 has_sense(gap,opening.n.01)
+1.00 ac_word(gap,AC_NONE)
+
+//batter
+1.00 has_pos(batter,NN)
+1.00 has_sense(batter,batter.n.02)
+1.00 ac_word(batter,AC_NONE)
+---
+
+// fill the mug with the froth , leaving about an inch of space .
+//fill
+1.00 has_pos(fill-3,VB)
+1.00 has_sense(fill-3,fill.v.01)
+1.00 ac_word(fill-3,AC_FILL)
+
+//mug
+1.00 has_pos(mug,NN)
+1.00 has_sense(mug,mug.n.04)
+1.00 ac_word(mug,AC_NONE)
+
+//froth
+1.00 has_pos(froth,NN)
+1.00 has_sense(froth,foam.n.01)
+1.00 ac_word(froth,AC_NONE)
+
+---
+
+//fill the metal pitcher with a cup of milk 
+
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+1.00 ac_word(fill,AC_FILL)
+
+//pitcher
+1.00 has_pos(pitcher,NN)
+1.00 has_sense(pitcher,pitcher.n.02)
+1.00 ac_word(pitcher,AC_NONE)
+
+//milk
+1.00 has_pos(milk,NN)
+1.00 has_sense(milk,milk.n.01)
+1.00 ac_word(milk,AC_NONE)
+
+---
+// fill the kettle with boiling water .
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+1.00 ac_word(fill,AC_FILL)
+
+//kettle
+1.00 has_pos(kettle,NN)
+1.00 has_sense(kettle,kettle.n.01)
+1.00 ac_word(kettle,AC_NONE)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+1.00 ac_word(water,AC_NONE)
+
+---
+// slice the pizza into eight separate slice.
+//Slice
+1.00 has_pos(slice-1, VB)
+1.00 has_sense(slice-1, slice.v.03)
+1.00 ac_word(slice-1,AC_SLICE)
+
+//pizza
+1.00 has_pos(pizza, NN)
+1.00 has_sense(pizza, pizza.n.01)
+1.00 ac_word(pizza,AC_NONE)
+
+//slice
+1.00 has_pos(slice-2, NN)
+1.00 has_sense(slice-2, piece.n.08)
+1.00 ac_word(slice-2,AC_NONE)
+
+---
+// Slice some onion and pepper .
+1.00 has_sense(slice, slice.v.03)
+1.00 ac_word(slice,AC_SLICE)
+1.0 has_sense(onion-3,onion.n.01)
+1.00 ac_word(onion-3,AC_NONE)
+1.0 has_sense(pepper-5,pepper.n.04)
+1.00 ac_word(pepper-5,AC_NONE)
+1.0 has_pos(slice,VB)
+1.0 has_pos(onion-3,NN)
+1.0 has_pos(pepper-5,NN)
+
+---
+// slice each cheese thinly .
+//slice
+1.00 has_pos(slice, VB)
+1.00 has_sense(slice, slice.v.03)
+1.00 ac_word(slice,AC_SLICE)
+
+//cheese
+1.00 has_pos(cheese, NN)
+1.00 has_sense(cheese, cheese.n.01)
+1.00 ac_word(cheese,AC_NONE)
+
+---
+// slice the banana use a small knife .
+//Slice
+1.00 has_pos(slice, VB)
+1.00 has_sense(slice, slice.v.03)
+1.00 ac_word(slice,AC_SLICE)
+
+//banana
+1.00 has_pos(banana, NN) 
+1.00 has_sense(banana, banana.n.02)
+1.00 ac_word(banana,AC_NONE)
+
+//knife
+1.00 has_pos(knife, NN) 
+1.00 has_sense(knife, knife.n.01)
+1.00 ac_word(knife,AC_NONE)
+
+---
+// Finely slice the remaining flesh .
+//Slice
+1.00 has_pos(slice, VB)
+1.00 has_sense(slice, slice.v.03)
+1.00 ac_word(slice,AC_SLICE)
+
+//flesh
+1.00 has_pos(flesh, NN) 
+1.00 has_sense(flesh, flesh.n.01)
+1.00 ac_word(flesh,AC_NONE)

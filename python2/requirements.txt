@@ -1,0 +1,7 @@
+jpype1
+nltk
+graphviz
+beautifulsoup4
+lxml
+pyyaml
+pracmln

@@ -1,0 +1,280 @@
+// fill a pan with water .
+//with
+1.00 prep_with(fill,water)
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//pan
+1.00 has_pos(pan,NN)
+1.00 has_sense(pan,pan.n.03)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+
+---
+
+//If you put in too little batter to begin with , pour in some extra batter to fill in the gap .
+//fill
+1.00 has_pos(fill-2,VB)
+1.00 has_sense(fill-2,fill.v.09)
+
+//gap
+1.00 has_pos(gap,NN)
+1.00 has_sense(gap,opening.n.01)
+
+//batter
+1.00 has_pos(batter,NN)
+1.00 has_sense(batter,batter.n.02)
+
+---
+
+// fill the mug with the froth , leaving about an inch of space .
+//fill
+1.00 has_pos(fill-3,VB)
+1.00 has_sense(fill-3,fill.v.01)
+
+//mug
+1.00 has_pos(mug,NN)
+1.00 has_sense(mug,mug.n.04)
+
+//froth
+1.00 has_pos(froth,NN)
+1.00 has_sense(froth,foam.n.01)
+
+---
+//fill the metal pitcher with a cup of milk 
+
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//pitcher
+1.00 has_pos(pitcher,NN)
+1.00 has_sense(pitcher,pitcher.n.02)
+
+//milk
+1.00 has_pos(milk,NN)
+1.00 has_sense(milk,milk.n.01)
+---
+// fill the kettle with boiling water .
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//kettle
+1.00 has_pos(kettle,NN)
+1.00 has_sense(kettle,kettle.n.01)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+
+---
+// Fill the jar
+// Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+
+// jar
+1.00 has_pos(jar,NN)
+1.00 has_sense(jar,jar.n.01)
+
+---
+// Fill remain space in jar with gravy .
+// Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+// jar
+1.00 has_pos(jar,NN)
+1.00 has_sense(jar,jar.n.01)
+
+//gravy
+1.00 has_pos(gravy,NN)
+1.00 has_sense(gravy,gravy.n.01)
+
+---
+
+// You can also fill a large bowl with ice .
+//fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//bowl
+1.00 has_pos(bowl,NN)
+1.00 has_sense(bowl,bowl.n.01)
+
+//ice
+1.00 has_pos(ice,NN)
+1.00 has_sense(ice,ice.n.01)
+
+---
+// Fill remainder of glass with milk .
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//glass
+1.00 has_pos(glass,NN)
+1.00 has_sense(glass,glass.n.02)
+
+//milk
+1.00 has_pos(milk,NN)
+1.00 has_sense(milk,milk.n.01)
+
+---
+// fill the teapot to the top with hot water .
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//teapot
+1.00 has_pos(teapot,NN)
+1.00 has_sense(teapot,teapot.n.01)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+
+---
+//Fill the pot with water.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//pot
+1.00 has_pos(pot,NN)
+1.00 has_sense(pot,pot.n.01)
+
+//water
+1.00 has_pos(water,NN)
+1.00 has_sense(water,water.n.06)
+
+---
+//Fill the bottle with juice.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//bottle
+1.00 has_pos(bottle,NN)
+1.00 has_sense(bottle,bottle.n.01)
+
+//juice
+1.00 has_pos(juice,NN)
+1.00 has_sense(juice,fruit_juice.n.01)
+
+---
+//Fill the saltcellar with salt.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//saltcellar
+1.00 has_pos(saltcellar,NN)
+1.00 has_sense(saltcellar,saltcellar.n.01)
+
+//salt
+1.00 has_pos(salt,NN)
+1.00 has_sense(salt,salt.n.02)
+
+---
+//Fill a carafe with whisky.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//carafe
+1.00 has_pos(carafe,NN)
+1.00 has_sense(carafe,carafe.n.01)
+
+//whisky
+1.00 has_pos(whisky,NN)
+1.00 has_sense(whisky,whiskey.n.01)
+
+---
+//Fill a blender with apples.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//blender
+1.00 has_pos(blender,NN)
+1.00 has_sense(blender,blender.n.01)
+
+//apples
+1.00 has_pos(apples,NN)
+1.00 has_sense(apples,apple.n.01)
+
+---
+//Fill a thermos_flask with coffee.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//thermos_flask
+1.00 has_pos(thermos_flask,NN)
+1.00 has_sense(thermos_flask,thermos.n.01)
+
+//coffee
+1.00 has_pos(coffee,NN)
+1.00 has_sense(coffee,coffee.n.01)
+
+---
+//Fill a wok with rice.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//wok
+1.00 has_pos(wok,NN)
+1.00 has_sense(wok,wok.n.01)
+
+//rice
+1.00 has_pos(rice,NN)
+1.00 has_sense(rice,rice.n.01)
+
+---
+//Fill a cup with cola.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//cup
+1.00 has_pos(cup,NN)
+1.00 has_sense(cup,cup.n.01)
+
+//cola
+1.00 has_pos(cola,NN)
+1.00 has_sense(cola,cola.n.02)
+
+---
+//Fill a measuring_cup with meal.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.01)
+
+//measuring_cup
+1.00 has_pos(measuring_cup,NN)
+1.00 has_sense(measuring_cup,measuring_cup.n.01)
+
+//meal
+1.00 has_pos(meal,NN)
+1.00 has_sense(meal,meal.n.03)
+
+---
+//Fill the opening with curd.
+//Fill
+1.00 has_pos(fill,VB)
+1.00 has_sense(fill,fill.v.09)
+
+//opening
+1.00 has_pos(opening,NN)
+1.00 has_sense(opening,opening.n.01)
+
+//curd
+1.00 has_pos(curd,NN)
+1.00 has_sense(curd,curd.n.01)
