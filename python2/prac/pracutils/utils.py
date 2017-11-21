@@ -2,9 +2,13 @@ import os
 
 import thread
 
+import sys
+from dnutils import out
+
 from pracmln.mln.util import colorize
-from pracmln.utils.visualization import DECLARATIONS
 from pracmln.utils.latexmath2png import math2png
+from pracmln.utils.visualization import DECLARATIONS
+
 
 def __splitdict(d, dnew):
     '''
