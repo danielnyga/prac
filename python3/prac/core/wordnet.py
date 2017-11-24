@@ -24,12 +24,11 @@
 import itertools
 import re
 from itertools import chain
-
-from dnutils import logs
 from scipy import spatial
 from threading import RLock
 
 import graphviz as gv
+from dnutils import logs
 from num2words import num2words
 from word2number import w2n
 
@@ -99,17 +98,6 @@ class RationalNumberSynset(Synset):
         self._examples = []
         self.setup_synset(numstr)
 
-    def name(self):
-        return '{}.c.01'.format('_'.join(self._numstr.split())).replace('\\','')
-
-    def definition(self):
-        return self._definition
-
-    def examples(self):
-        return self._examples
-
-    def lexname(self):
-        return self._lexname
 
     def setup_synset(self, numstr):
         '''

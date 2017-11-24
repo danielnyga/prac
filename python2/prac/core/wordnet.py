@@ -24,16 +24,12 @@
 import itertools
 import re
 from itertools import chain
+from scipy import spatial
 from threading import RLock
 
 import graphviz as gv
 from dnutils import logs
-from nltk import WordNetLemmatizer
-from nltk.corpus import wordnet
-from nltk.corpus.reader.wordnet import Synset
 from num2words import num2words
-from pracmln.utils.graphml import Graph, Node as GMLNode, Edge
-from scipy import spatial
 from word2number import w2n
 
 from prac.core.errors import ConceptAlreadyExistsError, NoRationalNumberError
@@ -41,6 +37,10 @@ from prac.pracutils import properties
 from prac.pracutils.graph import DAG, Node
 from prac.pracutils.pracgraphviz import render_gv
 from prac.pracutils.utils import synchronized
+from nltk.corpus import wordnet
+from nltk.corpus.reader.wordnet import Synset
+from pracmln.utils.graphml import Graph, Node as GMLNode, Edge
+from nltk.stem import WordNetLemmatizer
 
 
 logger = logs.getlogger(__name__, logs.INFO)
@@ -90,12 +90,12 @@ class RationalNumberSynset(Synset):
         self.number = number
         self.numtype = numtype
         self.parent = parent
-        self.name = '{}.c.01'.format('_'.join(numstr.split())).replace('\\','')
+        self._numstr = numstr
         self.pos = 'c'
         self.origstr = numstr
-        self.lexname = 'noun.quantity'
-        self.definition = None
-        self.examples = []
+        self._lexname = 'noun.quantity'
+        self._definition = None
+        self._examples = []
         self.setup_synset(numstr)
 
 
@@ -143,11 +143,11 @@ class RationalNumberSynset(Synset):
                     self.parent = wordnet.synset(c)
 
         # generate synset from number
-        self.definition = "Newly created concept of the number '{}' which " \
+        self._definition = "Newly created concept of the number '{}' which " \
                           "is represented by the rational " \
                           "number {} ({}).".format(self.origstr, self.number,
                                                str(num2words(self.number)))
-        self.examples = ['The number {} ({}).'.format(self.number,
+        self._examples = ['The number {} ({}).'.format(self.number,
                                                       str(num2words(self.number)))]
 
 
@@ -341,14 +341,14 @@ class WordNet(object):
                     synset = wordnet.synset(concept)
                     paths = synset.hypernym_paths()
                     for path in paths:
-                        if not path[0].name in self.known_concepts:
+                        if not path[0].name() in self.known_concepts:
                             if direction == 'up':
-                                self.known_concepts[path[-1].name] = Node(
-                                    path[-1].name, path[-1].name)
+                                self.known_concepts[path[-1].name()] = Node(
+                                    path[-1].name(), path[-1].name())
                             continue
                         if direction == 'up':
                             path = list(reversed(path))
-                        first = self.known_concepts[path[0].name]
+                        first = self.known_concepts[path[0].name()]
                         self.__extend_taxonomy_graph(first, path[1:],
                                                      direction=direction)
             # collapse the taxonomy
@@ -388,11 +388,11 @@ class WordNet(object):
         if len(synset_path) == 0:
             return
         synset = synset_path[0]
-        if synset.name not in self.known_concepts:
-            node = Node(synset.name, synset.name)
-            self.known_concepts[synset.name] = node
+        if synset.name() not in self.known_concepts:
+            node = Node(synset.name(), synset.name())
+            self.known_concepts[synset.name()] = node
         else:
-            node = self.known_concepts[synset.name]
+            node = self.known_concepts[synset.name()]
         if direction == 'down':
             concept.addChild(node)
         elif direction == 'up':
@@ -419,8 +419,7 @@ class WordNet(object):
         else:
             synsets = wordnet.synsets(word, pos)
             if self.core_taxonomy is not None:
-                synsets = filter(lambda s: s.name in self.known_concepts,
-                                 synsets)
+                synsets = [s for s in synsets if s.name() in self.known_concepts]
         return synsets
 
 
@@ -618,23 +617,23 @@ class WordNet(object):
             return 1.0
 
         # separate check for color similarity
-        if synset1.name in colorsims and synset2.name in colorsims:
-            return colorsims[synset1.name][synset2.name]
-        elif synset1.name in colorsims or synset2.name in colorsims:
+        if synset1.name() in colorsims and synset2.name() in colorsims:
+            return colorsims[synset1.name()][synset2.name()]
+        elif synset1.name() in colorsims or synset2.name() in colorsims:
             # colors are maximially dissimilar to everything else
             return 0.
 
         # separate check for shape similarity
-        if synset1.name in shapesims and synset2.name in shapesims:
-            return shapesims[synset1.name][synset2.name]
-        elif synset1.name in shapesims or synset2.name in shapesims:
+        if synset1.name() in shapesims and synset2.name() in shapesims:
+            return shapesims[synset1.name()][synset2.name()]
+        elif synset1.name() in shapesims or synset2.name() in shapesims:
             # shapes are maximially dissimilar to everything else
             return 0.
 
         # separate check for size similarity
-        if synset1.name in sizesims and synset2.name in sizesims:
-            return sizesims[synset1.name][synset2.name]
-        elif synset1.name in sizesims or synset2.name in sizesims:
+        if synset1.name() in sizesims and synset2.name() in sizesims:
+            return sizesims[synset1.name()][synset2.name()]
+        elif synset1.name() in sizesims or synset2.name() in sizesims:
             # sizes are maximially dissimilar to everything else
             return 0.
 
@@ -785,7 +784,7 @@ class WordNet(object):
             return 0.
         else:
             s = s[0]
-        if s.name is None: return 0.
+        if s.name() is None: return 0.
         h_s = self.get_subtree_height(s)
         return (h_r - h_s) / (h_r - .5 * (h_a + h_b))
 
@@ -812,15 +811,14 @@ class WordNet(object):
     def __get_subtree_height(self, synset, current_height=0):
         hypos = synset.hyponyms()
         if self.core_taxonomy is not None:
-            hypos = set(map(lambda s: s.name, hypos)).intersection(
+            hypos = set(map(lambda s: s.name(), hypos)).intersection(
                 self.known_concepts)
             hypos = [self.synset(s) for s in hypos]
         if len(hypos) == 0:  # we have a leaf node
             return current_height
         children_heights = []
         for child in hypos:
-            children_heights.append(
-                self.__get_subtree_height(child, current_height + 1))
+            children_heights.append(self.__get_subtree_height(child, current_height + 1))
         return max(children_heights)
 
 
@@ -844,7 +842,7 @@ class WordNet(object):
         for path in synset.hypernym_paths():
             new_path = []
             for concept in path:
-                if concept.name in self.known_concepts:
+                if concept.name() in self.known_concepts:
                     new_path.append(concept)
             if new_path not in paths:
                 paths.append(new_path)
@@ -855,10 +853,8 @@ class WordNet(object):
     def get_mln_similarity_and_sense_assertions(self, known_concepts, unknown_concepts):
         for i, unkwn in enumerate(unknown_concepts):
             for kwn in known_concepts:
-                print '{:.4f} is_a(sense_{}, {})'.format(self.semilarity(unkwn, kwn),
-                                                         self.synset(unkwn).lemmas[0].name,
-                                                         kwn)
-            print
+                print('{:.4f} is_a(sense_{}, {})'.format(self.semilarity(unkwn, kwn), self.synset(unkwn).lemmas[0].name(), kwn))
+            print()
 
 
     @synchronized(wordnetlock)
@@ -947,12 +943,12 @@ class WordNet(object):
 
         :return:    a list of synsets
         '''
-        return [[str(i), v.name] for i, v in enumerate(sorted(list(wordnet.all_synsets()), key=lambda x: x.name))]
+        return [[str(i), v.name()] for i, v in enumerate(sorted(list(wordnet.all_synsets()), key=lambda x: x.name()))]
 
 
 if __name__ == '__main__':
     wn = WordNet()
-    print wn.similarity('mixer.n.04', 'oven.n.01', simtype='wup')
+    print(wn.similarity('mixer.n.04', 'oven.n.01', simtype='wup'))
     exit(0)
     s1 = wn.synsets('150', 'c')[0]
     s2 = wn.synsets('155.6', 'c')[0]
@@ -962,20 +958,20 @@ if __name__ == '__main__':
     # s1 = wn.synset('24.c.01')
     # s2 = wn.synset('25.c.01')
 
-    print 's1', s1, type(s1)
+    print('s1', s1, type(s1))
     # print 'parent', s1.parent
-    print 'definition', s1.definition
-    print 'lexname', s1.lexname
-    print 'examples', s1.examples
-    print 'parents', s1.hypernyms()
+    print('definition', s1.definition())
+    print('lexname', s1.lexname())
+    print('examples', s1.examples())
+    print('parents', s1.hypernyms())
 
-    print
-    print 's2', s2, type(s2)
+    print()
+    print('s2', s2, type(s2))
     # print 'parent', s2.parent
-    print 'definition', s2.definition
-    print 'lexname', s2.lexname
-    print 'examples', s2.examples
-    print 'parents', s2.hypernyms()
+    print('definition', s2.definition())
+    print('lexname', s2.lexname())
+    print('examples', s2.examples())
+    print('parents', s2.hypernyms())
 
-    print wn.similarity(s1, s2)
+    print(wn.similarity(s1, s2))
 

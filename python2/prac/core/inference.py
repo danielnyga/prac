@@ -33,7 +33,8 @@ from prac.pracutils.utils import splitd
 from pracmln import Database
 
 
-logger = logs.getlogger(__name__, logs.INFO)
+logger = logs.getlogger(__name__, level=logs.INFO)
+
 
 class PRACInferenceStep(object):
     '''

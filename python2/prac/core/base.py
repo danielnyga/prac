@@ -48,13 +48,6 @@ from prac.db.ies.extraction import HowtoImport
 
 nltk.data.path = [praclocations.nltk_data]
 
-modules = ['nltk_2.0b9']
-for module in modules:
-    path = os.path.join(locations.trdparty, module)
-    if path not in sys.path:
-        sys.path.append(path)
-
-
 logger = logs.getlogger(__name__, logs.INFO)
 praclogger = logs.getlogger('PRAC', logs.INFO)
 aclogger = logs.getlogger('actioncores', logs.INFO)
