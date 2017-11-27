@@ -82,11 +82,11 @@ class Frame(object):
         #------------------------------------------------------------------------------ 
         # This is a sanity check to revoke false inferred 
         # frames during the information extraction process.
-        if verbsim  < 0.85: return 0
+        # if verbsim  < 0.85: return 0
         #------------------------------------------------------------------------------ 
         sims = []
         for rolename, rolevalue in self.actionroles.items():
-            if rolename in f.actionroles:
+            if rolename in f.actionroles and rolename != 'action_verb':
                 sims.append(self.prac.wordnet.similarity(f.actionroles[rolename].type, rolevalue.type, simtype='wup'))
                 #------------------------------------------------------------------------------ 
                 #Sometimes Stanford Parser parses some objects as adjectives
