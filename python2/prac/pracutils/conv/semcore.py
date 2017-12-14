@@ -31,9 +31,9 @@ from pracmodules import StanfordParser
 sys.modules['BeautifulSoup'] = bs4
 import lxml.html.soupparser as p
 import os
-from prac_nltk.corpus import wordnet
+from nltk.corpus import wordnet
 
-logger = logs.getlogger(__name__, logs.INFO)
+logger = logs.getlogger(__name__)
 
 java.classpath.append(os.path.join('3rdparty', 'stanford-parser-2015-12-09', 'stanford-parser.jar'))
 grammarPath = os.path.join('3rdparty', 'stanford-parser-2015-12-09', 'grammar', 'englishPCFG.ser.gz')

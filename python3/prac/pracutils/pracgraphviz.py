@@ -23,13 +23,13 @@
 import os
 import errno
 import subprocess
+import xml.etree.ElementTree as ET
 from subprocess import PIPE
 from tempfile import NamedTemporaryFile
+from xml.etree.ElementTree import ElementTree
 
 from dnutils import logs
 from graphviz._compat import text_type
-import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import ElementTree
 
 
 logger = logs.getlogger(__name__)

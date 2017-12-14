@@ -208,10 +208,9 @@ class WNSenses(PRACModule):
             tick = synsets_.index(tick)
         for idx, sense in enumerate(synsets_):
             print '    [{}] {}: {} ({})'.format('X' if tick == idx else ' ',
-                                                colorize(sense.name(),
-                                                         (None, {True: 'yellow', False: 'white'} [tick == idx], True),
-                                                         True),
-                                                sense.definition(), ';'.join(sense.examples()))
+                                                colorize(sense.name(), (None, {True: 'yellow', False: 'white'} [tick == idx], True), True),
+                                                sense.definition(),
+                                                ';'.join(sense.examples()))
 
 
     def get_possible_meanings_of_word(self, db, word):

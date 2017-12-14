@@ -48,11 +48,11 @@ def are_requirements_set_to_load_module(module_name):
             client = MongoClient()
             try:
                 database_name_list = client.database_names()
-                
+
                 if 'prac' in database_name_list:
                     database = client.prac
                     collections = database.collection_names()
-                    
+
                     if module_name == 'role_look_up':
                         if 'howtos' in collections:
                             return True
@@ -65,7 +65,7 @@ def are_requirements_set_to_load_module(module_name):
                         else:
                             print('"Complex achieved by module" needs a "Instructions" collection.')
                             return False
-                    
+
                 else:
                     print('No PRAC database is stored at local MongoDB server instance.')
                     return False
@@ -75,8 +75,8 @@ def are_requirements_set_to_load_module(module_name):
                 return False
             #IsCollection available
         else:
-            return False 
-        
+            return False
+
     return True
 
 

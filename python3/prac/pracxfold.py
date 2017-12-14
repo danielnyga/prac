@@ -1,5 +1,4 @@
 import argparse
-import logging
 import math
 import os
 import shutil
@@ -9,6 +8,7 @@ import traceback
 from logging import FileHandler
 from random import shuffle, sample
 
+from dnutils import logs
 from pracmln.mln.database import readDBFromFile, Database
 from pracmln.mln.methods import LearningMethods
 from pracmln.mln.mln import readMLNFromFile
@@ -52,19 +52,19 @@ class XValFoldParams(object):
         self.onthefly = False
         for p, val in params.items():
             setattr(self, str(p), val)
-            
+
     def __str__(self):
         return '\n'.join(['%s: %s' % (k, v) for k, v in self.__dict__.items()])
 
-            
+
 class XValFold(object):
     '''
     Class representing and providing methods for a cross validation fold.
     '''
-    
+
     def __init__(self, params):
         '''
-        params being a XValFoldParams object.  
+        params being a XValFoldParams object.
         '''
         self.params = params
         self.fold_id = 'Fold-%d' % params.foldIdx
@@ -76,7 +76,7 @@ class XValFold(object):
         dbfile = open(os.path.join(params.directory, 'test_dbs_%d.db' % params.foldIdx), 'w+')
         Database.writeDBs(params.testDBs, dbfile)
         dbfile.close()
-      
+
 
     def evalMLN(self, mln, dbs, module):
         '''
@@ -84,19 +84,19 @@ class XValFold(object):
         the databases given in dbs.
         '''
 
-        log = logging.getLogger(self.fold_id)
+        log = logs.getlogger(self.fold_id)
 
         queryPred = self.params.queryPred
         queryDom = self.params.queryDom
 
         sig = ['?arg%d' % i for i, _ in enumerate(self.params.altMLN.predicates[queryPred])]
         querytempl = '%s(%s)' % (queryPred, ','.join(sig))
-        
+
         dbs = [db.duplicate() for db in dbs]
-        
+
         infer = PRACInference(module.prac, [])
         inferenceStep = PRACInferenceStep(infer, self)
-        
+
         for db in dbs:
             # save and remove the query predicates from the evidence
             trueDB = Database(self.params.altMLN)
@@ -127,12 +127,12 @@ class XValFold(object):
                         db.addGroundAtom('%s%s' % ('' if v is True else '!', e))
             except:
                 log.critical(''.join(traceback.format_exception(*sys.exc_info())))
-    
+
     def run(self):
         '''
         Runs the respective fold of the crossvalidation.
         '''
-        log = logging.getLogger(self.fold_id)
+        log = logs.getlogger(self.fold_id)
         log.info('Running fold %d of %d...' % (self.params.foldIdx + 1, self.params.foldCount))
         directory = self.params.directory
         try:
@@ -161,7 +161,7 @@ class XValFold(object):
             # store the learned MLN in a file
             learnedMLN.writeToFile(os.path.join(directory, 'run_%d.mln' % self.params.foldIdx))
             log.debug('Finished learning.')
-            
+
             # evaluate the MLN
             log.debug('Evaluating.')
             self.evalMLN(learnedMLN, testDBs_, module)
@@ -170,22 +170,22 @@ class XValFold(object):
         except (KeyboardInterrupt, SystemExit):
             log.critical("Exiting...")
             return None
-        
-    
+
+
 class NoisyStringTransformer(object):
     '''
     This transformer takes a set of strings and performs a clustering
     based on the edit distance. It transforms databases wrt to the clusters.
     '''
-    
+
     def __init__(self, mln, noisyStringDomains, verbose=True):
         self.mln = mln
         self.noisyStringDomains = noisyStringDomains
         self.verbose = verbose
         self.clusters = {} # maps domain name -> list of clusters
         self.noisyDomains = {}
-        self.log = logging.getLogger('NoisyString')
-    
+        self.log = logs.getlogger('NoisyString')
+
     def materializeNoisyDomains(self, dbs):
         '''
         For each noisy domain, (1) if there is a static domain specification,
@@ -209,7 +209,7 @@ class NoisyStringTransformer(object):
                 self.log.info('  reducing domain %s: %d -> %d values' % (nDomain, len(values), len(clusters)))
                 self.log.info('   %s', str(self.noisyDomains[nDomain]))
         return self.transformDBs(dbs)
-        
+
     def transformDBs(self, dbs):
         newDBs = []
         for db in dbs:
@@ -228,7 +228,7 @@ class NoisyStringTransformer(object):
                 for ev in list(newDB.evidence.keys()):
                     truth = newDB.evidence[ev]
                     _, pred, params = db.mln.logic.parseLiteral(ev)
-                    if domain in self.mln.predicates[pred]: # domain is affected by the mapping  
+                    if domain in self.mln.predicates[pred]: # domain is affected by the mapping
                         newDB.retractGndAtom(ev)
                         newArgs = [v if domain != self.mln.predicates[pred][i] else valueMap[v] for i, v in enumerate(params)]
                         atom = '%s%s(%s)' % ('' if truth else '!', pred, ','.join(newArgs))
@@ -238,12 +238,12 @@ class NoisyStringTransformer(object):
 
 
 def runFold(fold):
-    log = logging.getLogger(fold.fold_id)
+    log = logs.getlogger(fold.fold_id)
     try:
         fold.run()
     except:
         raise Exception(''.join(traceback.format_exception(*sys.exc_info())))
-    return fold    
+    return fold
 
 
 def main():
@@ -265,7 +265,7 @@ def main():
     parser.add_argument('--altMLN', dest='altMLN', type='str', default=None, help='Alternative mln for loading the database files. Optional')
     parser.add_argument('--logic', dest='logic', type='str', default='FuzzyLogic', help='The logic to load the mln with.')
     parser.add_argument("--onthefly", dest="onthefly", default=False, action='store_true', help="Generate MLN on the fly")
-    
+
     args = parser.parse_args()
     opts_ = vars(args)
 
@@ -283,23 +283,23 @@ def main():
     altMLNFileName = args.altMLN or args.mln # equal to mlnFileName if no alternative mln given
     logic = args.logic
     onthefly = args.onthefly
-    
+
     startTime = time.time()
 
-    # set up the directory    
+    # set up the directory
     timestamp = time.strftime("%Y-%b-%d-%H-%M-%S", time.localtime())
-    if dirname is None:  
+    if dirname is None:
         idx = 1
         while True:
             dirname = '%s-%d' % (moduleName, idx)
             idx += 1
             if not os.path.exists(dirname): break
         dirname += '-' + timestamp
-    
+
     expdir = os.getenv('PRAC_EXPERIMENTS', '.')
     expdir = os.path.join(expdir, dirname)
     if os.path.exists(expdir):
-        print('Directory "%s" exists. Overwrite? ([y]/n)' % expdir, end=' ')
+        print('Directory "%s" exists. Overwrite? ([y]/n)' % expdir, ' ')
         answer = sys.stdin.read(1)
         if answer not in ('y','\n'):
             exit(0)
@@ -307,17 +307,17 @@ def main():
             shutil.rmtree(expdir)
     os.mkdir(expdir)
     # set up the logger
-    logging.getLogger().setLevel(logging.INFO)
-    log = logging.getLogger()
+    logs.getlogger().setLevel(logs.INFO)
+    log = logs.getlogger()
     fileLogger = FileHandler(os.path.join(expdir, 'xval.log'))
-    fileLogger.setFormatter(praclog.formatter)
+    fileLogger.setFormatter(logs.formatter)
     log.addHandler(fileLogger)
 
     log.info('Log for %d-fold cross-validation of %s using %s' % (folds, moduleName, dbfiles))
     log.info('Date: %s' % timestamp)
     log.info('Results will be written into %s' % expdir)
-    
-    
+
+
     # load module
     prac = PRAC()
     module = prac.module(moduleName)
@@ -325,7 +325,7 @@ def main():
     # read MLN and dbs
     mln_ = readMLNFromFile(mlnFileName, logic=logic)
     altMLN = readMLNFromFile(altMLNFileName, logic=logic)
-    
+
     dbs = []
     for dbfile in dbfiles:
         db = readDBFromFile(altMLN, dbfile)
@@ -334,7 +334,7 @@ def main():
         else:
             dbs.append(db)
     log.info('Read %d databases.' % len(dbs))
-        
+
     cwpreds = [pred for pred in mln_.predicates if pred != predName]
 
     # create the partition of data
@@ -346,13 +346,13 @@ def main():
     if len(dbs) < folds:
         log.error('Cannot do %d-fold cross validation with only %d databases.' % (folds, len(dbs)))
         exit(0)
-    
+
     shuffle(dbs)
     partSize = int(math.ceil(len(dbs)/float(folds)))
     partition = []
     for i in range(folds):
         partition.append(dbs[i*partSize:(i+1)*partSize])
-    
+
 
     foldRunnables = []
     for foldIdx in range(folds):
@@ -376,7 +376,7 @@ def main():
         params.onthefly = onthefly
         foldRunnables.append(XValFold(params))
         log.info('Params for fold %d:\n%s' % (foldIdx, str(params)))
-    
+
     if multicore:
         # set up a pool of (non-daemon!!) worker processes
         try:
@@ -427,7 +427,7 @@ def main():
         cm.toPDF(pdfnameSim, sim=True)
         os.rename('{}.pdf'.format(pdfname), os.path.join(expdir, '{}.pdf'.format(pdfname)))
         os.rename('{}_sim.pdf'.format(pdfname), os.path.join(expdir, '{}_sim.pdf'.format(pdfname)))
-    
+
         log.info('{}-fold crossvalidation {} took {:.2f} min'.format(folds, '(MP)' if multicore else '(SP)', elapsedTime / 60.0))
 
 

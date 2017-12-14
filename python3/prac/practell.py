@@ -34,7 +34,7 @@ def main():
     opts_ = vars(args)
 
     if args.quiet: args.verbose = 0
-    
+
     if args.verbose:
         print(prac_heading('Telling PRAC, how to {}'.format(args.howto)))
 
@@ -62,7 +62,7 @@ def main():
                 howtos.append({' '.join(filename.split('-')): [_f for _f in (line.strip() for line in f) if _f]})
 
     #===========================================================================
-    # start the import 
+    # start the import
     #===========================================================================
     def import_howto(args):
         try:
@@ -87,7 +87,7 @@ def main():
     finally:
         pool.close()
         pool.join()
-        
+
 
 if __name__ == '__main__':
     main()

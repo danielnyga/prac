@@ -51,7 +51,7 @@ def main():
     praclearn = PRACLearning(prac)
     praclearn.microtheories = args.microtheories
     praclearn.modules = args.modules
-    
+
     if praclearn.modules is None:
         praclearn.modules = ['prop_extraction']
     if args.training_dbs is not None:
@@ -65,7 +65,7 @@ def main():
     for m in praclearn.modules:
         module = prac.module(m)
         module.train(praclearn)
-    
+
 
 if __name__ == '__main__':
     main()

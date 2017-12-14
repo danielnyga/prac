@@ -30,7 +30,7 @@ from prac.core.inference import PRACInferenceStep
 from prac.pracutils.utils import prac_heading
 
 
-logger = logs.getlogger(__name__, logs.INFO)
+logger = logs.getlogger(__name__, logs.DEBUG)
 
 
 class PlanGenerator(PRACModule):

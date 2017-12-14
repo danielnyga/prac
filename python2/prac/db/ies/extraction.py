@@ -12,8 +12,7 @@ from pprint import pprint
 import pymongo
 
 from prac.core.inference import PRACInference
-from prac.db.ies.models import Frame, Word, Howto, Object
-from prac.db.ies.models import constants
+from prac.db.ies.models import Frame, Word, Howto, Object, constants
 
 
 def __dividedict(d, dnew):

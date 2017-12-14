@@ -165,6 +165,11 @@ mod(word,word)
 mwe(word,word)
 neg(word,word)
 nn(word,word)
+nmod_for(word,word)
+nmod(word,word)
+nmod_in(word,word)
+nmod_of(word,word)
+nmod_prep(word,word)
 npadvmod(word,word)
 nummod(word,word)
 poss(word,word)
@@ -189,7 +194,7 @@ acomp(word,word)
 /*
  * MISC
  */
-
+arg(word,word)
 case(word,word)
 ccomp(word,word)
 comp(word,word)

@@ -50,6 +50,6 @@ def main():
             logger.info('is_a({},{})'.format(args.word, c))
         print()
 
-    
+
 if __name__ == '__main__':
     main()

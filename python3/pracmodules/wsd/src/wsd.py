@@ -1,10 +1,11 @@
+from dnutils import logs
+
 from prac.core.base import PRACModule, PRACPIPE
 from prac.core.inference import PRACInferenceStep
 from prac.pracutils.utils import prac_heading
-from pracmln import praclog
 
 
-logger = praclog.logger(__name__, praclog.INFO)
+logger = logs.getlogger(__name__, logs.INFO)
 
 
 class PRACWSD(PRACModule):

@@ -20,8 +20,8 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-import errno
 import os
+import errno
 import subprocess
 import xml.etree.ElementTree as ET
 from subprocess import PIPE
@@ -32,7 +32,7 @@ from dnutils import logs
 from graphviz._compat import text_type
 
 
-logger = logs.getlogger(__name__, logs.INFO)
+logger = logs.getlogger(__name__)
 
 
 def render_gv(graph, filename=None, directory='/tmp'):

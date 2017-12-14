@@ -32,7 +32,7 @@ from prac.db.ies.models import constants, Frame, Object
 from prac.pracutils.utils import prac_heading, get_query_png
 
 
-logger = logs.getlogger(__name__, logs.INFO)
+logger = logs.getlogger(__name__, logs.DEBUG)
 corpus_path_list = os.path.join(prac.locations.home, 'corpus')
 
 

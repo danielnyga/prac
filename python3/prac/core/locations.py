@@ -25,8 +25,9 @@ import os
 home = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 if os.path.basename(home).startswith('python'):
     home = os.path.realpath(os.path.join(home, '..'))
+code_base = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 trdparty = os.path.join(home, '3rdparty')
-projectpath = os.path.join(home, 'pracmodules')
+projectpath = os.path.join(code_base, 'pracmodules')
 examples = os.path.join(home, 'examples')
 data = os.path.join(home, 'data')
 nltk_data = os.path.join(data, 'nltk_data')

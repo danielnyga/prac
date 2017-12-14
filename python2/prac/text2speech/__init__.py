@@ -1,7 +1,8 @@
 import urllib2
 from HTMLParser import HTMLParser
-from subprocess import Popen
+
 import pygame
+
 
 # create a subclass and override the handler methods
 class DownloadLinkExtractor(HTMLParser):

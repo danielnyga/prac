@@ -1,7 +1,8 @@
-import os
-import math 
+import math
 import time
+
 from pracmln.mln.util import colorize
+
 
 nounTags = ['NN', 'NNS', 'NNP', 'CD']
 verbTags = ['VB', 'VBG', 'VBZ', 'VBD', 'VBN', 'VBP', 'MD']

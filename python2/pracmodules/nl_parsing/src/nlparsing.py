@@ -28,8 +28,8 @@ import string
 import subprocess
 import sys
 from tempfile import NamedTemporaryFile
-
 import jpype
+
 from dnutils import logs
 from nltk import word_tokenize
 from nltk.corpus import wordnet as wn

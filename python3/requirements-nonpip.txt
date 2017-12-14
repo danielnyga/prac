@@ -1,4 +1,4 @@
 python-apt
-texlive-full
+texlive-latex-base
 default-jre
 dvipng

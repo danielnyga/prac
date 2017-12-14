@@ -27,22 +27,22 @@ import re
 import string
 import subprocess
 import sys
-import jpype
 from tempfile import NamedTemporaryFile
+import jpype
 
 from dnutils import logs
 from nltk import word_tokenize
 from nltk.corpus import wordnet as wn
-
-from prac.core.base import PRACModule, PRACPIPE
-from prac.core.errors import ParserError
-from prac.core.inference import PRACInferenceStep, NLInstruction
-from prac.core.wordnet import WordNet
-from prac.pracutils.utils import prac_heading
 from pracmln import MLN
 from pracmln.mln.database import parse_db
 from pracmln.mln.util import colorize
 from pracmln.utils.visualization import get_cond_prob_png
+
+from prac.core.base import PRACModule
+from prac.core.errors import ParserError
+from prac.core.inference import PRACInferenceStep, NLInstruction
+from prac.core.wordnet import WordNet
+from prac.pracutils.utils import prac_heading
 
 
 logger = logs.getlogger(__name__, logs.INFO)

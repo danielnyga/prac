@@ -8,9 +8,9 @@ Description: Multidimensional Scaling
 import pylab
 from dnutils import logs
 from matplotlib.pyplot import text
+from nltk.corpus import wordnet as wn
 from numpy import *
 from numpy.linalg import *
-from prac_nltk.corpus import wordnet as wn
 from pracmln import Database
 from pracmln.mln.util import mergedom
 

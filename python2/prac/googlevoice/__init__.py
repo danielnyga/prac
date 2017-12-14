@@ -1,8 +1,10 @@
+from dnutils import logs
+
 from recognize import Voice
 from microphone import MicLevelController
 from threading import Timer
-import logging
 
+logger = logs.getlogger(__name__ + 'REC', logs.DEBUG)
 
 class VoiceRecorder():
     
@@ -33,7 +35,7 @@ class VoiceRecorder():
                 v.stopRecording()
         
     def start(self):
-        logging.getLogger('REC').debug('Start recording...')
+        logger.debug('Start recording...')
         self.startListenerThread()
         
     def record(self):
@@ -42,8 +44,8 @@ class VoiceRecorder():
     def stop(self):
         self.recording = False
         self.counter = 0
-        logging.getLogger('REC').debug('Stop recording.')
-        print '"{}"'.format(self.voices[self.voip].analyze())
+        logger.debug('Stop recording.')
+        print('"{}"'.format(self.voices[self.voip].analyze()))
         
 
 if __name__ == '__main__':

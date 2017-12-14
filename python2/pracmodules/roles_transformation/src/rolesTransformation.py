@@ -39,7 +39,7 @@ from prac.pracutils.utils import prac_heading
 
 
 logger = logs.getlogger(__name__, logs.DEBUG)
-rolesTransformationModulePath = os.path.join(prac.locations.home, 'pracmodules', 'roles_transformation')
+rolesTransformationModulePath = os.path.join(prac.locations.projectpath, 'roles_transformation')
 planListFilePath = os.path.join(rolesTransformationModulePath, 'plan_list.yaml')
 
 

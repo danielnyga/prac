@@ -25,11 +25,11 @@ import os
 from collections import defaultdict
 
 from dnutils import logs
+from nltk.corpus.reader.wordnet import Synset
 
 from prac.core.base import PRACModule, PRACPIPE, DB_TRANSFORM
 from prac.core.inference import PRACInferenceStep
 from prac.core.wordnet import WordNet, POS_MAP
-from nltk.corpus.reader.wordnet import Synset
 
 from pracmln import MLN, Database
 from pracmln.mln.util import colorize, mergedom

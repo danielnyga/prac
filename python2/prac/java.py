@@ -4,9 +4,9 @@ Created on Apr 21, 2012
 @author: nyga
 '''
 import os
+import jpype
 import platform
 
-import jpype
 from dnutils import logs
 
 

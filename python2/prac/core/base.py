@@ -28,7 +28,7 @@ from ConfigParser import ConfigParser
 from string import whitespace, strip
 
 import yaml
-from dnutils import logs, ifnone
+from dnutils import ifnone, logs
 from pymongo.mongo_client import MongoClient
 
 import locations
@@ -208,7 +208,7 @@ class PRAC(object):
 
     @property
     def roles(self):
-        return set([r for a in self.actioncores.values() for r in  a.roles])
+        return set([r for a in self.actioncores.values() for r in a.roles])
 
 
     @property

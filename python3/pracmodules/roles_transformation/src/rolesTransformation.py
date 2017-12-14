@@ -24,6 +24,11 @@ import os
 
 import yaml
 from dnutils import logs
+from pracmln.mln.base import parse_mln
+from pracmln.mln.errors import NoConstraintsError
+from pracmln.mln.util import colorize
+from pracmln.utils.project import MLNProject
+from pracmln.utils.visualization import get_cond_prob_png
 
 import prac
 from prac.core import locations as pracloc
@@ -31,11 +36,6 @@ from prac.core.base import PRACModule, PRACDatabase
 from prac.core.inference import PRACInferenceStep
 from prac.db.ies.models import Object
 from prac.pracutils.utils import prac_heading
-from pracmln.mln.base import parse_mln
-from pracmln.mln.errors import NoConstraintsError
-from pracmln.mln.util import colorize
-from pracmln.utils.project import MLNProject
-from pracmln.utils.visualization import get_cond_prob_png
 
 
 logger = logs.getlogger(__name__, logs.DEBUG)

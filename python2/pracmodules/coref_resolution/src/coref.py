@@ -56,7 +56,6 @@ class CorefResolution(PRACModule):
 
         if self.prac.verbose > 0:
             print prac_heading('Resolving Coreferences')
-        
 
         preds = list(node.rdfs(goaltest=lambda n: isinstance(n, FrameNode) and not n.children, all=True))[:2]
         dbs = node.outdbs

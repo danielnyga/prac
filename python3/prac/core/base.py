@@ -208,7 +208,7 @@ class PRAC(object):
 
     @property
     def roles(self):
-        return set([r for a in list(self.actioncores.values()) for r in  a.roles])
+        return set([r for a in list(self.actioncores.values()) for r in a.roles])
 
 
     @property

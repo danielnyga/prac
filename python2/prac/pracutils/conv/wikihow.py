@@ -23,12 +23,12 @@
 import os
 
 from dnutils import logs
-from prac_nltk.corpus import wordnet as wn
+from nltk.corpus import wordnet as wn
 from nlparsing import StanfordParser
 import java
 import itertools
 
-logger = logs.getlogger(__name__, logs.INFO)
+logger = logs.getlogger(__name__)
 
 PRAC_PATH = os.environ['PRAC_HOME']
 java.classpath.append(os.path.join(PRAC_PATH, '3rdparty', 'stanford-parser-2015-12-09', 'stanford-parser.jar'))
@@ -47,7 +47,7 @@ def lexkey2synset(key):
         if l.key.lower() == key.lower():
             return l.synset
     logger.error('No synset found for {}'.format(key))
-    
+
 
 def readFromFile(filename):
     # load the parser

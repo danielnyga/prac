@@ -28,8 +28,6 @@ from pracmln.mln.util import edict, avg
 from scipy.stats import stats
 
 from prac.db.ies import constants
-from prac.db.ies.constants import JSON_HOWTO_IMPORT_DATE, JSON_HOWTO_STEPS, \
-    JSON_OBJECT_SYNTAX
 
 
 def tojson(obj):
@@ -186,16 +184,16 @@ class Howto(Frame):
         
         
     def tojson(self):
-        return tojson(edict({JSON_HOWTO_IMPORT_DATE: self.import_date}) +\
-               edict(Frame.tojson(self)) + edict({JSON_HOWTO_STEPS: tojson(self.steps)}))
+        return tojson(edict({constants.JSON_HOWTO_IMPORT_DATE: self.import_date}) +\
+               edict(Frame.tojson(self)) + edict({constants.JSON_HOWTO_STEPS: tojson(self.steps)}))
         
     
     @staticmethod
     def fromjson(prac, data):
         return Howto(prac,
                      instr=Frame.fromjson(prac, data), 
-                     steps=[Frame.fromjson(prac, s) for s in data.get(JSON_HOWTO_STEPS)],
-                     import_date=data.get(JSON_HOWTO_IMPORT_DATE))
+                     steps=[Frame.fromjson(prac, s) for s in data.get(constants.JSON_HOWTO_STEPS)],
+                     import_date=data.get(constants.JSON_HOWTO_IMPORT_DATE))
 
 
     def shortstr(self):
@@ -284,7 +282,7 @@ class Object(object):
                       type_=data.get(constants.JSON_OBJECT_TYPE),
                       id_=data.get(constants.JSON_OBJECT_ID),
                       props=PropertyStore.fromjson(prac, data.get(constants.JSON_OBJECT_PROPERTIES, {})),
-                      syntax=Word.fromjson(prac, data.get(JSON_OBJECT_SYNTAX)))
+                      syntax=Word.fromjson(prac, data.get(constants.JSON_OBJECT_SYNTAX)))
     
     def __eq__(self, other):
         if other is None: return False

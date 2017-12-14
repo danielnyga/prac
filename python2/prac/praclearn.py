@@ -1,6 +1,6 @@
 # PROBABILISTIC ROBOT ACTION CORES - LEARNING
 #
-# (C) 2012 by Daniel Nyga (nyga@cs.tum.edu)
+# (C) 2012 by Daniel Nyga (nyga@cs.uni-bremen.de)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the

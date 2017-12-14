@@ -811,8 +811,7 @@ class WordNet(object):
     def __get_subtree_height(self, synset, current_height=0):
         hypos = synset.hyponyms()
         if self.core_taxonomy is not None:
-            hypos = set(map(lambda s: s.name(), hypos)).intersection(
-                self.known_concepts)
+            hypos = set(map(lambda s: s.name(), hypos)).intersection(self.known_concepts)
             hypos = [self.synset(s) for s in hypos]
         if len(hypos) == 0:  # we have a leaf node
             return current_height
