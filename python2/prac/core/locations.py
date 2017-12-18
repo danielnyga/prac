@@ -21,15 +21,35 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
+import appdirs
 
+from _version import APPNAME, APPAUTHOR
+
+code_base = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 home = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+# update home to point
 if os.path.basename(home).startswith('python'):
     home = os.path.realpath(os.path.join(home, '..'))
-code_base = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
-trdparty = os.path.join(home, '3rdparty')
+
+datapathroot = appdirs.site_data_dir(APPNAME, APPAUTHOR)
+datapathnonroot = appdirs.user_data_dir(APPNAME, APPAUTHOR)
+pathoptions = [datapathnonroot, datapathroot]
+
 projectpath = os.path.join(code_base, 'pracmodules')
-examples = os.path.join(home, 'examples')
-data = os.path.join(home, 'data')
-nltk_data = os.path.join(data, 'nltk_data')
-etc = os.path.join(home, 'etc')
-models = os.path.join(home, 'models')
+
+datapath = home
+
+# update datapath
+for p in pathoptions:
+    if os.path.exists(p):
+        datapath = p
+        break
+
+trdparty = os.path.join(datapath, '3rdparty')
+etc = os.path.join(datapath, 'etc')
+examples = os.path.join(datapath, 'examples')
+models = os.path.join(datapath, 'models')
+
+data = os.path.join(datapath, 'data')
+nltk_data = os.path.join(datapath, data, 'nltk_data')
+

@@ -30,8 +30,8 @@ from core.learning import PRACLearning
 
 logger = logs.getlogger(__name__, logs.INFO)
 
-def parse_list(option, opt, value, parser):
-    setattr(parser.values, option.dest, value.split(','))
+    def parse_list(option, opt, value, parser):
+        setattr(parser.values, option.dest, value.split(','))
 
 
 def main():
