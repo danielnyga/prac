@@ -10,11 +10,12 @@ logic and probability theory.
 
   * Project Page: http://www.actioncores.org
   * Lead developer: Daniel Nyga (nyga@cs.uni-bremen.de)
+  * Contributors: Mareike Picklum (mareikep@cs.uni-bremen.de)
 
 Release notes
 -------------
 
-  * Version 1.0.0 (XX.06.2016)
+  * Version 1.0.0 (19.12.2017)
     * *Release*: Initial release
 
 

@@ -26,7 +26,7 @@ your own scripts, see :doc:`apidoc`.
 Release notes
 ^^^^^^^^^^^^^
 
-  * Release |release| (31.10.2017)
+  * Release |release| (19.12.2017)
 
 
     * *Initial Release*
