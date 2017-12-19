@@ -7,14 +7,6 @@ Compatibility
 
 This software suite works out-of-the-box on Linux and Windows 64-bit machines.
 
-Source Code
-^^^^^^^^^^^
-
-The source code is publicly available under BSD License: ::
-
-  git clone https://github.com/danielnyga/prac.git
-
-
 Prerequisites
 ^^^^^^^^^^^^^
 
@@ -27,9 +19,6 @@ Prerequisites
 
         sudo apt-get install python-tk python-scipy
 
-  You will also need the following python packages: `pyparsing`, `tabulate`, `nltk`, `jpype`, `graphviz`, `beautifulsoup4`, `lxml` and `psutil`. You can install them via ::
-
-    sudo pip install pyparsing tabulate psutil==0.4.1 nltk jpype graphviz beautifulsoup4 lxml
 
 * *PRACMLN*
 
@@ -46,24 +35,13 @@ Prerequisites
 Installation
 ^^^^^^^^^^^^
 
-#. Generating Apps
+As of Version 1.0.0, `PRAC` is shipped as a ``pip``-compliant package. For installing it, just checkout the code from::
 
-   Run the ``setup.py`` script: ::
+  $> git clone https://github.com/danielnyga/prac.git
 
-    python setup.py
+and install it with::
 
-   This will generate a number of shell scripts (or batch files for Windows) in the ``./apps`` directory.
-
-#. Setting up your Environment
-
-   ``setup.py`` will report how to set up your environment.
-
-   To temporarily configure your environment, you can simply use the ``env`` script/batch
-   file it creates to get everything set up.
-   If you use `pracmln` a lot, consider adding the ``./apps`` directory to your ``PATH`` variable
-   or copy the files created therein to an appropriate directory.
-   If you intend to make use of scripting, also set ``PYTHONPATH`` as described
-   by ``setup``.
+  $> python setup.py install
 
 Example
 ^^^^^^^
