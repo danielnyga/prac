@@ -16,17 +16,19 @@ classpath = []
 
 
 def startJvm():
-    java_home = os.environ['JAVA_HOME']
     machine_arch = platform.machine()
     if machine_arch not in list(arch.keys()):
         raise Exception('Your system architecture is not supported: {}'.format(machine_arch))
-    java_home += '/jre/lib/{}/libjava.so'.format(arch[machine_arch])
-    logger.debug('starting JVM...')
-    jpype.startJVM(jpype.getDefaultJVMPath(), '-Xmx1024m', '-Xms1024m',
-                   '-verbose:gc', '-ea',
-                   '-Djava.class.path={}'.format(':'.join(classpath)))
+    java_home = os.path.join(os.environ['JAVA_HOME'], 'jre/lib/{}/libjava.so'.format(arch[machine_arch]))
+    jpype.startJVM(jpype.getDefaultJVMPath(), '-Xmx1024m', '-Xms1024m', '-verbose:gc', '-ea', '-Djava.class.path={}'.format(':'.join(classpath)))
     logger.debug('JVM running')
 
+
+def initJvm():
+    if jpype.isJVMStarted():
+        logger.warning('JVM is already running. Not initializing again.')
+    else:
+        startJvm()
 
 def shutdownJvm():
     jpype.shutdownJVM()

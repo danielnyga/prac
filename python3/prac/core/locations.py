@@ -21,15 +21,27 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
+import appdirs
 
-home = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if os.path.basename(home).startswith('python'):
-    home = os.path.realpath(os.path.join(home, '..'))
-code_base = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
-trdparty = os.path.join(home, '3rdparty')
-projectpath = os.path.join(code_base, 'pracmodules')
-examples = os.path.join(home, 'examples')
-data = os.path.join(home, 'data')
+from prac._version import APPNAME, APPAUTHOR
+
+root = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+code_base = root
+user_data = appdirs.user_data_dir(APPNAME, APPAUTHOR)
+
+if os.path.basename(root).startswith('python'):
+    root = os.path.realpath(os.path.join(root, '..'))
+    app_data = root
+else:
+    app_data = appdirs.site_data_dir(APPNAME, APPAUTHOR)
+    if not os.path.exists(app_data):
+        app_data = user_data
+
+
+trdparty = os.path.join(app_data, '3rdparty')
+data = os.path.join(app_data, 'data')
 nltk_data = os.path.join(data, 'nltk_data')
-etc = os.path.join(home, 'etc')
-models = os.path.join(home, 'models')
+etc = os.path.join(app_data, 'etc')
+examples = os.path.join(app_data, 'examples')
+models = os.path.join(app_data, 'models')
+pracmodules = os.path.join(code_base, 'prac', 'pracmodules')

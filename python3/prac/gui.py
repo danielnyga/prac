@@ -41,7 +41,7 @@ from .core import locations
 
 
 DEFAULTNAME = 'unknown{}'
-DEFAULT_CONFIG = os.path.join(locations.home, global_config_filename)
+DEFAULT_CONFIG = os.path.join(locations.user_data, global_config_filename)
 WINDOWTITLE = 'PRAC Query Tool - {}' + os.path.sep + '{}'
 WINDOWTITLEEDITED = 'PRAC Query Tool - {}' + os.path.sep + '*{}'
 
@@ -64,7 +64,7 @@ class PRACQueryGUI(object):
         self.prac_inference = node.pracinfer
         self.infStep = None
 
-        self.module_dir = os.path.join(locations.projectpath, 'wnsenses')
+        self.module_dir = os.path.join(locations.pracmodules, 'wnsenses')
 
         self.frame = Frame(master)
         self.frame.pack(fill=BOTH, expand=1)

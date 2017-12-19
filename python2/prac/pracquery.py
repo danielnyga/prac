@@ -19,7 +19,6 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import argparse
-from tkinter import Tk
 
 import sys
 
@@ -101,6 +100,7 @@ def main():
     conf = PRACMLNConfig(DEFAULT_CONFIG)
 
     if args.interactive:  # use the GUI
+        from tkinter import Tk
         root = Tk()
         # in case we have natural-language parameters, parse them
         infer = PRACInference(prac, sentences)

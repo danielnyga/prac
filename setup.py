@@ -2,15 +2,15 @@ import distutils
 import os
 from distutils.core import setup
 
-import appdirs
-
 import _version
-
+import pip
+pip.main(['install', 'appdirs'])
 # from setuptools.command import build_py
 
 
 __basedir__ = _version.__basedir__
 __version__ = _version.__version__
+
 
 appname = 'prac'
 appauthor = 'danielnyga'
@@ -44,6 +44,7 @@ def datafiles(d):
 
 def datapath():
     '''Returns the path where app data is to be installed.'''
+    import appdirs
     if iamroot():
         return appdirs.site_data_dir(appname, appauthor)
     else:
@@ -56,28 +57,38 @@ class myinstall(distutils.command.install.install):
         distutils.command.install.install.__init__(self, *args, **kwargs)
         self.distribution.get_command_obj('install_data').install_dir = datapath()
 
-
-def pracmodules():
-    data_files = []
-    for root, dirs, files in os.walk(basedir('pracmodules')):
-        if not files: continue
-        data_files.append((os.path.sep.join(root.split(os.path.sep)[1:]), [os.path.join(root, f) for f in files]))
-    return data_files
-
-
 setup(
     name='prac',
-    packages=['prac', 'prac._version', 'prac.core', 'prac.db', 'prac.db.ies',
-              'prac.googlevoice', 'prac.pracutils', 'prac.pracutils.conv',
+    packages=['prac',
+              'prac._version',
+              'prac.core',
+              'prac.db', 'prac.db.ies',
+              'prac.googlevoice',
+              'prac.pracutils', 'prac.pracutils.conv',
               'prac.text2speech',
+              'prac.pracmodules',
+              'prac.pracmodules.ac_recognition', 'prac.pracmodules.ac_recognition.src', 'prac.pracmodules.ac_recognition.mln',
+              'prac.pracmodules.achieved_by', 'prac.pracmodules.achieved_by.src', 'prac.pracmodules.achieved_by.mln',
+              'prac.pracmodules.complex_achieved_by', 'prac.pracmodules.complex_achieved_by.src',
+              'prac.pracmodules.coref_resolution', 'prac.pracmodules.coref_resolution.src', 'prac.pracmodules.coref_resolution.mln',
+              'prac.pracmodules.cs_recognition', 'prac.pracmodules.cs_recognition.src', 'prac.pracmodules.cs_recognition.mln',
+              'prac.pracmodules.nl_parsing', 'prac.pracmodules.nl_parsing.src', 'prac.pracmodules.nl_parsing.mln',
+              'prac.pracmodules.obj_recognition', 'prac.pracmodules.obj_recognition.src', 'prac.pracmodules.obj_recognition.mln',
+              'prac.pracmodules.plan_generation', 'prac.pracmodules.plan_generation.src',
+              'prac.pracmodules.prop_extraction', 'prac.pracmodules.prop_extraction.src', 'prac.pracmodules.prop_extraction.mln',
+              'prac.pracmodules.role_look_up', 'prac.pracmodules.role_look_up.src',
+              'prac.pracmodules.roles_transformation', 'prac.pracmodules.roles_transformation.src',
+              'prac.pracmodules.senses_and_roles', 'prac.pracmodules.senses_and_roles.src', 'prac.pracmodules.senses_and_roles.mln',
+              'prac.pracmodules.wn_senses', 'prac.pracmodules.wn_senses.src', 'prac.pracmodules.wn_senses.mln', 'prac.pracmodules.wn_senses.bin',
+              'prac.pracmodules.wsd', 'prac.pracmodules.wsd.src', 'prac.pracmodules.wsd.mln', 'prac.pracmodules.wsd.bin',
               ],
     package_dir={
         'prac': basedir('prac'),
-        'pracmodules': basedir('pracmodules'),
+        'prac._version': '_version',
     },
-    package_data={'pracmodules': ['*']},
+    package_data={'': ['*']},
     data_files=datafiles('examples') + datafiles('3rdparty') +
-               datafiles('data') + datafiles('etc') + datafiles('models') + pracmodules(),
+               datafiles('data') + datafiles('etc') + datafiles('models'),
     version=__version__,
     description='PRAC - Probabilistic Action Cores - an interpreter for '
                 'natural-language instructions which is able to resolve '

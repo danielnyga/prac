@@ -23,33 +23,24 @@
 import os
 import appdirs
 
-from _version import APPNAME, APPAUTHOR
+from prac._version import APPNAME, APPAUTHOR
 
-code_base = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
-home = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
-# update home to point
-if os.path.basename(home).startswith('python'):
-    home = os.path.realpath(os.path.join(home, '..'))
+root = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+user_data = appdirs.user_data_dir(APPNAME, APPAUTHOR)
 
-datapathroot = appdirs.site_data_dir(APPNAME, APPAUTHOR)
-datapathnonroot = appdirs.user_data_dir(APPNAME, APPAUTHOR)
-pathoptions = [datapathnonroot, datapathroot]
+if os.path.basename(root).startswith('python'):
+    root = os.path.realpath(os.path.join(root, '..'))
+    app_data = root
+else:
+    app_data = appdirs.site_data_dir(APPNAME, APPAUTHOR)
+    if not os.path.exists(app_data):
+        app_data = user_data
 
-projectpath = os.path.join(code_base, 'pracmodules')
 
-datapath = home
-
-# update datapath
-for p in pathoptions:
-    if os.path.exists(p):
-        datapath = p
-        break
-
-trdparty = os.path.join(datapath, '3rdparty')
-etc = os.path.join(datapath, 'etc')
-examples = os.path.join(datapath, 'examples')
-models = os.path.join(datapath, 'models')
-
-data = os.path.join(datapath, 'data')
-nltk_data = os.path.join(datapath, data, 'nltk_data')
-
+trdparty = os.path.join(app_data, '3rdparty')
+data = os.path.join(app_data, 'data')
+nltk_data = os.path.join(data, 'nltk_data')
+etc = os.path.join(app_data, 'etc')
+examples = os.path.join(app_data, 'examples')
+models = os.path.join(app_data, 'models')
+pracmodules = os.path.join(root, 'prac', 'pracmodules')

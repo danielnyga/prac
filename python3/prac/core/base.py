@@ -83,7 +83,7 @@ class PRACConfig(ConfigParser):
             for key, value in list(values.items()):
                 self.set(section, key, str(value))
         if filename is not None:
-            self.read(os.path.join(locations.home, filename))
+            self.read(os.path.join(locations.user_data, filename))
 
 
     def write(self, filename=None):
@@ -93,7 +93,7 @@ class PRACConfig(ConfigParser):
         :param filename:    the name of the config file.
         '''
         filename = ifnone(filename, 'pracconf')
-        filepath = os.path.join(locations.home, filename)
+        filepath = os.path.join(locations.user_data, filename)
         with open(filepath, 'w+') as f:
             ConfigParser.write(self, f)
 
@@ -109,23 +109,23 @@ class PRAC(object):
     def __init__(self, configfile='pracconf'):
         # read all the manifest files.
         self.config = PRACConfig(configfile)
-        self.actioncores = ActionCore.load(os.path.join(praclocations.home, 'models', 'actioncores.yaml'))
+        self.actioncores = ActionCore.load(os.path.join(praclocations.models, 'actioncores.yaml'))
         self._manifests = []
         self._manifests_by_name = {}
         self.logger = praclogger
         self._verbose = 1
-        for module_path in os.listdir(praclocations.projectpath):
-            if not os.path.isdir(os.path.join(praclocations.projectpath, module_path)):
+        for module_path in os.listdir(praclocations.pracmodules):
+            if not os.path.isdir(os.path.join(praclocations.pracmodules, module_path)):
                 continue
-            manifest_file_name = os.path.join(praclocations.projectpath, module_path, 'pracmodule.yaml')
+            manifest_file_name = os.path.join(praclocations.pracmodules, module_path, 'pracmodule.yaml')
             if not os.path.exists(manifest_file_name):
                 self.logger.warning('No module manifest file in path "{}".'.format(module_path))
                 continue
             manifest_file = open(manifest_file_name, 'r')
-            modulessrc = os.path.abspath(os.path.join(praclocations.projectpath, module_path, 'src'))
+            modulessrc = os.path.abspath(os.path.join(praclocations.pracmodules, module_path, 'src'))
             sys.path.append(modulessrc)
             module = PRACModuleManifest.read(manifest_file)
-            module.module_path = os.path.join(praclocations.projectpath, module_path)
+            module.module_path = os.path.join(praclocations.pracmodules, module_path)
             self._manifests.append(module)
             self._manifests_by_name[module.name] = module
             self.logger.debug('Read manifest file for module "{}".'.format(module.name))
@@ -148,7 +148,7 @@ class PRAC(object):
             module_path = manifest.module_path
             decl_mlns = manifest.pred_decls
             for mlnfile in decl_mlns:
-                tmpmln = MLN(mlnfile=os.path.join(praclocations.projectpath, module_path, 'mln', mlnfile),
+                tmpmln = MLN(mlnfile=os.path.join(praclocations.pracmodules, module_path, 'mln', mlnfile),
                              logic='FuzzyLogic', grammar='PRACGrammar')
                 mln.update_predicates(tmpmln)
         return mln
@@ -432,7 +432,7 @@ class PRACModuleManifest(object):
         manifest = PRACModuleManifest()
         (manifest.modulename, manifest.classname) = yamlData[PRACModuleManifest.MAIN_CLASS].split('.')
         manifest.name = yamlData[PRACModuleManifest.NAME]
-        manifest.module_path = os.path.join(praclocations.projectpath, manifest.name)
+        manifest.module_path = os.path.join(praclocations.pracmodules, manifest.name)
         manifest.description = yamlData[PRACModuleManifest.DESCRIPTION]
         manifest.depends_on = yamlData.get(PRACModuleManifest.DEPENDENCIES, [])
         manifest.pred_decls = yamlData.get(PRACModuleManifest.PRED_DECLS, [])
@@ -514,7 +514,7 @@ class PRACModule(object):
 
     @property
     def module_path(self):
-        return os.path.join(praclocations.projectpath, self.name)
+        return os.path.join(praclocations.pracmodules, self.name)
 
 
     @module_path.setter
