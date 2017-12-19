@@ -1,0 +1,56 @@
+{
+  "nodes": [
+    {
+      "id": "open",
+      "text": "8",
+      "type": "graphcircle"
+    },
+    {
+      "id": "blub",
+      "text": "8",
+      "type": "graphcircle"
+    },
+    {
+      "id": "three",
+      "text": "8",
+      "type": "graphcircle"
+    },
+    {
+      "id": "four",
+      "text": "8",
+      "type": "graphcircle"
+    }
+  ], 
+  "links": [
+    {
+      "source": {"id": "open", "text": "8", "type": "graphcircle"},
+      "target": {"id": "blub", "text": "8", "type": "graphcircle"},
+      "value": 9,
+      "arcStyle": "strokegreen"
+    }, 
+    {
+      "source": {"id": "open", "text": "8", "type": "graphcircle"},
+      "target": {"id": "three", "text": "8", "type": "graphcircle"},
+      "value": 9,
+      "arcStyle": "strokegreen"
+    }, 
+    {
+      "source": {"id": "three", "text": "8", "type": "graphcircle"},
+      "target": {"id": "four", "text": "8", "type": "graphcircle"},
+      "value": 9,
+      "arcStyle": "strokegreen"
+    }, 
+    {
+      "source": {"id": "three", "text": "8", "type": "graphcircle"},
+      "target": {"id": "blub", "text": "8", "type": "graphcircle"},
+      "value": 9,
+      "arcStyle": "strokegreen"
+    },
+    {
+      "source": {"id": "blub", "text": "8", "type": "graphcircle"},
+      "target": {"id": "four", "text": "8", "type": "graphcircle"},
+      "value": 9,
+      "arcStyle": "strokegreen"
+    }
+  ]
+}

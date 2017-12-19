@@ -13,7 +13,6 @@
 
 import sys
 import os
-
 import datetime
 import sphinx_bootstrap_theme
 
@@ -22,10 +21,12 @@ import sphinx_bootstrap_theme
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
-sys.path.append(os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('../..'))
 import _version
 
-sys.path.insert(0, os.path.abspath(_version.__basedir__))
+sys.path.insert(0, os.path.abspath(os.path.join('..', '..',  _version.__basedir__)))
+
+print('using', _version.__basedir__)
 
 try:
     from sphinxcontrib import bibtex
@@ -64,6 +65,7 @@ source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
+
 
 # General information about the project.
 project = 'PRAC'
@@ -288,7 +290,7 @@ texinfo_documents = [
 epub_title = 'PRAC'
 epub_author = 'Daniel Nyga, Mareike Picklum'
 epub_publisher = 'Daniel Nyga, Mareike Picklum'
-epub_copyright = '2012, Daniel Nyga, Mareike Picklum'
+epub_copyright = '{}, Daniel Nyga, Mareike Picklum'.format(datetime.datetime.now().year)
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
