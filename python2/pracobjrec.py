@@ -26,12 +26,12 @@ import sys
 from dnutils import logs
 from pracmln.mln.util import colorize, headline
 
-from prac.pracquery import PRACQueryGUI
+from pracquery import PRACQueryGUI
 from prac.pracutils.utils import prac_heading
-from .core.base import PRAC
-from .core.inference import PRACInference
-from .core.learning import PRACLearning
-from .core.wordnet import WordNet
+from prac.core.base import PRAC
+from prac.core.inference import PRACInference
+from prac.core.learning import PRACLearning
+from prac.core.wordnet import WordNet
 
 
 logger = logs.getlogger(__name__)

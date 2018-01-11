@@ -5,7 +5,7 @@ Created on Jul 26, 2016
 '''
 import json
 import importlib
-from .core.base import PRAC
+from prac.core.base import PRAC
 
 def main():
     #===========================================================================

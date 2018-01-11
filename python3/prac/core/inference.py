@@ -23,7 +23,7 @@
 
 from collections import defaultdict
 
-from dnutils import logs
+from dnutils import logs, out
 from graphviz.dot import Digraph
 
 from prac.db.ies.models import Object, Frame, Word

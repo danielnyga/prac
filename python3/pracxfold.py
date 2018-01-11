@@ -17,10 +17,10 @@ from pracmln.mln.util import headline
 from pracmln.utils.clustering import SAHN, computeClosestCluster
 from pracmln.utils.multicore import NDPool
 
-from .core.base import PRAC
-from .core.inference import PRACInference, PRACInferenceStep
-from .core.learning import PRACLearning
-from .pracutils.evalSim import ConfusionMatrixSim
+from python3.prac.core.base import PRAC
+from python3.prac.core.inference import PRACInference, PRACInferenceStep
+from python3.prac.core.learning import PRACLearning
+from python3.prac.pracutils.evalSim import ConfusionMatrixSim
 
 
 def parse_list(option, opt, value, parser):

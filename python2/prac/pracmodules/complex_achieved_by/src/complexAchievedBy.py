@@ -56,13 +56,13 @@ class ComplexAchievedBy(PRACModule):
         query = {constants.JSON_HOWTO_ACTIONCORE: str(actioncore)}
         docs = howtodb.find(query)
         howtos = [(h, frame.sim(h)) for h in [Howto.fromjson(self.prac, d) for d in docs]]
-        howtos = [h for h in howtos if h[1] >= 0.7]
-        howtos.sort(key=lambda h: h[0].specifity(), reverse=1)
-        howtos.sort(key=lambda h: h[1], reverse=1)
+        howtos = [h for h in howtos if h[1] >= 0.5]
         if self.prac.verbose > 1:
             print 'found %d matching howtos:' % len(howtos)
             for howto in howtos:
                 print howto[1], ':', howto[0]
+        howtos.sort(key=lambda h: h[0].specifity(), reverse=1)
+        howtos.sort(key=lambda h: h[1], reverse=1)
         if howtos:
             howto = howtos[0][0]
             return howto

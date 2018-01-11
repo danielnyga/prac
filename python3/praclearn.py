@@ -24,8 +24,8 @@ import argparse
 
 from dnutils import logs
 
-from .core.base import PRAC
-from .core.learning import PRACLearning
+from python3.prac.core.base import PRAC
+from python3.prac.core.learning import PRACLearning
 
 
 logger = logs.getlogger(__name__, logs.INFO)

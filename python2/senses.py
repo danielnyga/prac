@@ -9,7 +9,7 @@ import nltk
 from dnutils import logs
 from nltk.corpus import wordnet as wn
 
-from .core import locations as praclocations
+from prac.core import locations as praclocations
 
 
 nltk.data.path = [praclocations.nltk_data]

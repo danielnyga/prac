@@ -82,9 +82,16 @@ setup(
               'prac.pracmodules.wn_senses', 'prac.pracmodules.wn_senses.src', 'prac.pracmodules.wn_senses.mln', 'prac.pracmodules.wn_senses.bin',
               'prac.pracmodules.wsd', 'prac.pracmodules.wsd.src', 'prac.pracmodules.wsd.mln', 'prac.pracmodules.wsd.bin',
               ],
+    py_modules=[
+        'practell',
+        'pracquery',
+        'pracparse',
+        'senses'
+    ],
     package_dir={
         'prac': basedir('prac'),
         'prac._version': '_version',
+        '': __basedir__
     },
     package_data={'': ['*']},
     data_files=datafiles('examples') + datafiles('3rdparty') +
@@ -127,11 +134,11 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'pracquery=prac.pracquery:main',
-            'pracparse=prac.pracparse:main',
-            'practell=prac.practell:main',
-            'pracsenses=prac.senses:main',
-            'pracxfold=prac.pracxfold:main',
+            'pracquery=pracquery:main',
+            'pracparse=pracparse:main',
+            'practell=practell:main',
+            'pracsenses=senses:main',
+            'pracxfold=pracxfold:main',
         ],
     },
     cmdclass={'install': myinstall}

@@ -24,10 +24,10 @@ import sys
 
 from dnutils import logs
 
-from .core.base import PRAC
-from .core.inference import PRACInference
-from .gui import PRACQueryGUI, DEFAULT_CONFIG
-from .pracutils.utils import prac_heading
+from prac.core.base import PRAC
+from prac.core.inference import PRACInference
+from prac.gui import PRACQueryGUI, DEFAULT_CONFIG
+from prac.pracutils.utils import prac_heading
 from pracmln.mln.util import headline
 from pracmln.utils.project import PRACMLNConfig
 

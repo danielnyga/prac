@@ -28,10 +28,10 @@ from pracmln.mln.util import colorize, headline
 
 from prac.pracquery import PRACQueryGUI
 from prac.pracutils.utils import prac_heading
-from .core.base import PRAC
-from .core.inference import PRACInference
-from .core.learning import PRACLearning
-from .core.wordnet import WordNet
+from python3.prac.core.base import PRAC
+from python3.prac.core.inference import PRACInference
+from python3.prac.core.learning import PRACLearning
+from python3.prac.core.wordnet import WordNet
 
 
 logger = logs.getlogger(__name__)

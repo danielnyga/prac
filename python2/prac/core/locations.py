@@ -26,6 +26,7 @@ import appdirs
 from prac._version import APPNAME, APPAUTHOR
 
 root = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+code_base = root
 user_data = appdirs.user_data_dir(APPNAME, APPAUTHOR)
 
 if os.path.basename(root).startswith('python'):
@@ -43,4 +44,4 @@ nltk_data = os.path.join(data, 'nltk_data')
 etc = os.path.join(app_data, 'etc')
 examples = os.path.join(app_data, 'examples')
 models = os.path.join(app_data, 'models')
-pracmodules = os.path.join(root, 'prac', 'pracmodules')
+pracmodules = os.path.join(code_base, 'prac', 'pracmodules')
