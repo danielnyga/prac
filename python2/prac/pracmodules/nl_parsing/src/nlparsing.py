@@ -290,7 +290,9 @@ class NLParsing(PRACModule):
         cmd.extend([json.dumps(s) for s in sentences])
 
         logger.debug('Calling Stanford Parser: '.format(cmd))
-        subprocess.call(cmd, env={"PYTHONPATH": locations.code_base},)
+        envs = os.environ
+        envs.update({"PYTHONPATH": locations.code_base})
+        subprocess.call(cmd, env=envs,)
         with open(filepath, 'r') as f:
             c = f.read()
             return parse_db(self.mln, c)
