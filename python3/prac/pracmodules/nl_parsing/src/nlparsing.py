@@ -38,6 +38,7 @@ from pracmln.mln.database import parse_db
 from pracmln.mln.util import colorize
 from pracmln.utils.visualization import get_cond_prob_png
 
+from prac.core import locations
 from prac.core.base import PRACModule
 from prac.core.errors import ParserError
 from prac.core.inference import PRACInferenceStep, NLInstruction
@@ -289,7 +290,9 @@ class NLParsing(PRACModule):
         cmd.extend([json.dumps(s) for s in sentences])
 
         logger.debug('Calling Stanford Parser: '.format(cmd))
-        subprocess.call(cmd)
+        envs = os.environ
+        envs.update({"PYTHONPATH": locations.code_base})
+        subprocess.call(cmd, env=envs, )
         with open(filepath, 'r') as f:
             c = f.read()
             return parse_db(self.mln, c)
