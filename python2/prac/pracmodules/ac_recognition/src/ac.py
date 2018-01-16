@@ -141,7 +141,7 @@ class ActionCoreIdentification(PRACModule):
             return [db]
 
         # sort list according to word ID to keep order of actions
-        verb_list = sorted(verb_list, cmp=lambda x, y: cmp(x.split('-')[-1], y.split('-')[-1]))
+        verb_list = sorted(verb_list, key=lambda x: x.split('-')[-1])
 
 
         # TODO improve the handling
