@@ -92,7 +92,7 @@ class Frame(object):
                 #we define the the similarity between the instruction and the frame as zero
                 #------------------------------------------------------------------------------ 
                 if sims[-1] == 0: return 0
-        return avg(*sims)
+        return 0 if not sims else avg(*sims)
     
     
     def specifity(self):

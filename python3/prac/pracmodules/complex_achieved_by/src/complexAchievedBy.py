@@ -23,7 +23,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 
-from dnutils import logs
+from dnutils import logs, out
 
 import prac
 from prac.core.base import PRACModule, PRACDatabase
