@@ -139,6 +139,9 @@ cram_plan: "(perform (an action (type sprinkle) (source (an object (type contain
 action_core: Starting
 action_roles: ['obj_to_be_started','action_verb']
 ---
+action_core: Stopping
+action_roles: ['obj_to_be_stopped','action_verb']
+---
 action_core: Stirring
 action_roles: ['action_verb','content']
 cram_plan: "(perform (an action (type use-whisk) (a location (in container.n.01) (contains (a substance (type {content}){content_props})))))"
