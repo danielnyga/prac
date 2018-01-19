@@ -93,3 +93,4 @@ If you run `PRAC` from the repository, you have to go to the ``python3`` or ``py
 on which Python version you chose. Then invoke the Python interpreter with the respective script: ::
 
     $ python pracquery.py "start the centrifuge."
+
