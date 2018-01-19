@@ -40,6 +40,7 @@ class ComplexAchievedBy(PRACModule):
     PRACModule used to perform action core refinement with a mongo database
     lookup.
     '''
+
     def closest_howto(self, frame):
         '''
         Determines the howto which describes how to perform the complex task.
@@ -67,7 +68,6 @@ class ComplexAchievedBy(PRACModule):
             howto = howtos[0][0]
             return howto
             
-#     @PRACPIPE
     def __call__(self, node, **params):
 
         # ======================================================================
@@ -92,7 +92,7 @@ class ComplexAchievedBy(PRACModule):
                     step.actionroles[role] = subst[obj.type] 
         pred = None
         for step in howto.steps:
-            newnode = FrameNode(node.pracinfer, 
+            newnode = FrameNode(node.pracinfer,
                                 step, 
                                 node, 
                                 pred, 

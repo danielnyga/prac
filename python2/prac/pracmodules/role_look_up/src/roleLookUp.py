@@ -23,7 +23,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 
-from dnutils import logs
+from dnutils import logs, out
 
 import prac
 from prac.core.base import PRACModule
@@ -157,44 +157,11 @@ class RoleLookUp(PRACModule):
             else:
                 if self.prac.verbose > 0:
                     print "No suitable frames are available."
-        
-#                     frame_result_list = transform_documents_to_actionrole_dict(cursor)
-                        
-#                     if len(frame_result_list) > 0:
-#                         logger.info("Found suitable frames")
-#                         score_frame_matrix = numpy.array(map(lambda x: frame_similarity(roles_senses_dict, x), 
-#                                                              frame_result_list))
-#                         confidence_level = 0.7
-#     
-#                         argmax_index = score_frame_matrix.argmax()
-#                         current_max_score = score_frame_matrix[argmax_index]
-#     
-#                         if current_max_score >= confidence_level:
-#                             frame = frame_result_list[argmax_index]
-#                             document = cursor[argmax_index]
-#                             i = 0
-#                             for role in missingroles:
-#                                 word = "{}mongo{}".format(str(document[constants.JSON_FRAME_ACTIONCORE_ROLES]
-#                                                               [missing_role]
-#                                                               [constants.JSON_SENSE_WORD]), str(i))
-#                                 print "Found {} as {}".format(frame[missing_role], missing_role)
-#                                 atom_role = "{}({}, {})".format(missing_role, word, actioncore)
-#                                 atom_sense = "{}({}, {})".format('has_sense', word, frame[missing_role])
-#                                 atom_has_pos = "{}({}, {})".format('has_pos', word, str(document[constants.JSON_FRAME_ACTIONCORE_ROLES]
-#                                                                                         [missing_role]
-#                                                                                         [constants.JSON_SENSE_PENN_TREEBANK_POS]))
-#                                 db_ << (atom_role, 1.0)
-#                                 db_ << (atom_sense, 1.0)
-#                                 db_ << (atom_has_pos, 1.0)
-#     
-#                                 # Need to define that the retrieve role cannot be
-#                                 # asserted to other roles
-#                                 no_roles_set = set(self.prac.actioncores[actioncore].roles)
-#                                 no_roles_set.remove(missing_role)
-#                                 for no_role in no_roles_set:
-#                                     atom_role = "{}({},{})".format(no_role, word, actioncore)
-#                                     db_ << (atom_role, 0)
-#                                 i += 1
+            break
+        else:
+            if self.prac.verbose > 2:
+                print 'no actioncore given. skipping.'
+            return db_, []
         return db_, missingroles
 
 

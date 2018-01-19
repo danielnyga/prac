@@ -24,10 +24,11 @@
 import datetime
 from pprint import pprint
 
-from pracmln.mln.util import edict, avg
+from pracmln.mln.util import avg
 from scipy.stats import stats
 
 from prac.db.ies import constants
+from dnutils import edict
 
 
 def tojson(obj):
@@ -147,6 +148,8 @@ class Frame(object):
         for a in self.itersyntax(): yield a
         if 'action_verb' in self.actionroles:
             yield 'action_core(%s,%s)' % (self.actionroles['action_verb'].id, self.actioncore)
+        else:
+            yield 'action_core(ac-skolem,%s)' % self.actioncore
         for role, obj in self.actionroles.iteritems():
             yield '%s(%s,%s)' %(role, obj.id, self.actioncore)
             yield 'has_sense(%s,%s)' % (obj.id, obj.type)
