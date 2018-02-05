@@ -30,7 +30,6 @@ class Grounding(PRACModule):
         logger.info('{} {}'.format(self.name, node))
 
         constraints = ifnone(constraints, {})
-        # abstracts = ifnone(abstracts, {})
 
         self.roles = self.prac.module('senses_and_roles')
         self.wnmod = self.prac.module('wn_senses')
@@ -54,6 +53,9 @@ class Grounding(PRACModule):
                         logic=project.queryconf.get('logic', 'FuzzyLogic'),
                         grammar=project.queryconf.get('grammar', 'PRACGrammar'))
 
+        # ==============================================================
+        # Preprocessing
+        # ==============================================================
         # collect the objects from the db
         objects = []
         types = set()
@@ -61,18 +63,10 @@ class Grounding(PRACModule):
             objects.append({s['?id']: s['?concept']})
             types.add(s['?concept'])
         logger.debug('collected world model from db:', objects)
-        # augment the world model with abstract terms. Introduce new skolem symbols for them
-        # for a in abstracts:
-        #     if a not in types:
-        #         objects.append({newsymbol(mln, objdb, 'object'): a})
-        #         types.add(a)
 
         # collect the known roles
         role2concept = {str(role): str(o.type) for role, o in node.frame.actionroles.items() if o.type in types}
         concept2role = {str(o.type): str(role) for role, o in node.frame.actionroles.items() if o.type in types}
-        # ==============================================================
-        # Preprocessing
-        # ==============================================================
         logger.info('creating evidence database for %s' % objects)
         # out(concept2role)
         # out(role2concept)
@@ -90,14 +84,7 @@ class Grounding(PRACModule):
         # TODO: this hs to go into the ROS module
         for role, concept in constraints.items():
             for s in db.query('has_sense(?id, ?s) ^ is_a(?s,%s)' % concept):
-                out('adding', '%s(%s,%s)' % (role, s['?id'], actioncore.name))
                 db << '%s(%s,%s)' % (str(role), str(s['?id']), str(actioncore.name))
-        # for role in actioncore.roles:
-        #     for q in self.query('!{}(?w,{})'.format(role, actioncore)):
-        #         db << ('{}(?w,{})'.format(role, actioncore), 0)
-        # out('-----------')
-        # db.write()
-        # out('----------')
         tmpmln = mln.copy()
         tmpmln.domains['concept'] = list(set(tmpmln.domains['concept']) | set(db.domains['concept']))
         simil = self.wnmod.add_sims(db, tmpmln)
