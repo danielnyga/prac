@@ -127,7 +127,6 @@ class SensesAndRoles(PRACModule):
             # get query roles for given actioncore and add inference results
             # for them to final output db. ignore 0-truth results.
             unified_db = new_tmp_union_db.union(resultdb, mln=self.prac.mln)
-#             node.frame.actionroles = defaultdict(list)
             for role, word in unified_db.rolesw(actioncore):
                 sense = unified_db.sense(word)
                 props = dict(unified_db.properties(word))
@@ -144,9 +143,9 @@ class SensesAndRoles(PRACModule):
                         continue
                 new_result << (atom, truth)
 
-            for q in unified_db.query('has_sense(?w, ?s)'):
+            if self.prac.verbose > 1:
+                for q in unified_db.query('has_sense(?w, ?s)'):
                 # TODO Add additional formulas to avoid the using of null values
-                if self.prac.verbose > 1:
                     print colorize('  WORD:', (None, 'white', True), True), q['?w']
                     print colorize('  SENSE:', (None, 'white', True), True), q['?s']
                     wnmod.printWordSenses(wnmod.get_possible_meanings_of_word(
@@ -164,16 +163,12 @@ class SensesAndRoles(PRACModule):
                 raise Exception('no actioncore in database: %s' % olddb)
             
             infstep.applied_settings = project.queryconf.config
-#         pprint(actionroles)
         newframes = splitd(actionroles)
         pred = None
         for newframe in newframes:
-#             pprint(newframe)
-            f = Frame(self.prac, node.frame.sidx, node.frame.sentence, syntax=list(olddb.syntax()), 
+            f = Frame(self.prac, node.frame.sidx, node.frame.sentence, syntax=list(olddb.syntax()),
                       words=node.frame.words, actioncore=node.frame.actioncore, actionroles=newframe)
             logger.debug('created new frame %s' % f)
-#             for db in infstep.outdbs:
-#                 out(db.syntax())
             pred = FrameNode(node.pracinfer, f, node, pred, indbs=infstep.outdbs, prevmod=self.name)
             yield pred
 

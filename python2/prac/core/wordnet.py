@@ -28,7 +28,7 @@ from scipy import spatial
 from threading import RLock
 
 import graphviz as gv
-from dnutils import logs
+from dnutils import logs, out
 from num2words import num2words
 from word2number import w2n
 
@@ -756,6 +756,21 @@ class WordNet(object):
 
         return 1. - (abs(syn1len - syn2len) / max(syn1len, syn2len))
 
+    @synchronized(wordnetlock)
+    def ishyponym(self, s1, s2):
+        '''
+        Check if one synset ``s1`` is a hyponym of another synset ``s2``.
+
+        :param s1:  synset object or string representing a synset
+        :param s2:  synset object or string representing a synset
+        :return:
+        '''
+        if not isinstance(s1, Synset):
+            s1 = self.synset(s1)
+        if not isinstance(s2, Synset):
+            s2 = self.synset(s2)
+        hypernyms = list(self.flatten(self.hypernym_paths(s1)))
+        return s2 in hypernyms
 
     @synchronized(wordnetlock)
     def semilarity(self, synset1, synset2):

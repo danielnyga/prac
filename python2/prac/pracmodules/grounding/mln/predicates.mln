@@ -1,1 +1,1 @@
-instance_of(id, concept!)
+instance_of(object, concept!)
