@@ -86,7 +86,7 @@ def main():
     usage = 'PRAC Query Tool'
 
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument("instruction", help="The instruction.")
+    parser.add_argument("instructions", help="The instruction.", type=str, nargs='+')
     parser.add_argument("-i", "--interactive", dest="interactive", default=False, action='store_true', help="Starts PRAC inference with an interactive GUI tool.")
     parser.add_argument("-v", "--verbose", dest="verbose", default=1, type=int, action="store", help="Set verbosity level {0..3}. Default is 1.")
 
