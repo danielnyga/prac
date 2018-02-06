@@ -93,7 +93,7 @@ def main():
     args = parser.parse_args()
     opts_ = vars(args)
 
-    sentences = args.instruction
+    sentences = args.instructions
     prac = PRAC()
     prac.verbose = args.verbose
 
