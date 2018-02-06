@@ -82,9 +82,10 @@ class Grounding(PRACModule):
         project.queryconf['queries'] = [r for r in actioncore.roles if r not in role2concept]
         # copy over the role constraints
         # TODO: this hs to go into the ROS module
-        for role, concept in constraints.items():
-            for s in db.query('has_sense(?id, ?s) ^ is_a(?s,%s)' % concept):
-                db << '%s(%s,%s)' % (str(role), str(s['?id']), str(actioncore.name))
+        for role, concepts in constraints.items():
+            for concept in concepts:
+                for s in db.query('has_sense(?id, ?s) ^ is_a(?s,%s)' % concept):
+                    db << '%s(%s,%s)' % (str(role), str(s['?id']), str(actioncore.name))
         tmpmln = mln.copy()
         tmpmln.domains['concept'] = list(set(tmpmln.domains['concept']) | set(db.domains['concept']))
         simil = self.wnmod.add_sims(db, tmpmln)
