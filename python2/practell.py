@@ -32,7 +32,6 @@ def main():
     parser.add_argument('--save', action='store_true', default=False, help='Store the howto in the PRAC database permanently.')
 
     args = parser.parse_args()
-    opts_ = vars(args)
 
     if args.quiet: args.verbose = 0
 
@@ -68,7 +67,7 @@ def main():
     try:
         cpu_count =  multiprocessing.cpu_count() if args.multicore else 1
         pool = multicore.NonDaemonicPool(cpu_count)
-        pool.map(multicore.with_tracing(import_howto), list(zip(howtos, itertools.repeat(args.verbose))))
+        pool.map(multicore.with_tracing(import_howto), list(zip(howtos, itertools.repeat(args.verbose), itertools.repeat(args.save))))
     except KeyboardInterrupt:
         traceback.print_exc()
         pool.terminate()
@@ -83,11 +82,11 @@ def main():
 
 def import_howto(args):
     try:
-        howto_steps, verbose = args
+        howto_steps, verbose, save = args
         prac = PRAC()
         prac.verbose = verbose
         for howto, steps in list(howto_steps.items()):
-            prac.tell(howto=howto, steps=steps, save=args.save)
+            prac.tell(howto=howto, steps=steps, save=save)
     except KeyboardInterrupt: return
 
 if __name__ == '__main__':
