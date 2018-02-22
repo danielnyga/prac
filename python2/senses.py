@@ -30,7 +30,7 @@ def main():
     parser.add_argument('--wupsim', action='store_true', default=False, help='compute the WUP similairty of two synsets')
     args = parser.parse_args()
 
-    if args.all and (args.tag is None or args.word is None):
+    if args.all and (args.tag is None or args.words is None):
         parser.error("option -a requires a word and a part-of-speech tag!")
     if args.wupsim and len(args.words) != 2:
         parser.error("option --wupsim requires two synset ids.")
