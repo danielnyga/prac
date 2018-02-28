@@ -40,7 +40,6 @@ except ImportError:
     logger.warning('MongoDB modules cannot be used.')
 
 
-
 def are_requirements_set_to_load_module(module_name):
     if module_name == 'role_look_up' or module_name == 'complex_achieved_by':
         if 'pymongo' in sys.modules:
