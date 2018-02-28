@@ -16,6 +16,7 @@ nltk.data.path = [praclocations.nltk_data]
 
 logger = logs.getlogger(__name__)
 
+
 def main():
     usage = '''PRAC Senses
     Example usage:
