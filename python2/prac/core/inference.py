@@ -23,7 +23,7 @@
 
 from collections import defaultdict
 
-from dnutils import logs, ifnone
+from dnutils import logs
 from graphviz.dot import Digraph
 
 from prac.db.ies.models import Object, Frame, Word
@@ -59,6 +59,7 @@ class PRACInferenceStep(object):
         self.watch = StopWatch()
 
 
+
 class PRACInferenceNode(object):
     '''
     Abstract node in the inference tree spanned by the PRAC
@@ -87,6 +88,7 @@ class PRACInferenceNode(object):
             pred = pred.pred
         return preds
     
+    
     def iterpreds(self):
         '''
         Iterates over all predecessors of this node backwards.
@@ -95,6 +97,7 @@ class PRACInferenceNode(object):
         while pred is not None:
             yield pred
             pred = pred.pred
+    
     
     def rdfs(self, goaltest, all=False):
         '''
@@ -116,32 +119,38 @@ class PRACInferenceNode(object):
             q.extend(reversed(list(n.iterpreds())))
             if n not in parents:
                 q.extend(list(n.children))
-
+    
+    
     def parentspath(self):
         parent = self.parent
         while parent is not None:
             yield parent 
             parent = parent.parent
-
+        
+    
     def nlinstr(self):
         if isinstance(self, NLInstruction): return self
         for par in self.parentspath():
             if isinstance(par, NLInstruction):
                 return par
-
+    
+    
     @property
     def outdbs(self):
         if not self.infchain: 
             return self.indbs
         return self.infchain[-1].outdbs
-
+    
+    
     def copy(self, pred=None):
         return PRACInferenceNode(pracinfer=self.pracinfer, parent=self.parent, pred=pred)
-
+    
+        
     @property
     def laststep(self):
         return self.infchain[-1]
-
+        
+    
     def next_module(self):
         '''
         Determines which module is to be executed next in the PRAC pipeline.
@@ -190,7 +199,8 @@ class NLInstruction(PRACInferenceNode):
     def __init__(self, pracinfer, instr, pred=None, prevmod=None):
         PRACInferenceNode.__init__(self, pracinfer=pracinfer, parent=None, pred=pred, indbs=None, prevmod=prevmod)
         self.instr = instr
-
+    
+    
     def __str__(self):
         return '"%s"' % self.instr
         
@@ -205,6 +215,7 @@ class FrameNode(PRACInferenceNode):
     def __str__(self):
         return str(self.frame)
 
+
     def repstr(self):
         return self.frame.repstr()
 
@@ -213,7 +224,7 @@ class PRACInference(object):
     '''
     Represents an inference chain in PRAC
     '''
-    def __init__(self, prac, instr, constraints=None):
+    def __init__(self, prac, instr, worldmodel=None):
         '''
         PRAC inference initialization.
         :param prac:     reference to the PRAC instance.
@@ -222,7 +233,6 @@ class PRACInference(object):
         '''
         self._logger = logs.getlogger(self.__class__.__name__, level=logs.DEBUG)
         self.prac = prac
-        self.constraints = ifnone(constraints, None, lambda db: db.copy())
         prac.deinit_modules()
         self.watch = StopWatch()
         if type(instr) in {list, tuple}:
@@ -236,6 +246,7 @@ class PRACInference(object):
             pred = self.fringe[-1]
         self.root = list(self.fringe)
         self.lastnode = None
+        self.worldmodel = worldmodel
 
     def run(self, stopat=None):
         if type(stopat) not in (tuple, list):
@@ -258,10 +269,13 @@ class PRACInference(object):
         if modname:
             self._logger.debug('running %s' % modname)
             module = self.prac.module(modname)
-            nodes = list(module(node))
+            nodes = list(module(node, worldmodel=self.worldmodel))
             node.previous_module = modname
             self.fringe.extend(nodes)
         self.lastnode = node
+#         if type(node) == FrameNode:
+#             out('indbs:', list(node.indbs))
+#             out('outdbs:', list(node.outdbs))
         return node
 
     def steps(self):
@@ -279,6 +293,8 @@ class PRACInference(object):
             print ' ' * len(list(n.parentspath())), n
             q = n.children + q
 
+
+
     def buildframes(self, db, sidx, sentence):
         for _, actioncore in db.actioncores():
             roles = defaultdict(list)
@@ -290,7 +306,8 @@ class PRACInference(object):
             frames = splitd(roles)    
             for frame in frames:
                 yield Frame(self.prac, sidx, sentence, syntax=list(db.syntax()), words=self.buildwords(db), actioncore=actioncore, actionroles=frame)
-
+    
+    
     def buildword(self, db, word):
         tokens = word.split('-')
         w = '-'.join(tokens[:-1])
@@ -300,11 +317,16 @@ class PRACInference(object):
         nltkpos = db.prac.wordnet.nltkpos(pos)
         lemma = db.prac.wordnet.lemmatize(w, nltkpos) if nltkpos is not None else None
         return Word(self.prac, word, w, idx, sense, pos, lemma)
-
+    
+                
     def buildwords(self, db):
         for word in db.words():
             yield self.buildword(db, word)
             
+        
+
+    
+
     def finalgraph(self, filename=None):
         finaldb = Database(self.prac.mln)
         for step in self.inference_steps:

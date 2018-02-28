@@ -26,6 +26,7 @@ from dnutils import logs
 
 from prac.core.base import PRAC
 from prac.core.inference import PRACInference
+from prac.db.ies.models import Worldmodel, Object
 from prac.gui import PRACQueryGUI, DEFAULT_CONFIG
 from prac.pracutils.utils import prac_heading
 from pracmln.mln.util import headline
@@ -86,7 +87,7 @@ def main():
     usage = 'PRAC Query Tool'
 
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument("instructions", help="The instruction.", type=str, nargs='+')
+    parser.add_argument("instructions", help="The instructions.", nargs='+')
     parser.add_argument("-i", "--interactive", dest="interactive", default=False, action='store_true', help="Starts PRAC inference with an interactive GUI tool.")
     parser.add_argument("-v", "--verbose", dest="verbose", default=1, type=int, action="store", help="Set verbosity level {0..3}. Default is 1.")
 
@@ -134,7 +135,10 @@ def main():
         exit(0)
 
     # regular PRAC pipeline
-    infer = PRACInference(prac, sentences)
+    wm = Worldmodel(prac)
+    wm.add(Object(prac, 'o1', 'pizza.n.01'))
+    wm.add(Object(prac, 'o2', 'knife.n.01'))
+    infer = PRACInference(prac, sentences, wm)
     infer.run()
 
     print(headline('inference results'))

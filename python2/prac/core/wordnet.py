@@ -862,6 +862,22 @@ class WordNet(object):
                 paths.append(new_path)
         return paths
 
+    @synchronized(wordnetlock)
+    def hypernyms(self, synset):
+        '''
+        Returns a set of all inherited hypernyms that are returned by ``hypernym_paths()``
+        :param synset:
+        :return:
+        '''
+        return reduce(lambda a, b: a | b, [set(p) for p in self.hypernym_paths(synset)])
+
+    def hypernyms_names(self, synset):
+        '''
+        Returns a set of all inherited hypernyms that are returned by ``hypernym_paths()``
+        :param synset:
+        :return:
+        '''
+        return [str(s.name()) for s in self.hypernyms(synset)]
 
     @synchronized(wordnetlock)
     def get_mln_similarity_and_sense_assertions(self, known_concepts, unknown_concepts):

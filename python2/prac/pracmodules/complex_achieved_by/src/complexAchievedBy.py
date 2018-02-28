@@ -41,7 +41,7 @@ class ComplexAchievedBy(PRACModule):
     lookup.
     '''
 
-    def closest_howto(self, frame):
+    def closest_howto(self, frame, all=False, worldmodel=None):
         '''
         Determines the howto which describes how to perform the complex task.
         
@@ -64,11 +64,18 @@ class ComplexAchievedBy(PRACModule):
                 print howto[1], ':', howto[0]
         howtos.sort(key=lambda h: h[0].specifity(), reverse=1)
         howtos.sort(key=lambda h: h[1], reverse=1)
+        if worldmodel:
+            for howto in howtos:
+                objects = howto.object_names()
+                contained = [o for o in objects if worldmodel.contains(o, False) is not False]
+                print howto, 'has objects from worldmodel:', howto
         if howtos:
-            howto = howtos[0][0]
-            return howto
-            
-    def __call__(self, node, **params):
+            if not all:
+                return howtos[0][0]
+            else:
+                return howtos
+
+    def __call__(self, node, worldmodel=None, **params):
 
         # ======================================================================
         # Initialization
@@ -79,7 +86,7 @@ class ComplexAchievedBy(PRACModule):
             print prac_heading('Processing complex Action Core refinement')
         frame = node.frame
         pngs = {}
-        howto = self.closest_howto(node.frame)
+        howto = self.closest_howto(node.frame, worldmodel)
         if howto is None: return 
         print howto.shortstr()
         subst = {}
@@ -92,7 +99,7 @@ class ComplexAchievedBy(PRACModule):
                     step.actionroles[role] = subst[obj.type] 
         pred = None
         for step in howto.steps:
-            newnode = FrameNode(node.pracinfer,
+            newnode = FrameNode(node.pracinfer, 
                                 step, 
                                 node, 
                                 pred, 

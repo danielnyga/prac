@@ -24,31 +24,35 @@ def main():
     "pracsenses shark.n.01"'''
 
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument('word', type=str, help='the word to find the wordnet sense of')
+    parser.add_argument('words', type=str, nargs='+', help='the word to find the wordnet sense of')
     parser.add_argument('-t', '--tag', dest='tag', type=str, help='the part-of-speech tag the word has', required=False)
     parser.add_argument("-a", "--all", dest="all", default=False, action='store_true', help="whether all senses should be retrieved or not.")
+    parser.add_argument('--wupsim', action='store_true', default=False, help='compute the WUP similairty of two synsets')
     args = parser.parse_args()
 
-
-    if args.all and (args.tag is None or args.word is None):
+    if args.all and (args.tag is None or args.words is None):
         parser.error("option -a requires a word and a part-of-speech tag!")
-
-    opts_ = vars(args)
-    logger.error(args)
+    if args.wupsim and len(args.words) != 2:
+        parser.error("option --wupsim requires two synset ids.")
 
     if args.all:
-        synsets = wn.synsets(args.word, args.tag)
-        for s in synsets:
-            logger.info(s.name() + ": " + s.definition() + ' (' + ';'.join(s.examples()) + ')')
-        print()
+        for word in args.words:
+            synsets = wn.synsets(word, args.tag)
+            for s in synsets:
+                print(s.name() + ": " + s.definition() + ' (' + ';'.join(s.examples()) + ')')
+            print
+    elif args.wupsim:
+        w1, w2 = args.words
+        s1, s2 = wn.synset(w1), wn.synset(w2)
+        print('%s ~ %s: %s' % (s1.name(), s2.name(), s1.wup_similarity(s2)))
     else:
-        synset = wn.synset(args.word)
-        concepts = set()
-        for path in synset.hypernym_paths():
-            concepts.update([x.name for x in path])
-        for c in concepts:
-            logger.info('is_a({},{})'.format(args.word, c))
-        print()
+        for word in args.words:
+            synset = wn.synset(word)
+            concepts = set()
+            for path in synset.hypernym_paths():
+                concepts.update([x.name for x in path])
+            for c in concepts:
+                logger.info('is_a({},{})'.format(args.word, c))
 
 
 if __name__ == '__main__':

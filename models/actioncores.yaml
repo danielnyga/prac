@@ -31,6 +31,9 @@ action_roles: ['action_verb','obj_to_be_arranged']
 action_core: Baking
 action_roles: ['theme','action_verb']
 ---
+action_core: Boiling
+action_roles: ['theme','action_verb']
+---
 action_core: Shutting
 action_roles: ['obj_to_be_shut', 'action_verb', 'utensil']
 ---
@@ -43,7 +46,7 @@ action_roles: ['action_verb','amount','location','obj_to_be_cooled','unit']
 action_core: Cutting
 action_roles: ['action_verb', 'amount', 'obj_to_be_cut', 'unit', 'utensil']
 required_action_roles: ['obj_to_be_cut','utensil','action_verb']
-cram_plan: "(perform (an action (type cut-object) (an object (type {obj_to_be_cut}){obj_to_be_cut_props})(count (unit {unit}){unit_props}(number {amount}){amount_props})))"
+cram_plan: "(perform (an action (type cut-object) (an object (type {obj_to_be_cut}){obj_to_be_cut_props})(count (unit {unit}){unit_props}(number {amount}){amount_props})(utensil (an object (type {utensil})))))"
 ---
 action_core: Evaluating
 action_roles: ['obj_to_be_evaluated','attribute','action_verb']

@@ -33,20 +33,19 @@ class HowtoImport(object):
     '''
     '''
 
-    def __init__(self, prac, howto):
+    def __init__(self, prac, howto, save=False):
         self.howto = howto
         self.prac = prac
-
+        self.save=save
 
     def run(self):
         instr, steps = dict(self.howto).popitem()
         howto = self.buildhowto(instr, steps)
-        if howto is not None:
+        if howto is not None and self.save:
             pprint(howto.tojson())
             self.prac.mongodb.prac.howtos.insert_one(howto.tojson())
         print howto.shortstr()
-    
-    
+
     def buildframes(self, db, sidx, sentence):
         for p, args in db.syntax():
             print p, args
@@ -60,8 +59,7 @@ class HowtoImport(object):
             frames = ddivide(roles)    
             for frame in frames:
                 yield Frame(self.prac, sidx, sentence, syntax=list(db.syntax()), words=self.buildwords(db), actioncore=actioncore, actionroles=frame)
-    
-    
+
     def buildword(self, db, word):
         tokens = word.split('-')
         w = '-'.join(tokens[:-1])
@@ -72,13 +70,10 @@ class HowtoImport(object):
         lemma = db.prac.wordnet.lemmatize(w, nltkpos) if nltkpos is not None else None
         return Word(self.prac, word, w, idx, sense, pos, lemma)
     
-                
     def buildwords(self, db):
         for word in db.words():
             yield self.buildword(db, word)
             
-        
-        
     def buildhowto(self, instr, steps):
         '''
         constructs a json representation of the instruction ``instr`` 
@@ -95,8 +90,7 @@ class HowtoImport(object):
         for step in infer.steps():
             frames.append(step.frame)
         return Howto(self.prac, instr=mainframe, steps=frames)
-    
-    
+
     def store_frames_into_database(self, howto, frames):
         pracdb = self.prac.mongodb.prac
         howtos = pracdb.howtos

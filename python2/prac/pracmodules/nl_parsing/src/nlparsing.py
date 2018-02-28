@@ -160,18 +160,15 @@ class NLParsing(PRACModule):
     'has_pos' and the stanford dependencies.
     '''
 
-
     def __init__(self, prac):
         PRACModule.__init__(self, prac)
         self.mln = None
-
 
     def initialize(self):
         logger.debug('initializing nl_parsing')
 
         self.mln = MLN(mlnfile=os.path.join(self.module_path, 'mln', 'predicates.mln'),
                        grammar='PRACGrammar', logic='FuzzyLogic')
-
 
     @staticmethod
     def is_aux_verb(word, db):
@@ -190,7 +187,6 @@ class NLParsing(PRACModule):
             return True
 
         return False
-
 
     def get_all_verbs(self, db):
         '''
@@ -212,7 +208,6 @@ class NLParsing(PRACModule):
 
         # Sort list by the order occurrence of the verbs
         return sorted(verb_list, key=lambda verb: int(verb.split('-')[-1]))
-
 
     @staticmethod
     def compounds(sentence):
@@ -236,7 +231,6 @@ class NLParsing(PRACModule):
         '''
         instr = word_tokenize(sentence)
         newinstr = []
-
         i = 0
         for _ in instr:
             found = False
@@ -270,7 +264,6 @@ class NLParsing(PRACModule):
         # untokenize sentence before returning.
         return "".join([" "+i if not i.startswith("'") and i not in string.punctuation else i for i in newinstr]).strip()
 
-    
     def parse(self, sentences):
         '''
         Accepts as arguments a sentence or a list of sentences. Returns the
@@ -297,10 +290,7 @@ class NLParsing(PRACModule):
             c = f.read()
             return parse_db(self.mln, c)
 
-
-    
-#     @PRACPIPE
-    def __call__(self, node):
+    def __call__(self, node, **params):
         # ======================================================================
         # Initialization
         # ======================================================================

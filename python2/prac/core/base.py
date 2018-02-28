@@ -222,7 +222,7 @@ class PRAC(object):
         self._verbose = v
 
 
-    def tell(self, howto, steps):
+    def tell(self, howto, steps, save=False):
         '''
         This method tells PRAC how complex high-level tasks are being achieved
         by executing multiple instruction steps.
@@ -236,7 +236,7 @@ class PRAC(object):
                          the high-level goal, e.g. ['flip the pancake around.',
                          'wait for 2 minutes.', ...]
         '''
-        fe = HowtoImport(self, {howto: steps})
+        fe = HowtoImport(self, {howto: steps}, save=save)
         fe.run()
         
         
@@ -883,7 +883,8 @@ class PRACDatabase(Database):
         for q in self.query('has_sense(%s, ?sense)' % word):
             return q['?sense']
             
-            
+
+
 
 if __name__ == '__main__':
     '''
