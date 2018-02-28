@@ -24,9 +24,10 @@
 import datetime
 from pprint import pprint
 
-from pracmln.mln.util import edict, avg
+from pracmln.mln.util import avg
 from scipy.stats import stats
 
+from dnutils import edict
 from prac.db.ies import constants
 
 
@@ -215,6 +216,9 @@ class Howto(Frame):
         specs.append(Frame.specifity(self))
         return stats.hmean(specs)
 
+    def object_types(self):
+        return set([c for s in self.steps for r, c in s.actionroles.items()])
+
 
 class PropertyStore(object):
     '''Store for property values of objects'''
@@ -345,11 +349,49 @@ class Word(object):
                     data.get(constants.JSON_SENSE_WORD))
 
 
+class Worldmodel(object):
+
+    def __init__(self, prac):
+        self.prac = prac
+        self.available = {}
+        self.unavailable = set()
+
+    def contains(self, concept):
+        hypernyms = reduce(lambda a, b: a | b, [prac.wordnet.hypernyms_names(o.type) for o in self.available.values()])
+        if concept in hypernyms:
+            return True
+        if concept in self.unavailable:
+            return False
+
+    def __contains__(self, o):
+        return self.contains(o)
+
+    def add(self, obj):
+        self.available[obj.id] = obj
+        if obj.type in self.unavailable:
+            self.unavailable.remove(obj.type)
+
+    def remove(self, objid, cw=True):
+        obj = self.available.get(objid)
+        if obj is None: return
+        del self.available[objid]
+        if cw and obj.type not in self:
+            self.unavailable.add(obj.type)
+
+    def __str__(self):
+        return str({o.id: o.type for o in self.available.values()}) + '{%s}' % ','.join(['!%s' % c for c in self.unavailable])
+
+
 if __name__ == '__main__':
     from prac.core.base import PRAC
     prac = PRAC()
-    o1 = Object(prac, 'w1', 'cup.n.01', syntax=Word(prac, 'water-1', 'water', 1, 'water.n.06', 'NN', 'water'), props={'color': 'green.n.01'})
+    o1 = Object(prac, 'w1', 'coffee_cup.n.01', syntax=Word(prac, 'water-1', 'water', 1, 'water.n.06', 'NN', 'water'), props={'color': 'green.n.01'})
     print o1
     print repr(o1)
     pprint(o1.tojson())
+
+    wm = Worldmodel(prac)
+    wm.add(o1)
+    # wm.remove(o1.id, True)
+    print wm.contains('cup.n.01')
 

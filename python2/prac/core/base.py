@@ -883,7 +883,8 @@ class PRACDatabase(Database):
         for q in self.query('has_sense(%s, ?sense)' % word):
             return q['?sense']
             
-            
+
+
 
 if __name__ == '__main__':
     '''

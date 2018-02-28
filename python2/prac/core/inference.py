@@ -224,7 +224,7 @@ class PRACInference(object):
     '''
     Represents an inference chain in PRAC
     '''
-    def __init__(self, prac, instr):
+    def __init__(self, prac, instr, worldmodel=None):
         '''
         PRAC inference initialization.
         :param prac:     reference to the PRAC instance.
@@ -246,8 +246,8 @@ class PRACInference(object):
             pred = self.fringe[-1]
         self.root = list(self.fringe)
         self.lastnode = None
-    
-    
+        self.worldmodel = worldmodel
+
     def run(self, stopat=None):
         if type(stopat) not in (tuple, list):
             stopat = [stopat]
@@ -257,13 +257,11 @@ class PRACInference(object):
             self.runstep()
         return self
 
-    
     def next_module(self):
         if not self.fringe:
             return None
         return self.fringe[0].next_module()
-    
-    
+
     def runstep(self):
         if not self.fringe: return
         node = self.fringe.pop(0)
@@ -271,7 +269,7 @@ class PRACInference(object):
         if modname:
             self._logger.debug('running %s' % modname)
             module = self.prac.module(modname)
-            nodes = list(module(node))
+            nodes = list(module(node, worldmodel=self.worldmodel))
             node.previous_module = modname
             self.fringe.extend(nodes)
         self.lastnode = node
@@ -279,7 +277,6 @@ class PRACInference(object):
 #             out('indbs:', list(node.indbs))
 #             out('outdbs:', list(node.outdbs))
         return node
-        
 
     def steps(self):
         q = list(self.root)
