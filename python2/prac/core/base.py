@@ -107,8 +107,8 @@ class PRAC(object):
     The PRAC reasoning system.
     '''
     def __init__(self, configfile='pracconf'):
-        sys.path.append(locations.code_base)
         # read all the manifest files.
+        sys.path.insert(0, locations.code_base)
         self.config = PRACConfig(configfile)
         self.actioncores = ActionCore.load(os.path.join(praclocations.models, 'actioncores.yaml'))
         self._manifests = []
@@ -124,7 +124,7 @@ class PRAC(object):
                 continue
             manifest_file = open(manifest_file_name, 'r')
             modulessrc = os.path.abspath(os.path.join(praclocations.pracmodules, module_path, 'src'))
-            sys.path.append(modulessrc)
+            sys.path.insert(0, modulessrc)
             module = PRACModuleManifest.read(manifest_file)
             module.module_path = os.path.join(praclocations.pracmodules, module_path)
             self._manifests.append(module)

@@ -24,9 +24,9 @@
 import datetime
 from pprint import pprint
 
-from pracmln.mln.util import edict, avg
 from scipy.stats import stats
 
+from pracmln.mln.util import edict, avg
 from . import constants
 
 
@@ -80,7 +80,7 @@ class Frame(object):
         #------------------------------------------------------------------------------ 
         # This is a sanity check to revoke false inferred 
         # frames during the information extraction process.
-        if verbsim  < 0.85: return 0
+        # if verbsim  < 0.85: return 0
         #------------------------------------------------------------------------------ 
         sims = []
         for rolename, rolevalue in list(self.actionroles.items()):
