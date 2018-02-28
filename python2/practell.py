@@ -38,9 +38,9 @@ def main():
     if args.verbose:
         print(prac_heading('Telling PRAC, how to {}'.format(args.howto)))
 
-    #===========================================================================
+    # ===========================================================================
     # If the 'steps' flag is set, take all arguments as the list of instructions
-    #===========================================================================
+    # ===========================================================================
     howtos = []
     if args.steps:
         howtos = [{args.howto: args.steps}]
@@ -61,24 +61,26 @@ def main():
             with open(filename) as f:
                 howtos.append({' '.join(filename.split('-')): [_f for _f in (line.strip() for line in f) if _f]})
 
-    #===========================================================================
+    # ===========================================================================
     # start the import
-    #===========================================================================
+    # ===========================================================================
     try:
-        cpu_count =  multiprocessing.cpu_count() if args.multicore else 1
+        cpu_count = multiprocessing.cpu_count() if args.multicore else 1
         pool = multicore.NonDaemonicPool(cpu_count)
         pool.map(multicore.with_tracing(import_howto), list(zip(howtos, itertools.repeat(args.verbose), itertools.repeat(args.save))))
     except KeyboardInterrupt:
         traceback.print_exc()
         pool.terminate()
     else:
-        #=======================================================================
+        # =======================================================================
         # finished
-        #=======================================================================
-        if args.verbose: print('Done. Imported %d howtos' % len(howtos))
+        # =======================================================================
+        if args.verbose:
+            print('Done. Imported %d howtos' % len(howtos))
     finally:
         pool.close()
         pool.join()
+
 
 def import_howto(args):
     try:
@@ -87,7 +89,9 @@ def import_howto(args):
         prac.verbose = verbose
         for howto, steps in list(howto_steps.items()):
             prac.tell(howto=howto, steps=steps, save=save)
-    except KeyboardInterrupt: return
+    except KeyboardInterrupt:
+        return
+
 
 if __name__ == '__main__':
     main()
