@@ -41,7 +41,18 @@ def tojson(obj):
     elif isinstance(obj, dict):
         return {str(k): tojson(v) for k, v in obj.iteritems()}
     return obj
-        
+
+
+def toplan(obj, lang='json'):
+    '''Recursively generate a JSON or Lisp plan representation'''
+    if hasattr(obj, 'toplan'):
+        return obj.toplan(lang)
+    if type(obj) in (list, tuple):
+        return [toplan(e) for e in obj]
+    elif isinstance(obj, dict):
+        return {str(k): toplan(v) for k, v in obj.iteritems()}
+    return obj
+
 
 class Frame(object):
     '''
@@ -71,11 +82,11 @@ class Frame(object):
         :param f:     The frame this frame shall be compared to.
         :return:      The frame similarity of this frame and ``f``.
         '''
-        if 'action_verb' in self.actionroles and 'action_verb' in f.actionroles:
-            verbsim = self.prac.wordnet.similarity(str(self.actionroles['action_verb'].type),
-                                            str(f.actionroles['action_verb'].type), simtype='wup')
-        else:
-            return 0
+        # if 'action_verb' in self.actionroles and 'action_verb' in f.actionroles:
+        #     verbsim = self.prac.wordnet.similarity(str(self.actionroles['action_verb'].type),
+        #                                     str(f.actionroles['action_verb'].type), simtype='wup')
+        # else:
+        #     return 0
         #------------------------------------------------------------------------------ 
         # This is a sanity check to revoke false inferred 
         # frames during the information extraction process.
@@ -90,7 +101,8 @@ class Frame(object):
                 #due to the fact that nouns and adjectives cannot be compared
                 #we define the the similarity between the instruction and the frame as zero
                 #------------------------------------------------------------------------------ 
-                if sims[-1] == 0: return 0
+                # if sims[-1] == 0:
+                #     return 0
         return 0 if not sims else avg(*sims)
 
     def specifity(self):
@@ -115,6 +127,10 @@ class Frame(object):
                 constants.JSON_FRAME_SYNTAX: self.syntax,
                 constants.JSON_FRAME_WORDS: [w.tojson() for w in self.words],
                 constants.JSON_FRAME_ACTIONCORE_ROLES: self.actionroles})
+
+    def toplan(self, lang='json'):
+        return {constants.JSON_FRAME_ACTIONCORE: self.actioncore,
+                constants.JSON_FRAME_ACTIONCORE_ROLES: toplan(self.actionroles, lang=lang)}
 
     @staticmethod
     def fromjson(prac, data):
@@ -183,6 +199,9 @@ class Howto(Frame):
                      steps=[Frame.fromjson(prac, s) for s in data.get(constants.JSON_HOWTO_STEPS)],
                      import_date=data.get(constants.JSON_HOWTO_IMPORT_DATE))
 
+    def toplan(self, lang='json'):
+        return [toplan(step, lang=lang) for step in self.steps]
+
     def shortstr(self):
         s = 'Howto: %s\nSteps:\n' % Frame.__str__(self)
         s += '\n'.join([('  - %s' % f) for f in self.steps])
@@ -218,6 +237,9 @@ class PropertyStore(object):
     def tojson(self):
         return {k: tojson(getattr(self, k)) for k in self.__props if getattr(self, k) is not None}
 
+    def toplan(self, lang='json'):
+        return {p: getattr(self, p) for p in self.__props if getattr(self, p) is not None}
+
     @staticmethod
     def fromjson(prac, data):
         s = PropertyStore(prac)
@@ -252,6 +274,9 @@ class Object(object):
                 constants.JSON_OBJECT_TYPE: self.type,
                 constants.JSON_OBJECT_PROPERTIES: self.props,
                 constants.JSON_OBJECT_SYNTAX: self.syntax})
+
+    def toplan(self, lang='json'):
+        return toplan(edict({constants.JSON_OBJECT_TYPE: self.type}) + edict(self.props.toplan(lang=lang)))
 
     @staticmethod
     def fromjson(prac, data):
