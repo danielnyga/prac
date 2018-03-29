@@ -85,6 +85,7 @@ class Grounding(PRACModule):
         for role, concepts in constraints.items():
             for concept in concepts:
                 for s in db.query('has_sense(?id, ?s) ^ is_a(?s,%s)' % concept):
+                    out('asserting', str(role), str(s['?id']), str(actioncore.name))
                     db << '%s(%s,%s)' % (str(role), str(s['?id']), str(actioncore.name))
         tmpmln = mln.copy()
         tmpmln.domains['concept'] = list(set(tmpmln.domains['concept']) | set(db.domains['concept']))

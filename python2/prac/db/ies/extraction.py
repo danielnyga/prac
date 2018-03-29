@@ -45,6 +45,7 @@ class HowtoImport(object):
             pprint(howto.tojson())
             self.prac.mongodb.prac.howtos.insert_one(howto.tojson())
         print howto.shortstr()
+        return howto
 
     def buildframes(self, db, sidx, sentence):
         for p, args in db.syntax():
