@@ -846,7 +846,7 @@ class WordNet(object):
         :param synset:  a string of a synset id or a synset object itself.
         :return:        a list of hypernym paths (lists)
         '''
-        if type(synset) is str:
+        if isinstance(synset, basestring):
             synset = self.synset(synset)
             if synset is None:
                 return None

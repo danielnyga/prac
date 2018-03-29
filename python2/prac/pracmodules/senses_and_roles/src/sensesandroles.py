@@ -23,7 +23,7 @@
 import os
 from collections import defaultdict
 
-from dnutils import logs
+from dnutils import logs, out
 from pracmln.mln.base import parse_mln
 from pracmln.mln.util import colorize
 from pracmln.utils.project import MLNProject
@@ -163,7 +163,11 @@ class SensesAndRoles(PRACModule):
                 raise Exception('no actioncore in database: %s' % olddb)
             
             infstep.applied_settings = project.queryconf.config
-        newframes = splitd(actionroles)
+        # TODO: this does not work as intended (creating multiple Frames if action role assignments are ambiguous
+        out(actionroles)
+        newframes = list(splitd(actionroles))
+        out(newframes)
+        # newframes = actionroles
         pred = None
         for newframe in newframes:
             f = Frame(self.prac, node.frame.sidx, node.frame.sentence, syntax=list(olddb.syntax()),

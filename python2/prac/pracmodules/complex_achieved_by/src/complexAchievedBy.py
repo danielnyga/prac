@@ -23,11 +23,11 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 
-from dnutils import logs
+from dnutils import logs, out, first
 
 import prac
 from prac.core.base import PRACModule, PRACDatabase
-from prac.core.inference import FrameNode
+from prac.core.inference import FrameNode, AlternativeNode
 from prac.db.ies.models import constants, Howto
 from prac.pracutils.utils import prac_heading
 
@@ -41,7 +41,7 @@ class ComplexAchievedBy(PRACModule):
     lookup.
     '''
 
-    def closest_howto(self, frame, all=False, worldmodel=None):
+    def closest_howtos(self, frame):
         '''
         Determines the howto which describes how to perform the complex task.
         
@@ -64,47 +64,55 @@ class ComplexAchievedBy(PRACModule):
                 print howto[1], ':', howto[0]
         howtos.sort(key=lambda h: h[0].specifity(), reverse=1)
         howtos.sort(key=lambda h: h[1], reverse=1)
-        if worldmodel:
-            for howto in howtos:
-                objects = howto.object_names()
-                contained = [o for o in objects if worldmodel.contains(o, False) is not False]
-                print howto, 'has objects from worldmodel:', howto
         if howtos:
-            if not all:
-                return howtos[0][0]
-            else:
-                return howtos
+            maxscore = max([score for howto, score in howtos])
+            alternatives = [(h, s) for h, s in howtos if s == maxscore]
+            return alternatives
 
     def __call__(self, node, worldmodel=None, **params):
-
         # ======================================================================
         # Initialization
         # ======================================================================
         logger.debug('inference on {}'.format(self.name))
-
         if self.prac.verbose > 0:
             print prac_heading('Processing complex Action Core refinement')
         frame = node.frame
         pngs = {}
-        howto = self.closest_howto(node.frame, worldmodel)
-        if howto is None: return 
-        print howto.shortstr()
-        subst = {}
-        for role, obj in frame.actionroles.iteritems():
-            obj_ = howto.actionroles.get(role)
-            if obj_ is not None and obj_.type != obj.type: subst[obj_.type] = obj
-        for step in howto.steps:
-            for role, obj in step.actionroles.iteritems():
-                if obj.type in subst: 
-                    step.actionroles[role] = subst[obj.type] 
-        pred = None
-        for step in howto.steps:
-            newnode = FrameNode(node.pracinfer, 
-                                step, 
-                                node, 
-                                pred, 
-                                indbs=[PRACDatabase(self.prac, evidence={a: 1 for a in step.todb()})])
-            newnode.previous_module = 'coref_resolution'
-            pred = step
-            yield newnode
+        howtos = self.closest_howtos(node.frame)
+        if not howtos:
+            return
+        alternatives = []
+        for howto, score in howtos:
+            print howto.shortstr()
+            subst = {}
+            for role, obj in frame.actionroles.iteritems():
+                obj_ = howto.actionroles.get(role)
+                if obj_ is not None and obj_.type != obj.type: subst[obj_.type] = obj
+            for step in howto.steps:
+                for role, obj in step.actionroles.iteritems():
+                    if obj.type in subst:
+                        step.actionroles[role] = subst[obj.type]
+            pred = None
+            steps = []
+            for step in howto.steps:
+                newnode = FrameNode(node.pracinfer,
+                                    step,
+                                    node,
+                                    pred,
+                                    indbs=[PRACDatabase(self.prac, evidence={a: 1 for a in step.todb()})])
+                newnode.previous_module = 'coref_resolution'
+                pred = step
+                steps.append(newnode)
+            alternatives.append(steps)
+        if len(alternatives) > 1:
+            alternative = AlternativeNode(node.pracinfer, node.frame, parent=node, alternatives=alternatives, indbs=node.indbs)
+            for plan in alternatives:
+                for step in plan:
+                    step.parent.children = [alternative]
+                    step.parent = alternative
+                    step.previous_module = 'coref_resolution'
+            yield alternative
+        else:
+            for c in first(alternatives):
+                yield c
         return

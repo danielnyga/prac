@@ -136,9 +136,12 @@ def main():
 
     # regular PRAC pipeline
     wm = Worldmodel(prac)
-    wm.add(Object(prac, 'o1', 'pizza.n.01'))
+    wm.add(Object(prac, 'o1', 'egg.n.02'))
     wm.add(Object(prac, 'o2', 'knife.n.01'))
-    infer = PRACInference(prac, sentences, wm)
+    # wm.add(Object(prac, 'o2', 'pot.n.01'))
+    # wm.add(Object(prac, 'o2', 'stove.n.01'))
+
+    infer = PRACInference(prac, sentences, worldmodel=wm)
     infer.run()
 
     print(headline('inference results'))

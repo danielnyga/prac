@@ -79,7 +79,7 @@ class Grounding(PRACModule):
                 if concept in concept2role:
                     db << '%s(%s,%s)' % (concept2role[concept], id_, actioncore.name)
         project.queryconf['cw'] = True
-        project.queryconf['queries'] = [r for r in actioncore.roles if r not in role2concept]
+        project.queryconf['queries'] = [r for r in actioncore.roles]  #  if r not in role2concept]
         # copy over the role constraints
         # TODO: this hs to go into the ROS module
         for role, concepts in constraints.items():
@@ -91,8 +91,11 @@ class Grounding(PRACModule):
         simil = self.wnmod.add_sims(db, tmpmln)
         # we need senses and similarities as well as original evidence
         db = db.union(simil)
+        db.write()
+        out(project.queryconf['queries'])
         infer = MLNQuery(config=project.queryconf, mln=mln, db=db, verbose=0).run()
         resultdb = PRACDatabase(self.prac, db=infer.resultdb)
+        resultdb.write()
         resultdb = db.union(resultdb, mln=self.prac.mln)
         # ==============================================================
         # Postprocessing

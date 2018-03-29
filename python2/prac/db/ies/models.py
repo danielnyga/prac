@@ -27,7 +27,7 @@ from pprint import pprint
 from pracmln.mln.util import avg
 from scipy.stats import stats
 
-from dnutils import edict
+from dnutils import edict, trace
 from prac.db.ies import constants
 from dnutils import edict
 
@@ -56,14 +56,11 @@ class Frame(object):
         self.words = words
         self.prac = prac
 
-    
     def __str__(self):
         return '%s [%s]' % (self.actioncore, ', '.join(['%s: %s' % (k, v) for k, v in self.actionroles.items()]))
 
-
     def repstr(self):
         return '{} [{}]'.format(self.actioncore, ', '.join(['{}: {}'.format(k, v.repstr()) for k, v in self.actionroles.items() if k != 'action_verb' ]))
-
 
     def sim(self, f):
         '''
@@ -95,14 +92,12 @@ class Frame(object):
                 #------------------------------------------------------------------------------ 
                 if sims[-1] == 0: return 0
         return 0 if not sims else avg(*sims)
-    
-    
+
     def specifity(self):
         '''
         '''
         return 1.0 - float(len(self.missingroles()))/len(self.prac.actioncores[self.actioncore].roles)
 
-    
     def word(self, wid):
         for w in self.words:
             if w.wid == wid: return w
@@ -111,10 +106,8 @@ class Frame(object):
         for r, o in self.actionroles.iteritems():
             if o.id == oid: return o
         
-        
     def copy(self):
         return Frame.fromjson(self.prac, self.tojson())
-    
     
     def tojson(self):
         return tojson({constants.JSON_FRAME_SENTENCE: self.sentence,
@@ -122,7 +115,6 @@ class Frame(object):
                 constants.JSON_FRAME_SYNTAX: self.syntax,
                 constants.JSON_FRAME_WORDS: [w.tojson() for w in self.words],
                 constants.JSON_FRAME_ACTIONCORE_ROLES: self.actionroles})
-
 
     @staticmethod
     def fromjson(prac, data):
@@ -137,14 +129,11 @@ class Frame(object):
     def missingroles(self):
         return [r for r in self.prac.actioncores[self.actioncore].roles if r not in self.actionroles]
         
-
-    
     def itersyntax(self):
         for predname, tuples in self.syntax:
             for w1, w2 in tuples:
                 yield '%s(%s,%s)' % (predname, w1, w2) 
-        
-    
+
     def todb(self):
         for a in self.itersyntax(): yield a
         if 'action_verb' in self.actionroles:
@@ -156,8 +145,7 @@ class Frame(object):
             yield 'has_sense(%s,%s)' % (obj.id, obj.type)
             yield 'is_a(%s,%s)' % (obj.type, obj.type)
             yield 'has_pos(%s,%s)' % (obj.id, obj.syntax.pos)
-            
-            
+
     def __eq__(self, other):
         if other is None: return False
         if self.actioncore != other.actioncore: return False
@@ -167,11 +155,9 @@ class Frame(object):
             if self.actionroles.get(role) != obj: return False
         return True
     
-    
     def __ne__(self, other):
         return not self == other
                 
-            
 
 class Howto(Frame):
     '''
@@ -185,13 +171,11 @@ class Howto(Frame):
             self.import_date = datetime.datetime.now()
         else:
             self.import_date = import_date
-        
-        
+
     def tojson(self):
         return tojson(edict({constants.JSON_HOWTO_IMPORT_DATE: self.import_date}) +\
                edict(Frame.tojson(self)) + edict({constants.JSON_HOWTO_STEPS: tojson(self.steps)}))
-        
-    
+
     @staticmethod
     def fromjson(prac, data):
         return Howto(prac,
@@ -199,12 +183,10 @@ class Howto(Frame):
                      steps=[Frame.fromjson(prac, s) for s in data.get(constants.JSON_HOWTO_STEPS)],
                      import_date=data.get(constants.JSON_HOWTO_IMPORT_DATE))
 
-
     def shortstr(self):
         s = 'Howto: %s\nSteps:\n' % Frame.__str__(self)
         s += '\n'.join([('  - %s' % f) for f in self.steps])
         return s
-
 
     def specifity(self):
         '''
@@ -226,25 +208,16 @@ class Howto(Frame):
 class PropertyStore(object):
     '''Store for property values of objects'''
     
-    __props = ['size', 'hypernym', 'color', 'hasa', 'shape', 'dimension', 
-                 'consistency', 'material']
-    
     def __init__(self, prac):
-        self.size = None
-        self.hypernym = None
-        self.color = None
-        self.hasa = None
-        self.shape = None
-        self.dimension = None
-        self.consistency = None
-        self.material = None
         self.prac = prac
-
+        propmod = prac.module('prop_extraction')
+        self.__props = [p.name for p in propmod.mln.predicates]
+        for pred in self.__props:
+            setattr(self, pred, None)
 
     def tojson(self):
         return {k: tojson(getattr(self, k)) for k in self.__props if getattr(self, k) is not None}
 
-    
     @staticmethod
     def fromjson(prac, data):
         s = PropertyStore(prac)
@@ -253,8 +226,7 @@ class PropertyStore(object):
     
     def __eq__(self, other):
         return self.tojson() == other.tojson()
-    
-    
+
     def __ne__(self, other):
         return not self == other
     
@@ -274,15 +246,13 @@ class Object(object):
             for k, v in props.iteritems(): setattr(self.props, k, v)
         self.syntax = syntax
         self.prac = prac
-    
-    
+
     def tojson(self):
         return tojson({constants.JSON_OBJECT_ID: self.id,
                 constants.JSON_OBJECT_TYPE: self.type,
                 constants.JSON_OBJECT_PROPERTIES: self.props,
                 constants.JSON_OBJECT_SYNTAX: self.syntax})
-        
-        
+
     @staticmethod
     def fromjson(prac, data):
         return Object(prac,
@@ -295,23 +265,19 @@ class Object(object):
         if other is None: return False
         if self.props != other.props: return False
         return self.type == other.type
-    
-    
+
     def __ne__(self, other):
         return not self == other    
     
     def __repr__(self):
         return '<Object id=%s type=%s at 0x%x>' % (self.id, self.type, hash(self))
 
-
     def repstr(self):
         return '{}'.format(self.type)
 
-
     def __str__(self):
         return repr(self)#'%s: %s' % (self.id, self.type)
-    
-        
+
 
 class Word(object):
     '''
@@ -330,7 +296,6 @@ class Word(object):
         self.misc = misc
         self.prac = prac
 
-        
     def tojson(self):
         return tojson({constants.JSON_SENSE_WORD_ID: self.wid, 
                 constants.JSON_SENSE_WORD: self.word,
@@ -339,8 +304,7 @@ class Word(object):
                 constants.JSON_SENSE_WORD_IDX: self.widx,
                 constants.JSON_SENSE_SENSE: self.sense,
                 constants.JSON_SENSE_MISC: self.misc})
-    
-    
+
     @staticmethod    
     def fromjson(prac, data):
         return Word(prac, 
@@ -360,7 +324,7 @@ class Worldmodel(object):
         self.unavailable = set()
 
     def contains(self, concept):
-        hypernyms = reduce(lambda a, b: a | b, [prac.wordnet.hypernyms_names(o.type) for o in self.available.values()])
+        hypernyms = reduce(lambda a, b: a | b, [set(self.prac.wordnet.hypernyms_names(o.type)) for o in self.available.values()])
         if concept in hypernyms:
             return True
         if concept in self.unavailable:
@@ -380,6 +344,19 @@ class Worldmodel(object):
         del self.available[objid]
         if cw and obj.type not in self:
             self.unavailable.add(obj.type)
+
+    def getall(self, concept):
+        objects = []
+        for id_, o in self.available.items():
+            if concept in self.prac.wordnet.hypernyms_names(o.type):
+                objects.append(o)
+        return objects
+
+    def removeall(self, concept, cw=True):
+        for o in self.getall(concept):
+            self.remove(o.id)
+        if cw:
+            self.unavailable.add(concept)
 
     def __str__(self):
         return str({o.id: o.type for o in self.available.values()}) + '{%s}' % ','.join(['!%s' % c for c in self.unavailable])

@@ -23,11 +23,11 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 
-from dnutils import logs
+from dnutils import logs, out, allnot
 
 from prac.core import locations as pracloc
 from prac.core.base import PRACModule, PRACDatabase
-from prac.core.inference import PRACInferenceStep, FrameNode
+from prac.core.inference import PRACInferenceStep, FrameNode, AlternativeNode
 from prac.db.ies.models import Frame
 from prac.pracutils.utils import prac_heading
 from pracmln.mln.base import parse_mln
@@ -76,15 +76,19 @@ class AchievedBy(PRACModule):
 
 #     @PRACPIPE
     def __call__(self, node, **params):
-
         # ======================================================================
         # Initialization
         # ======================================================================
-
         logger.debug('inference on {}'.format(self.name))
-
         if self.prac.verbose > 0:
             print prac_heading('Refining Actioncores')
+
+        # alternative nodes should just pass their children so they get further refined
+        if isinstance(node, AlternativeNode):
+            for c in node.children:
+                yield c
+            return
+
         dbs = node.outdbs
         infstep = PRACInferenceStep(node, self)
 #         if node.previous_module == 'achieved_by':
@@ -94,15 +98,16 @@ class AchievedBy(PRACModule):
         # ======================================================================
         for olddb in dbs:
             infstep.indbs.append(olddb.copy())
-            #To handle multiple acs in one task, we have to check if the single 
+            # To handle multiple acs in one task, we have to check if the single
             # dbs contain achieved_bys which representing already plans
             pngs = {}
             actioncore = node.frame.actioncore
             mod = self.prac.module('complex_achieved_by')
             newnodes = list(mod(node))
             n = None
-            parentframes = [p.frame for p in node.parentspath() if isinstance(p, FrameNode)]
-            if any(n.frame in parentframes for n in newnodes):
+            parentframes = [p.frame for p in node.parentspath() if type(p) is FrameNode]
+            if any(n.frame in parentframes for n in newnodes) and allnot([isinstance(n, AlternativeNode) for n in newnodes]):
+                # out([str(p.frame) for p in node.parentspath() if type(p) is FrameNode])
                 logger.error('aborting reasoning because of infinite loop. (%s)' % node.frame)
                 node.children = []
             else:
