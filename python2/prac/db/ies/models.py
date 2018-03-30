@@ -27,7 +27,7 @@ from pprint import pprint
 from pracmln.mln.util import avg
 from scipy.stats import stats
 
-from dnutils import edict, trace
+from dnutils import edict, trace, out
 from prac.db.ies import constants
 from dnutils import edict
 
@@ -58,7 +58,7 @@ class Frame(object):
     '''
     Represents a (partially) instantiated action core that is stored in the MongoDB. 
     '''
-    def __init__(self, prac, sidx, sentence, words, syntax, actioncore, actionroles):
+    def __init__(self, prac, sidx, sentence, words, syntax, actioncore, actionroles, mandatory=True):
         self.sidx = sidx
         self.sentence = sentence
         self.actionroles = actionroles
@@ -66,6 +66,7 @@ class Frame(object):
         self.syntax = syntax
         self.words = words
         self.prac = prac
+        self.mandatory = mandatory
 
     def __str__(self):
         return '%s [%s]' % (self.actioncore, ', '.join(['%s: %s' % (k, v) for k, v in self.actionroles.items()]))
@@ -126,7 +127,8 @@ class Frame(object):
                 constants.JSON_FRAME_ACTIONCORE: self.actioncore,
                 constants.JSON_FRAME_SYNTAX: self.syntax,
                 constants.JSON_FRAME_WORDS: [w.tojson() for w in self.words],
-                constants.JSON_FRAME_ACTIONCORE_ROLES: self.actionroles})
+                constants.JSON_FRAME_ACTIONCORE_ROLES: self.actionroles,
+                constants.JSON_FRAME_MANDATORY: self.mandatory})
 
     def toplan(self, lang='json'):
         return {constants.JSON_FRAME_ACTIONCORE: self.actioncore,
@@ -140,7 +142,8 @@ class Frame(object):
                      syntax=data.get(constants.JSON_FRAME_SYNTAX),
                      words=data.get(constants.JSON_FRAME_WORDS),
                      actioncore=data.get(constants.JSON_FRAME_ACTIONCORE),
-                     actionroles={r: Object.fromjson(prac, o) for r, o in data.get(constants.JSON_FRAME_ACTIONCORE_ROLES, {}).iteritems()})
+                     actionroles={r: Object.fromjson(prac, o) for r, o in data.get(constants.JSON_FRAME_ACTIONCORE_ROLES, {}).iteritems()},
+                     mandatory=data.get(constants.JSON_FRAME_MANDATORY, True))
         
     def missingroles(self):
         return [r for r in self.prac.actioncores[self.actioncore].roles if r not in self.actionroles]
@@ -240,6 +243,10 @@ class PropertyStore(object):
     def toplan(self, lang='json'):
         return {p: getattr(self, p) for p in self.__props if getattr(self, p) is not None}
 
+    def items(self):
+        for k, v in {p: getattr(self, p) for p in self.__props if getattr(self, p) is not None}.items():
+            yield k, v
+
     @staticmethod
     def fromjson(prac, data):
         s = PropertyStore(prac)
@@ -278,6 +285,9 @@ class Object(object):
     def toplan(self, lang='json'):
         return toplan(edict({constants.JSON_OBJECT_TYPE: self.type}) + edict(self.props.toplan(lang=lang)))
 
+    def copy(self):
+        return Object.fromjson(self.prac, self.toplan())
+
     @staticmethod
     def fromjson(prac, data):
         return Object(prac,
@@ -302,6 +312,14 @@ class Object(object):
 
     def __str__(self):
         return repr(self)#'%s: %s' % (self.id, self.type)
+
+    def matches(self, obj):
+        if obj.type not in self.prac.wordnet.hypernyms_names(self.type):
+            return False
+        for prop, val in obj.props.items():
+            if getattr(self.props, prop) is None or val != getattr(self.props, prop):
+                return False
+        return True
 
 
 class Word(object):
@@ -343,8 +361,9 @@ class Word(object):
 
 class Worldmodel(object):
 
-    def __init__(self, prac):
+    def __init__(self, prac, cw=False):
         self.prac = prac
+        self.cw = cw
         self.available = {}
         self.unavailable = set()
 
@@ -352,7 +371,7 @@ class Worldmodel(object):
         hypernyms = reduce(lambda a, b: a | b, [set(self.prac.wordnet.hypernyms_names(o.type)) for o in self.available.values()])
         if concept in hypernyms:
             return True
-        if concept in self.unavailable:
+        if concept in self.unavailable or self.cw:
             return False
 
     def __contains__(self, o):
@@ -370,10 +389,12 @@ class Worldmodel(object):
         if cw and obj.type not in self:
             self.unavailable.add(obj.type)
 
-    def getall(self, concept):
+    def getall(self, obj):
+        if type(obj) is str:
+            obj = Object(self.prac, self.newid(), type_=obj)
         objects = []
         for id_, o in self.available.items():
-            if concept in self.prac.wordnet.hypernyms_names(o.type):
+            if o.matches(obj):
                 objects.append(o)
         return objects
 
@@ -382,6 +403,12 @@ class Worldmodel(object):
             self.remove(o.id)
         if cw:
             self.unavailable.add(concept)
+
+    def newid(self):
+        i = 0
+        while 'id-%s' % i in self.available:
+            i += 1
+        return 'id-%s' % i
 
     def __str__(self):
         return str({o.id: o.type for o in self.available.values()}) + '{%s}' % ','.join(['!%s' % c for c in self.unavailable])
