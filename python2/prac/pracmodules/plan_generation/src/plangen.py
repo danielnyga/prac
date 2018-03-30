@@ -108,7 +108,6 @@ class PlanOptimizer(PlanGenerator):
             else:
                 unknown, missing = set(), set()
             unknown = set([c for c in unknown if 'abstraction.n.06' not in self.prac.wordnet.hypernyms_names(c) and '.v.' not in c])
-            out(unknown, missing)
             node.eval = PlanEval(1, unknown, missing)
             return [node]
         if isinstance(node, AlternativeNode):
@@ -124,8 +123,8 @@ class PlanOptimizer(PlanGenerator):
             indices = sorted(indices, key=lambda i: evals[i].steps)
             indices = sorted(indices, key=lambda i: len(evals[i].unknown))
             indices = sorted(indices, key=lambda i: len(evals[i].missing))
-            for e in evals:
-                out(e)
+            # for e in evals:
+            #     out(e)
             return node.alternatives[first(indices)]
         else:
             newchildren = []
