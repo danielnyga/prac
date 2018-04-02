@@ -65,7 +65,7 @@ class Grounding(PRACModule):
                         break
                 if not modified:
                     newframes.append(f)
-        return frames
+        return newframes
 
     def probabilistic_grounding(self, node, worldmodel, constraints):
         logger.info('{} {}'.format(self.name, node))
