@@ -23,7 +23,7 @@
 import os
 import traceback
 
-from dnutils import logs
+from dnutils import logs, stop
 from pracmln.mln import NoConstraintsError
 from pracmln.mln.base import parse_mln, MLN
 from pracmln.utils.project import MLNProject
@@ -32,6 +32,7 @@ from pracmln.utils.visualization import get_cond_prob_png
 from prac.core import locations as pracloc
 from prac.core.base import PRACModule
 from prac.core.inference import PRACInferenceStep
+from prac.db.ies.models import Object
 from prac.pracutils.utils import prac_heading
 
 
@@ -47,7 +48,6 @@ class PropExtraction(PRACModule):
 
     def initialize(self):
         self.mln = MLN.load(os.path.join(self.module_path, 'mln', 'predicates.mln'))
-
 
     def __call__(self, node, **params):
 
@@ -69,10 +69,8 @@ class PropExtraction(PRACModule):
             projectpath = os.path.join(params.get('projectpath', None) or os.path.join(pracloc.pracmodules, self.name), params.get('project').name)
             project = params.get('project')
 
-        
         dbs = node.outdbs
         infstep = PRACInferenceStep(node, self)
-        
 
         mlntext = project.mlns.get(project.queryconf['mln'], None)
         mln = parse_mln(mlntext, searchpaths=[self.module_path], projectpath=projectpath,
@@ -107,9 +105,10 @@ class PropExtraction(PRACModule):
                 # Postprocessing
                 # ==============================================================
                 unified_db = db.copy(self.prac.mln)
-                props = [p for p in project.queryconf.get('queries', '').split(',') if p != 'has_sense']
+                props = [p.name for p in self.mln.predicates]  # [p for p in project.queryconf.get('queries', '').split(',') if p != 'has_sense']
                 for p in props:
                     for q in result_db.query('{}(?w1,?w2) ^ has_sense(?w2,?s2)'.format(p)):
+                        stop(Object(self.prac, id_=q['?s2'], type_=q['?s2'], props=props))
                         unified_db << '{}({},{})'.format(p, q['?w1'], q['?w2'])
                         unified_db << 'has_sense({},{})'.format(q['?w2'], q['?s2'])
                 infstep.outdbs.append(unified_db)
