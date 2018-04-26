@@ -85,7 +85,6 @@ class PRACConfig(ConfigParser):
         if filename is not None:
             self.read(os.path.join(locations.user_data, filename))
 
-
     def write(self, filename=None):
         '''
         Saves this configuration file to disk.
@@ -97,7 +96,6 @@ class PRACConfig(ConfigParser):
         with open(filepath, 'w+') as f:
             ConfigParser.write(self, f)
 
-
     def getlist(self, section, key, separator='\n'):
         return filter(bool, [s.strip() for s in self.get(section, key).split(separator)])
 
@@ -106,6 +104,7 @@ class PRAC(object):
     '''
     The PRAC reasoning system.
     '''
+
     def __init__(self, configfile='pracconf'):
         sys.path.append(locations.code_base)
         # read all the manifest files.
@@ -138,7 +137,6 @@ class PRAC(object):
         self.mongodb =  MongoClient(host=self.config.get('mongodb', 'host'),
                                     port=self.config.getint('mongodb', 'port'))
 
-
     def construct_global_mln(self):
         '''
         Reads all predicte declaration MLNs of all modules and returns an MLN
@@ -154,14 +152,11 @@ class PRAC(object):
                 mln.update_predicates(tmpmln)
         return mln
 
-
     def manifest(self, modulename):
         return self._manifests_by_name.get(modulename, None)
 
-
     def set_known_concepts(self, concepts):
         self.wordnet = WordNet(concepts)
-
 
     def module(self, modulename):
         '''
@@ -176,18 +171,15 @@ class PRAC(object):
             self._module_by_name[modulename] = module
         return self._module_by_name[modulename]
 
-
     def modules(self):
         '''
         Returns a generator iterating over all module manifests.
         '''
         for m in self._manifests: yield m
 
-
     def deinit_modules(self):
         for module in self._module_by_name.values():
             module._initialized = False
-
 
     def training_dbs(self, actioncore_name=None):
         '''
@@ -211,16 +203,13 @@ class PRAC(object):
     def roles(self):
         return set([r for a in self.actioncores.values() for r in a.roles])
 
-
     @property
     def verbose(self):
         return self._verbose
 
-
     @verbose.setter
     def verbose(self, v):
         self._verbose = v
-
 
     def tell(self, howto, steps, save=False):
         '''
@@ -238,8 +227,7 @@ class PRAC(object):
         '''
         fe = HowtoImport(self, {howto: steps}, save=save)
         fe.run()
-        
-        
+
     def query(self, instr, stopat=None):
         '''
         Performs a query on PRAC using the natural-language instruction(s) ``instr``.
@@ -279,31 +267,25 @@ class ActionCore(object):
     PRED_DECL = 'predicates'
     PLAN = 'cram_plan'
 
-
     def __init__(self):
         self._roles = []
         self._req_roles = []
-
 
     @property
     def roles(self):
         return self._roles
 
-
     @roles.setter
     def roles(self, rs):
         self._roles = rs
-
 
     @property
     def required_roles(self):
         return self._req_roles
 
-
     @required_roles.setter
     def required_roles(self, rr):
         self._req_roles = rr
-
 
     @property
     def learned(self):
@@ -313,12 +295,10 @@ class ActionCore(object):
         '''
         return self.learned_mln_file is not None and self.learned_mln is not None
 
-
     def parameterize_plan(self, **roles):
         if self.plan is None:
             raise Exception('Actioncore {} does not have a plan'.format(self.name))
         return self.plan.format(**roles)
-
 
     @staticmethod
     def load(filepath):
@@ -345,7 +325,6 @@ class ActionCore(object):
                 action_core.plan = content.get(ActionCore.PLAN)
             actioncores[action_core.name] = action_core
         return actioncores
-
 
     def tofile(self):
         '''
@@ -422,7 +401,6 @@ class PRACModuleManifest(object):
     PRED_DECLS = 'declarations'
     DEFAULT_PROJECT = 'project'
 
-
     @staticmethod
     def read(stream):
         '''
@@ -448,14 +426,12 @@ class PRACModule(object):
     and running PRAC modules. Every PRAC module must subclass this.
     '''
 
-
     def __init__(self, prac):
         self.prac = prac
         self._initialized = False
         self._name = None
         self._defproject = None
         self._module_path = None
-
 
     def initialize(self):
         '''
@@ -465,7 +441,6 @@ class PRACModule(object):
         '''
         pass
 
-
     def shutdown(self):
         '''
         Called when the PRAC reasoning system is to be
@@ -473,7 +448,6 @@ class PRACModule(object):
         The default does nothing.
         '''
         pass
-
 
     def mlnquery(self, config=None, verbose=None, **params):
         '''
@@ -492,36 +466,29 @@ class PRACModule(object):
         infer._resultdb = pracdb
         return infer
 
-
     @property
     def name(self):
         return self._name
-
 
     @name.setter
     def name(self, mname):
         self._name = mname
 
-
     @property
     def defproject(self):
         return self._defproject
-
 
     @defproject.setter
     def defproject(self, ppath):
         self._defproject = ppath
 
-
     @property
     def module_path(self):
         return os.path.join(praclocations.pracmodules, self.name)
 
-
     @module_path.setter
     def module_path(self, mpath):
         self._module_path = mpath
-
 
     @staticmethod
     def from_manifest(manifest, prac):
@@ -542,7 +509,6 @@ class PRACModule(object):
         module.defproject = manifest.defproject
         return module
 
-
     @staticmethod
     def merge_all_domains(pracinference):
         all_dbs = []
@@ -552,7 +518,6 @@ class PRACModule(object):
         fullDomain = mergedom(*[db.domains for db in all_dbs])
         return fullDomain
 
-
     @PRACPIPE
     def infer(self, pracinference):
         '''
@@ -561,7 +526,6 @@ class PRACModule(object):
         :param pracinference:   instance of PRACInference to store facts
         '''
         raise NotImplemented()
-
 
     @PRACPIPE
     def train(self, praclearn):
@@ -589,7 +553,6 @@ class PRACDatabase(Database):
         Database.__init__(self, prac.mln, evidence=evidence, dbfile=None,
                           ignore_unknown_preds=ignore_unknown_preds)
 
-
     def copy(self, mln=None):
         '''
         Returns a copy of this Database as a PRACDatabase.
@@ -599,7 +562,6 @@ class PRACDatabase(Database):
                         `self.mln`.
         '''
         return PRACDatabase(self.prac, evidence=self.evidence)
-
 
     def union(self, dbs, mln=None):
         '''
@@ -619,14 +581,12 @@ class PRACDatabase(Database):
                 pass
         return db_
 
-
     def actioncores(self):
         '''
         :return: a generator yielding (word, action core) pairs.
         '''
         for q in self.query('action_core(?w,?ac)'):
             yield q['?w'], q['?ac']
-
 
     def achieved_by(self, actioncore='?ac1'):
         '''
@@ -639,7 +599,6 @@ class PRACDatabase(Database):
             else:
                 yield actioncore, q['?ac2']
 
-
     def roles(self, actioncore):
         '''
         :param actioncore:  the action core whose roles are to be retrieved
@@ -650,7 +609,6 @@ class PRACDatabase(Database):
             for q in self.query('{}(?w,{}) ^ has_sense(?w,?s)'.format(role, actioncore)):
                 yield role, q['?s']
 
-
     def rolesw(self, actioncore):
         '''
         :param actioncore:    the actioncore whose roles shall be retrieved
@@ -659,7 +617,6 @@ class PRACDatabase(Database):
         for role in self.prac.actioncores[actioncore].roles:
             for q in self.query('{}(?w,{})'.format(role, actioncore)):
                 yield role, q['?w']
-
 
     def properties(self, word):
         '''
@@ -670,7 +627,6 @@ class PRACDatabase(Database):
             for q in self.query('{prop}({word}, ?value) ^ has_sense(?value, ?sense)'.format(prop=prop, word=word)):
                 yield prop, q['?sense']
 
-
     def postags(self):
         '''
         Returns all part-of-speech tags present in the database.
@@ -679,7 +635,6 @@ class PRACDatabase(Database):
         '''
         for q in self.query('has_pos(?w, ?p)'):
             yield q['?w'], q['?p']
-
 
     def postag(self, word=None, pos=None):
         '''
@@ -695,7 +650,6 @@ class PRACDatabase(Database):
             if '?w' in q: yield q['?w']
             if '?p' in q: yield q['?p']
 
-
     def is_aux_verb(self, word):
         '''
         Decides on whether or not ``word`` is an auxiliary verb in this database.
@@ -707,7 +661,6 @@ class PRACDatabase(Database):
         for _ in self.query('auxpass(?w, {})'.format(word)): return True
         return False
 
-
     def is_pronoun(self, word):
         '''
         Decides on whether or not ``word`` is a pronoun in this database.
@@ -717,7 +670,6 @@ class PRACDatabase(Database):
         for _ in self.query('has_pos({}, PRP)'.format(word)):  return True
         for _ in self.query('has_pos({}, PRP$)'.format(word)): return True
         return False
-
 
     def is_wh(self, word):
         '''
@@ -729,7 +681,6 @@ class PRACDatabase(Database):
         for _ in self.query('has_pos({}, WDT)'.format(word)): return True
         for _ in self.query('has_pos({}, WP)'.format(word)): return True
         return False
-
 
     def objs(self, mlnpred, predicate=None, conj=False):
         '''
@@ -764,7 +715,6 @@ class PRACDatabase(Database):
                             result.append(consense)
         return result
 
-
     def obj_sense(self, word, misc=''):
         '''
         Returns an instance of Sense, if ``word`` is not a pronoun or which
@@ -782,7 +732,6 @@ class PRACDatabase(Database):
             obj_sense = Word(word, obj_pos, misc=misc)
             return obj_sense
 
-
     def dobjs(self, predicate=None):
         '''
         Returns all direct objects in this database.
@@ -790,7 +739,6 @@ class PRACDatabase(Database):
         :return:            a list of instances of Sense
         '''
         return self.objs(constants.DOBJ_MLN_PREDICATE, predicate)
-
 
     def nsubjs(self, predicate=None):
         '''
@@ -800,7 +748,6 @@ class PRACDatabase(Database):
         '''
         return self.objs(constants.NSUBJ_MLN_PREDICATE, predicate)
 
-
     def iobjs(self, predicate=None):
         '''
         Returns all indirect objects in this database.
@@ -808,7 +755,6 @@ class PRACDatabase(Database):
         :return:            a list of instances of Sense
         '''
         return self.objs(constants.IOBJ_MLN_PREDICATE, predicate)
-
 
     def verbs(self):
         '''
@@ -822,14 +768,12 @@ class PRACDatabase(Database):
                 predicate_list.append(predicate_sense)
         return predicate_list
 
-
     def words(self):
         '''
         Returns all words in this database.
         :return:     a list of all words
         '''
         return list(self.domains.get('word', []))
-    
 
     def prepobjs(self, predicate=None):
         '''
@@ -858,7 +802,6 @@ class PRACDatabase(Database):
                                 result.append(sense)
         return result
 
-
     def syntax(self):
         '''
         :return:    Returns a generator yielding all syntactic relations of the form relations- in this database
@@ -872,7 +815,6 @@ class PRACDatabase(Database):
         for pred, args in relations.iteritems():
             yield pred, args
             
-    
     def sense(self, word):
         '''
         Returns the word sense of the given word ``word``, if set in database.
@@ -883,8 +825,6 @@ class PRACDatabase(Database):
         for q in self.query('has_sense(%s, ?sense)' % word):
             return q['?sense']
             
-
-
 
 if __name__ == '__main__':
     '''
