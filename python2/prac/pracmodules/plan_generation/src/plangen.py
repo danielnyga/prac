@@ -65,7 +65,7 @@ class PlanGenerator(PRACModule):
 
         # ..and their properties
         acdict.update(dict([('{}_props'.format(k), ' '.join(['({} {})'.format(pkey, pval) for pkey, pval in v.props.tojson().items()])) for k, v in node.frame.actionroles.items()]))
-
+        out(acdict)
         # update dictionary with missing roles and roles properties
         for role in ac.roles:
             if acdict.get(role) is None:

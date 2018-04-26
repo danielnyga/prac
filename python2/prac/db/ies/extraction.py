@@ -10,6 +10,7 @@ from collections import defaultdict
 from pprint import pprint
 
 import pymongo
+from dnutils import out, ifnone
 
 from prac.core.inference import PRACInference
 from prac.db.ies.models import Frame, Word, Howto, Object, constants
@@ -131,4 +132,40 @@ class HowtoImport(object):
             traceback.print_exc()
             
 
-    
+def find_frames(prac, actioncore, actionroles, similarity=None):
+    '''
+    Find frames in the database that are at least similar to the given actioncore and roles by ``similarity``.
+
+    :param actioncore:
+    :param actionroles:
+    :param similarity:
+    :return:
+    '''
+    similarity = ifnone(similarity, 1.0)
+    howtodb = prac.mongodb.prac.howtos
+    and_conditions = [{'$eq': ["$$plan.{}".format(constants.JSON_FRAME_ACTIONCORE), actioncore]}]
+    # and_conditions.extend([{"$eq" : ["$$plan.{}.{}.type".format(constants.JSON_FRAME_ACTIONCORE_ROLES, r), t]} for r, t in actionroles.items()])
+    roles_query = {"$and": and_conditions}
+
+    stage_1 = {'$project': {constants.JSON_HOWTO_STEPS: {
+        '$filter': {
+            'input': "${}".format(constants.JSON_HOWTO_STEPS),
+            'as': "plan",
+            'cond': roles_query
+        }
+    }, '_id': 0}}
+
+    stage_2 = {"$unwind": {'path': "${}".format(constants.JSON_HOWTO_STEPS)}}
+    cursor_agg = howtodb.aggregate([stage_1, stage_2])
+    cursor = []
+    for document in cursor_agg:
+        cursor.append(document[constants.JSON_HOWTO_STEPS])
+    for document in howtodb.find({constants.JSON_FRAME_ACTIONCORE: actioncore}):
+        cursor.append(document)
+    qframe = Frame(prac, -1, None, None, None, actioncore, {role: Object(prac, 'dummy', typ) for role, typ in actionroles.items()})
+    frames = [Frame.fromjson(prac, d) for d in cursor]
+    frames = [(f, qframe.sim(f)) for f in frames]
+    frames = [f for f in frames if f[1] >= similarity]
+    frames.sort(key=lambda f: f[0].specifity(), reverse=1)
+    frames.sort(key=lambda f: f[1], reverse=1)
+    return frames

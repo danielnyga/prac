@@ -147,7 +147,10 @@ class Frame(object):
         
     def missingroles(self):
         return [r for r in self.prac.actioncores[self.actioncore].roles if r not in self.actionroles]
-        
+
+    def objects(self):
+        return list(self.actionroles.values())
+
     def itersyntax(self):
         for predname, tuples in self.syntax:
             for w1, w2 in tuples:
@@ -329,6 +332,7 @@ class Word(object):
     A sense object is always included in a frame, which contains a set of senses.
     WordNet is used to assign the senses.
     '''
+
     def __init__(self, prac, wid, word, widx, sense, pos, lemma, misc=None):
         self.wid = wid
         self.word = word
@@ -352,11 +356,11 @@ class Word(object):
     def fromjson(prac, data):
         return Word(prac, 
                     data.get(constants.JSON_SENSE_WORD),
-                    data.get(constants.JSON_SENSE_LEMMA),
-                    data.get(constants.JSON_SENSE_POS),
-                    data.get(constants.JSON_SENSE_SENSE),
+                    data.get(constants.JSON_SENSE_WORD),
                     data.get(constants.JSON_SENSE_WORD_IDX),
-                    data.get(constants.JSON_SENSE_WORD))
+                    data.get(constants.JSON_SENSE_SENSE),
+                    data.get(constants.JSON_SENSE_POS),
+                    data.get(constants.JSON_SENSE_LEMMA))
 
 
 class Worldmodel(object):

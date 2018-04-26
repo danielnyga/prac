@@ -23,7 +23,7 @@
 
 from collections import defaultdict
 
-from dnutils import logs, first, ifnone, out
+from dnutils import logs, first, ifnone, out, stop
 from graphviz.dot import Digraph
 
 from prac.db.ies.models import Object, Frame, Word
@@ -243,7 +243,7 @@ class PRACInference(object):
     '''
     Represents an inference chain in PRAC
     '''
-    def __init__(self, prac, instr, worldmodel=None):
+    def __init__(self, prac, instr, worldmodel=None, similarity=None):
         '''
         PRAC inference initialization.
         :param prac:     reference to the PRAC instance.
@@ -266,6 +266,7 @@ class PRACInference(object):
         self.root = list(self.fringe)
         self.lastnode = None
         self.worldmodel = worldmodel
+        self.similarity = ifnone(similarity, 1.0)
 
     def run(self, stopat=None):
         if type(stopat) not in (tuple, list):

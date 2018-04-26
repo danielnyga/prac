@@ -22,7 +22,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 
-from dnutils import logs
+from dnutils import logs, stop
 from prac.core import locations as pracloc
 
 from prac.core.base import PRACModule, PRACPIPE, PRACDatabase
@@ -111,7 +111,7 @@ class ActionCoreIdentification(PRACModule):
 #             out('in ac rec:')
 #             for w, ac in outdb.actioncores():
 #                 out(w, ac)
-            for frame in node.pracinfer.buildframes(outdb, sidx, sentence): 
+            for frame in node.pracinfer.buildframes(outdb, sidx, sentence):
                 node_ = FrameNode(node.pracinfer, frame, node, pred, indbs=[outdb], prevmod=self.name)
                 pred = node_
                 yield node_

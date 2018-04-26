@@ -9,6 +9,7 @@ import multiprocessing
 import os
 import traceback
 
+from dnutils import ifnone
 from pracmln.utils import multicore
 
 from prac.core.base import PRAC
@@ -36,14 +37,15 @@ def main():
     if args.quiet: args.verbose = 0
 
     if args.verbose:
-        print(prac_heading('Telling PRAC, how to {}'.format(args.howto)))
+        print(prac_heading('Telling PRAC, {}to {}'.format('how ' if args.steps is not None else '', args.howto)))
 
     # ===========================================================================
     # If the 'steps' flag is set, take all arguments as the list of instructions
     # ===========================================================================
     howtos = []
-    if args.steps:
-        howtos = [{args.howto: args.steps}]
+    if args.howto:
+        steps = ifnone(args.steps, [])
+        howtos = [{args.howto: steps}]
     elif args.batch:
         for path in args.batch:
             print path

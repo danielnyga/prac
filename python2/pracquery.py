@@ -21,6 +21,7 @@
 import argparse
 
 import sys
+from pprint import pprint
 
 from dnutils import logs
 
@@ -90,6 +91,7 @@ def main():
     parser.add_argument("instructions", help="The instructions.", nargs='+')
     parser.add_argument("-i", "--interactive", dest="interactive", default=False, action='store_true', help="Starts PRAC inference with an interactive GUI tool.")
     parser.add_argument("-v", "--verbose", dest="verbose", default=1, type=int, action="store", help="Set verbosity level {0..3}. Default is 1.")
+    parser.add_argument("-s", "--sim", default=1, type=float, help="Threshold for the similarity value for plan adaptation")
 
     args = parser.parse_args()
     opts_ = vars(args)
@@ -135,13 +137,20 @@ def main():
         exit(0)
 
     # regular PRAC pipeline
-    wm = Worldmodel(prac)
-    wm.add(Object(prac, 'o1', 'egg.n.02'))
-    wm.add(Object(prac, 'o2', 'knife.n.01'))
-    # wm.add(Object(prac, 'o2', 'pot.n.01'))
-    # wm.add(Object(prac, 'o2', 'stove.n.01'))
+    wm = Worldmodel(prac, cw=True)
+    wm.add(Object(prac, 'juice', 'carton.n.02', props={'fill_level': 'empty.a.01'}))
+    wm.add(Object(prac, 'basket', 'basket.n.01'))
+    wm.add(Object(prac, 'fridge', 'electric_refrigerator.n.01'))
+    wm.add(Object(prac, 'trash', 'ashcan.n.01'))
+    # wm.add(Object(self.prac, 'cereals-unused', 'carton.n.02', props={'used_state': 'unused.s.01'}))
+    wm.add(Object(prac, 'milk-box-full', 'carton.n.02', props={'fill_level': 'full.a.01'}))
+    wm.add(Object(prac, 'cereals-box', 'carton.n.02', props={'used_state': 'secondhand.s.01'}))
+    wm.add(Object(prac, 'banana', 'banana.n.02'))
+    wm.add(Object(prac, 'apple', 'apple.n.01'))
+    wm.add(Object(prac, 'orange', 'orange.n.01'))
+    wm.add(Object(prac, 'table', 'table.n.02'))
 
-    infer = PRACInference(prac, sentences, worldmodel=wm)
+    infer = PRACInference(prac, sentences, worldmodel=wm, similarity=args.sim)
     infer.run()
 
     print(headline('inference results'))
@@ -150,7 +159,7 @@ def main():
         print(i)
     frames = []
     for step in infer.steps():
-        print(step.frame)
+        pprint(step.frame.tojson())
     print(prac_heading('cram plans', color='blue'))
     for step in infer.steps():
         if hasattr(step, 'plan'):

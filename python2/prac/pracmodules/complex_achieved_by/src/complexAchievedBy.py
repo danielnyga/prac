@@ -23,7 +23,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 
-from dnutils import logs, out, first
+from dnutils import logs, out, first, ifnone
 
 import prac
 from prac.core.base import PRACModule, PRACDatabase
@@ -41,13 +41,14 @@ class ComplexAchievedBy(PRACModule):
     lookup.
     '''
 
-    def closest_howtos(self, frame):
+    def closest_howtos(self, frame, similarity=None):
         '''
         Determines the howto which describes how to perform the complex task.
         
         :param db: A PRAC database which represents the complex instruction.
         :return: A list of databases which each represents a step how to perform the complex instruction.
         '''
+        similarity = ifnone(similarity, .9)
         actioncore = frame.actioncore
         howtodb = self.prac.mongodb.prac.howtos 
         # ==================================================================
@@ -57,13 +58,13 @@ class ComplexAchievedBy(PRACModule):
         query = {constants.JSON_HOWTO_ACTIONCORE: str(actioncore)}
         docs = howtodb.find(query)
         howtos = [(h, frame.sim(h)) for h in [Howto.fromjson(self.prac, d) for d in docs]]
-        howtos = [h for h in howtos if h[1] >= 0.5]
-        if self.prac.verbose > 1:
-            print 'found %d matching howtos:' % len(howtos)
-            for howto in howtos:
-                print howto[1], ':', howto[0]
+        howtos = [h for h in howtos if h[1] >= similarity]
         howtos.sort(key=lambda h: h[0].specifity(), reverse=1)
         howtos.sort(key=lambda h: h[1], reverse=1)
+        if self.prac.verbose > 1:
+            print 'found %d matching howtos (threshold %s):' % (len(howtos), similarity)
+            for howto in howtos:
+                print howto[1], ':', howto[0]
         if howtos:
             maxscore = max([score for howto, score in howtos])
             alternatives = [(h, s) for h, s in howtos if s == maxscore]
@@ -78,20 +79,25 @@ class ComplexAchievedBy(PRACModule):
             print prac_heading('Processing complex Action Core refinement')
         frame = node.frame
         pngs = {}
-        howtos = self.closest_howtos(node.frame)
+        howtos = self.closest_howtos(node.frame, node.pracinfer.similarity)
         if not howtos:
             return
         alternatives = []
         for howto, score in howtos:
-            print howto.shortstr()
             subst = {}
             for role, obj in frame.actionroles.iteritems():
                 obj_ = howto.actionroles.get(role)
                 if obj_ is not None and obj_.type != obj.type: subst[obj_.type] = obj
+            substitutions = 0
             for step in howto.steps:
                 for role, obj in step.actionroles.iteritems():
                     if obj.type in subst:
                         step.actionroles[role] = subst[obj.type]
+                        substitutions += 1
+            if not substitutions and score < 1.0:
+                if self.prac.verbose > 1:
+                    logger.debug('discarding howto {}, since no adaptation is possible'.format(howto))
+                continue
             pred = None
             steps = []
             for step in howto.steps:
@@ -112,7 +118,7 @@ class ComplexAchievedBy(PRACModule):
                     step.parent = alternative
                     step.previous_module = 'coref_resolution'
             yield alternative
-        else:
+        elif len(alternatives) == 1:
             for c in first(alternatives):
                 yield c
         return

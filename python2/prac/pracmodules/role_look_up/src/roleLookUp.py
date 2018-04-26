@@ -28,6 +28,7 @@ from dnutils import logs, out
 import prac
 from prac.core.base import PRACModule
 from prac.core.inference import PRACInferenceStep
+from prac.db.ies.extraction import find_frames
 from prac.db.ies.models import constants, Frame, Object
 from prac.pracutils.utils import prac_heading, get_query_png
 
@@ -79,11 +80,24 @@ class RoleLookUp(PRACModule):
         db_ = db.copy()
         # Assuming there is only one action core
         for word, actioncore in db.actioncores():
+            # infer likely locations if a world model is given
+            wm = node.pracinfer.worldmodel
+            if wm:
+                for obj in node.frame.objects():
+                    if not wm.contains(obj.type) and obj.props.__dict__.get('in') is None and obj.__dict__.get('on') is None:
+                        out(obj.type, 'is not in world')
+                        frames = find_frames(self.prac, actioncore='Storing', actionroles={'obj_to_be_stored': obj.type}, similarity=.7)
+                        for frame, sim in frames:
+                            setattr(obj.props, 'in', frame.actionroles['location'].type)
+                            break
+
             # ==================================================================
             # Preprocessing & Lookup
             # ==================================================================
             missingroles = node.frame.missingroles()#set(allroles).difference(givenroles)
-            # Build query: Query should return only frames which have the same actioncore as the instruction 
+            if 'action_verb' in missingroles:
+                missingroles.remove('action_verb')
+            # Build query: Query should return only frames which have the same actioncore as the instruction
             # and all required action roles
             if missingroles:
                 and_conditions = [{'$eq' : ["$$plan.{}".format(constants.JSON_FRAME_ACTIONCORE), actioncore]}]
@@ -98,8 +112,8 @@ class RoleLookUp(PRACModule):
                                         'cond': roles_query
                                 }
                             }, '_id': 0
-                            }
-                           }
+                        }
+                }
                 stage_2 = {"$unwind": "${}".format(constants.JSON_HOWTO_STEPS)}
 
                 if self.prac.verbose > 2:
@@ -108,11 +122,13 @@ class RoleLookUp(PRACModule):
                 cursor_agg = howtodb.aggregate([stage_1, stage_2])
                 
                 # After once iterating through the query result 
-                #it is not possible to iterate again through the result.
-                #Therefore we keep the retrieved results in a separate list.
+                # it is not possible to iterate again through the result.
+                # Therefore we keep the retrieved results in a separate list.
                 cursor = []
                 for document in cursor_agg:
                     cursor.append(document[constants.JSON_HOWTO_STEPS])
+                for document in howtodb.find({constants.JSON_FRAME_ACTIONCORE: str(actioncore)}):
+                    cursor.append(document)
                 frames = [Frame.fromjson(self.prac, d) for d in cursor]
                 c = howtodb.find({constants.JSON_HOWTO_ACTIONCORE: str(actioncore)})
                 frames.extend([Frame.fromjson(self.prac, d) for d in c])
