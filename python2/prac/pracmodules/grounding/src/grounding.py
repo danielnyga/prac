@@ -35,15 +35,18 @@ class Grounding(PRACModule):
         for frame in frames:
             skipframe = False
             for role, obj in frame.actionroles.items():
-                frame.actionroles[role].type = list(set([o.type for o in worldmodel.getall(obj)]))
+                ntypes = list(set([o.type for o in worldmodel.getall(obj)]))
                 # out(frame.toplan(), frame.actionroles[role].type)
-                if not frame.actionroles[role].type:
+                if not ntypes:
                     if not frame.mandatory:
                         out('skipping frame', frame.toplan(), 'because it is not mandatory')
                         skipframe = True
                         break
-                    else:
-                        raise Exception(str(frame.toplan()) + ' is not executable.')
+                    elif worldmodel.cw:
+                        raise Exception(str(frame) + ' is not executable, since %s is missing in the world' % obj.type)
+                    frame.actionroles[role].type = [frame.actionroles[role].type]
+                else:
+                    frame.actionroles[role].type = ntypes
             if skipframe:
                 continue
             queue = [frame]
