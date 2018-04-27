@@ -320,6 +320,8 @@ class Object(object):
         if obj.type not in self.prac.wordnet.hypernyms_names(self.type):
             return False
         for prop, val in obj.props.items():
+            if val is None:
+                continue
             if getattr(self.props, prop) is None or val != getattr(self.props, prop):
                 return False
         return True
