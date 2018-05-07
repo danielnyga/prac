@@ -24,7 +24,7 @@
 import os
 from collections import defaultdict
 
-from dnutils import logs
+from dnutils import logs, out, ifnone
 from nltk.corpus.reader.wordnet import Synset
 
 from prac.core.base import PRACModule, PRACPIPE, DB_TRANSFORM
@@ -52,7 +52,7 @@ class WNSenses(PRACModule):
 
 
     @DB_TRANSFORM
-    def get_senses_and_similarities(self, db, concepts):
+    def get_senses_and_similarities(self, db, concepts, roles=None, actioncore=None):
         '''
         Returns a new database with possible senses and the pairwise
         semantic similarities asserted. Assumes the part-of-speeches
@@ -78,7 +78,7 @@ class WNSenses(PRACModule):
         wordnet = self.prac.wordnet
         word2senses = defaultdict(list)
         db_ = db.copy(self.prac.mln)
-
+        roles = ifnone(roles, [])
         for res in db.query('has_pos(?word,?pos)'):
             word_const = res['?word']
             pos = POS_MAP.get(res['?pos'], None)
@@ -95,7 +95,10 @@ class WNSenses(PRACModule):
                 for concept in concepts:
                     sim = wordnet.similarity(synset, concept, 'path')
                     db_ << ('is_a({},{})'.format(sense_id, concept), sim)
-
+        # assert all roles false for words without senses, if any
+        for word in [w for w in db_.domain('word') if w not in word2senses]:
+            for role in roles:
+                db_ << '!%s(%s,%s)' % (role, word, actioncore)
         for word in word2senses:
             for word2, senses in word2senses.iteritems():
                 if word2 == word:
@@ -112,8 +115,8 @@ class WNSenses(PRACModule):
             pos = POS_MAP.get(res['?pos'], None)
             # if no possible sense can be determined by WordNet, assert false
             # for all possible senses
-            if pos is None or not wordnet.synsets('-'.join(word_const.split('-')[:-1]),pos):
-                for s in db_.domain('sense'):
+            if pos is None or not wordnet.synsets('-'.join(word_const.split('-')[:-1]), pos):
+                for s in ifnone(db_.domain('sense'), []):
                     db_ << '!has_sense({},{})'.format(word_const, s)
         return db_
 
@@ -138,6 +141,8 @@ class WNSenses(PRACModule):
         db = db_.copy(self.prac.mln)
         mlndomains = mln.domains.get('concept', []) + db_.domains.get('concept', [])
         for s in db_.domains['sense']:
+            if s == 'None':
+                out(s)
             sense = self.prac.wordnet.synset(s)
             for c in mlndomains:
                 syn = self.prac.wordnet.synset(c)
