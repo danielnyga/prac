@@ -80,6 +80,7 @@ class PropExtraction(PRACModule):
 
         pngs = {}
         for i, db in enumerate(dbs):
+            db.write()
             # ==================================================================
             # Preprocessing
             # ==================================================================
@@ -108,7 +109,6 @@ class PropExtraction(PRACModule):
                 props = [p.name for p in self.mln.predicates]  # [p for p in project.queryconf.get('queries', '').split(',') if p != 'has_sense']
                 for p in props:
                     for q in result_db.query('{}(?w1,?w2) ^ has_sense(?w2,?s2)'.format(p)):
-                        stop(Object(self.prac, id_=q['?s2'], type_=q['?s2'], props=props))
                         unified_db << '{}({},{})'.format(p, q['?w1'], q['?w2'])
                         unified_db << 'has_sense({},{})'.format(q['?w2'], q['?s2'])
                 infstep.outdbs.append(unified_db)

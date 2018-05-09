@@ -24,7 +24,7 @@ import os
 import traceback
 from pprint import pprint
 
-from dnutils import logs
+from dnutils import logs, stop, out, first
 from pracmln.mln import NoConstraintsError, MLNParsingError
 from pracmln.mln.base import parse_mln
 from pracmln.mln.util import colorize, mergedom
@@ -47,7 +47,6 @@ class CorefResolution(PRACModule):
     '''
 
     def __call__(self, node, **params):
-
         # ======================================================================
         # Initialization
         # ======================================================================
@@ -58,48 +57,44 @@ class CorefResolution(PRACModule):
             print prac_heading('Resolving Coreferences')
 
         preds = list(node.rdfs(goaltest=lambda n: isinstance(n, FrameNode) and not n.children, all=True))[:2]
-        dbs = node.outdbs
+        # dbs = node.outdbs
         infstep = PRACInferenceStep(node, self)
+        infstep.indbs = [db.copy() for db in node.indbs]
         projectpath = os.path.join(pracloc.pracmodules, self.name)
         ac = None
         pngs = {}
 
-
-
-#         if not preds: return []
         # ======================================================================
         # Preprocessing
         # ======================================================================
-
-        # merge output dbs from senses_and_roles step, containing
-        # roles inferred from multiple sentences.
-        if not preds:
+        sentences = [db.words() for pred in preds for db in pred.indbs]
+        actioncore = node.frame.actioncore
+        corefdb = PRACDatabase(self.prac)
+        corefdb = corefdb.union(infstep.indbs, self.prac.mln)
+        acroles = filter(lambda r: r != 'action_verb', self.prac.actioncores[actioncore].roles)
+        missingroles = [ar for ar in acroles if not list(corefdb.query('{}(?w,{})'.format(ar, actioncore)))]
+        if not preds or not missingroles:
             # no coreferencing required - forward dbs and settings
             # from previous module
-            infstep.indbs = [db.copy() for db in dbs]
             infstep.outdbs = [db.copy() for db in infstep.indbs]
-            logger.debug('%s has no predecessors. Nothing to do here. Passing db...' % node)
+            if not preds:
+                logger.debug('%s has no predecessors.' % node)
+            if not missingroles:
+                logger.debug('%s has no missing roles' % node)
+            logger.debug('Nothing to do here. Passing db...')
             return [node]
-    
-        # retrieve all words from the dbs to calculate distances.
+
         # Do not use pracinference.instructions as they are not
         # annotated by the Stanford parser.
-        sentences = [db.words() for pred in preds for db in pred.indbs]
-        infstep.indbs = [db.copy() for db in dbs]
-#         infstep.outdbs = [db.copy() for db in infstep.indbs]
-        # query action core to load corresponding project
-
-        actioncore = node.frame.actioncore
-        # clear corefdb and unify current db with the two preceding ones
-        corefdb = PRACDatabase(self.prac)
-        corefdb = corefdb.union(dbs, self.prac.mln)
-#         for s in range(max(0, i - 2), i+1):
-#             corefdb = corefdb.union(dbs[s], self.prac.mln)
+        sentences.insert(0, corefdb.words())
+        # merge output dbs from senses_and_roles step, containing
+        # roles inferred from multiple sentences.
         for pred in preds:
             logger.debug('unifying with %s' % pred)
-            for db in pred.indbs:
+            for db in pred.outdbs:
+                db.write()
+                stop(pred, db)
                 corefdb = corefdb.union(db, self.prac.mln)
-
         # remove all senses from the databases' domain that are not
         # assigned to any word.
         for q in corefdb.query('!(EXIST ?w (has_sense(?w,?sense)))'):
@@ -107,23 +102,11 @@ class CorefResolution(PRACModule):
         try:
             # preprocessing: adding distance information for each
             # word in the instructions
-#             s = words[max(0, i - 2):i+1]
-#             snts = list(enumerate(s))
-#             idx = len(snts) - 1  # idx of current sentence
-#             for s in snts[:-1]:
-#                 idx2 = s[0]
-#                 for w in s[1]:
-#                     corefdb << 'distance({},DIST{})'.format(w, idx - idx2)
             for sidx, s in enumerate(sentences):
                 for w in s:
-                    cont = True
-                    for q in corefdb.query('distance({}, ?w)'.format(w)):
-                        cont = False 
-                        break
-                    if not cont: continue
                     corefdb << 'distance({},DIST{})'.format(w, sidx)
-#                     print 'distance({},DIST{})'.format(w, sidx) 
-            
+
+            # query action core to load corresponding project
             logger.debug('loading Project: {}'.format(colorize(actioncore, (None, 'cyan', True), True)))
             project = MLNProject.open(os.path.join(projectpath, '{}.pracmln'.format(actioncore)))
             mlntext = project.mlns.get(project.queryconf['mln'], None)
@@ -133,12 +116,12 @@ class CorefResolution(PRACModule):
                             grammar=project.queryconf.get('grammar', 'PRACGrammar'))
         except MLNParsingError:
             logger.warning('Could not use MLN in project {} for coreference resolution'.format(colorize(actioncore, (None, 'cyan', True), True)))
-            infstep.outdbs = [db.copy(self.prac.mln) for db in dbs]
+            # infstep.outdbs = [db.copy(self.prac.mln) for db in dbs]
             infstep.png = node.parent.laststep.png
             infstep.applied_settings = node.parent.laststep.applied_settings
             return [node]
         except Exception:
-            infstep.outdbs = [db.copy(self.prac.mln) for db in dbs]
+            # infstep.outdbs = [db.copy(self.prac.mln) for db in dbs]
             infstep.png = node.parent.laststep.png
             infstep.applied_settings = node.parent.laststep.applied_settings
             logger.warning('Could not load project "{}". Passing dbs to next module...'.format(ac))
@@ -149,10 +132,12 @@ class CorefResolution(PRACModule):
         newdatabase = wnmod.add_sims(corefdb, mln)
 
         # update queries depending on missing roles
-        acroles = filter(lambda role: role != 'action_verb', self.prac.actioncores[actioncore].roles)
-        missingroles = [ar for ar in acroles if len(list(newdatabase.query('{}(?w,{})'.format(ar, actioncore)))) == 0]
+        if not missingroles:
+            logger.debug('no missing roles. passing db.')
+            infstep.outdbs.append(db)
+            return [node]
         conf = project.queryconf
-        conf.update({'queries': ','.join(missingroles)})
+        conf.update({'queries': ','.join(['%s(?w,%s)' % (role, actioncore) for role in missingroles])})
         print colorize('querying for missing roles {}'.format(conf['queries']), (None, 'green', True), True)
 
         # asserting impossible role-ac combinations, leaving previously
@@ -192,6 +177,7 @@ class CorefResolution(PRACModule):
             for db in infstep.indbs:
                 resultdb = db.copy()
                 for res in infer.results.keys():
+                    out(infer.results[res], res)
                     if infer.results[res] != 1.0:
                         continue
                     resultdb << str(res)
@@ -209,6 +195,8 @@ class CorefResolution(PRACModule):
                             if p.frame.object(q['?w']) is not None:
                                 node.frame.actionroles[mrole] = p.frame.object(q['?w']) 
                                 break
+                resultdb.write()
+                stop('resultdb')
                 infstep.outdbs.append(resultdb)
             pprint(node.frame.tojson())
         except NoConstraintsError:
@@ -218,7 +206,7 @@ class CorefResolution(PRACModule):
             logger.error('Something went wrong')
             traceback.print_exc()
 
-        pngs['Coref - ' + str(node)] = get_cond_prob_png(project.queryconf.get('queries', ''), dbs, filename=self.name)
+        pngs['Coref - ' + str(node)] = get_cond_prob_png(project.queryconf.get('queries', ''), infstep.indbs, filename=self.name)
         infstep.png = pngs
         infstep.applied_settings = project.queryconf.config
         return [node]

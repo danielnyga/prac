@@ -23,7 +23,7 @@
 import os
 from collections import defaultdict
 
-from dnutils import logs, out
+from dnutils import logs, out, stop
 from pracmln.mln.base import parse_mln
 from pracmln.mln.util import colorize
 from pracmln.utils.project import MLNProject
@@ -65,7 +65,18 @@ class SensesAndRoles(PRACModule):
         actionroles = defaultdict(list)
         pngs = {}
         for n, olddb in enumerate(dbs):
-            db_copy = olddb.copy(mln=self.prac.mln)
+            olddb.write()
+            db_copy = PRACDatabase(self.prac)  # olddb.copy(mln=self.prac.mln)
+            # reconstruct the evidences ============================================
+            for pred, args in olddb.syntax():  # syntactic evidendce
+                for args_ in args:
+                    db_copy << '%s(%s)' % (pred, ','.join(args_))
+            for q in olddb.query('action_core(?word,?actioncore)'):  # actioncore evidence
+                db_copy << 'action_core(%s,%s)' % (q['?word'], q['?actioncore'])
+            for q in olddb.query('has_sense(?w,?s)'):
+                out(q)
+                db_copy << 'has_sense({},{})'.format(q['?w'], q['?s'])
+            # ======================================================================
             actioncore = node.frame.actioncore
             logger.debug(actioncore)
             if params.get('project', None) is None:
@@ -92,31 +103,30 @@ class SensesAndRoles(PRACModule):
             # adding senses and similarities. might be obsolete as it has
             # already been performed in ac recognition
             logger.debug('adding senses. concepts={}'.format(known_concepts))
-            db = wnmod.get_senses_and_similarities(db_copy, known_concepts)
+            roles = self.prac.actioncores[actioncore].roles
+            db = wnmod.get_senses_and_similarities(db_copy, known_concepts, roles, actioncore)
 
             # we need senses and similarities as well as original evidence
             tmp_union_db = db.union(db_copy, mln=self.prac.mln)
 
             # ignore roles of false ac's
-            new_tmp_union_db = tmp_union_db.copy(mln=self.prac.mln)
-            roles = self.prac.actioncores[actioncore].roles
-            for ac in tmp_union_db.domains['actioncore']:
-                if ac == actioncore: continue
-                for r in roles:
-                    for w in new_tmp_union_db.words():
-                        new_tmp_union_db << ('{}({},{})'.format(r, w, ac), 0)
-                        
-            infstep.indbs.append(new_tmp_union_db)
+            tmp_union_db = tmp_union_db.copy(mln=self.prac.mln)
+            tmp_union_db.domains['actioncore'] = [actioncore]
+            # for ac in tmp_union_db.domains['actioncore']:
+            #     if ac == actioncore: continue
+            #     for r in roles:
+            #         for w in new_tmp_union_db.words():
+            #             new_tmp_union_db << ('{}({},{})'.format(r, w, ac), 0)
+            infstep.indbs.append(tmp_union_db)
             # ==============================================================
             # Inference
             # ==============================================================
-
             infer = self.mlnquery(config=project.queryconf,
                                   verbose=self.prac.verbose > 2,
-                                  db=new_tmp_union_db, mln=mln)
+                                  db=tmp_union_db, mln=mln)
             resultdb = infer.resultdb
 
-            if self.prac.verbose == 2:
+            if self.prac.verbose >= 2:
                 print
                 print prac_heading('INFERENCE RESULTS')
                 infer.write()
@@ -126,7 +136,7 @@ class SensesAndRoles(PRACModule):
             # ==============================================================
             # get query roles for given actioncore and add inference results
             # for them to final output db. ignore 0-truth results.
-            unified_db = new_tmp_union_db.union(resultdb, mln=self.prac.mln)
+            unified_db = tmp_union_db.union(resultdb, mln=self.prac.mln)
             for role, word in unified_db.rolesw(actioncore):
                 sense = unified_db.sense(word)
                 props = dict(unified_db.properties(word))
@@ -164,9 +174,9 @@ class SensesAndRoles(PRACModule):
             
             infstep.applied_settings = project.queryconf.config
         # TODO: this does not work as intended (creating multiple Frames if action role assignments are ambiguous
-        out(actionroles)
+        # out(actionroles)
         newframes = list(splitd(actionroles))
-        out(newframes)
+        # out(newframes)
         # newframes = actionroles
         pred = None
         for newframe in newframes:

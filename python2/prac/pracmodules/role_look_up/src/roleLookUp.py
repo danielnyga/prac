@@ -135,7 +135,7 @@ class RoleLookUp(PRACModule):
                 frames.sort(key=lambda f: f.specifity(), reverse=True)
                 frames.sort(key=lambda f: node.frame.sim(f), reverse=True)
                 if self.prac.verbose >= 2 or logger.level == logs.DEBUG:
-                    print 'found similar frames in the db:'
+                    print 'found similar frames in the db [%s]:' % str(node.frame)
                     for f in frames:
                         print '%.2f: %s' % (node.frame.sim(f), f)
                 if frames:

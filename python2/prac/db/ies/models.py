@@ -224,6 +224,8 @@ class Howto(Frame):
         '''
         specs = [s.specifity() for s in self.steps]
         specs.append(Frame.specifity(self))
+        if any([s == 0 for s in specs]):
+            return 0
         return stats.hmean(specs)
 
     def object_types(self):
@@ -320,7 +322,7 @@ class Object(object):
         if obj.type not in self.prac.wordnet.hypernyms_names(self.type):
             return False
         for prop, val in obj.props.items():
-            if val is None:
+            if val is None or prop in ('in', 'on'):
                 continue
             if getattr(self.props, prop) is None or val != getattr(self.props, prop):
                 return False

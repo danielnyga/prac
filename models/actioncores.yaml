@@ -131,7 +131,7 @@ action_roles: ['obj_to_be_shaken','action_verb','unit','amount']
 cram_plan: "(perform (an action (type shake) (an object (type {obj_to_be_shaken}){obj_to_be_shaken_props})(count (unit {unit}){unit_props}(number {amount}){amount_props})))"
 ---
 action_core: Spooning
-action_roles: ['substance','goal','action_verb']
+action_roles: ['substance','goal','action_verb', 'amount', 'unit']
 cram_plan: "(perform (an action (type use-spoon) (source (an object (type container.n.01) (contains (a substance (type {substance}){substance_props}))))(a location (on {goal}){goal_props})))"
 ---
 action_core: Spreading
@@ -177,7 +177,7 @@ action_roles: ['content','goal','action_verb','amount','unit']
 cram_plan: "(perform (an action (type use-measuring-cup) (source (an object (type container.n.01) (contains (a substance (type {content}){content_props}))))(count (unit {unit}){unit_props}(number {amount}){amount_props}))(a location (to {goal}){goal_props}))"
 ---
 action_core: UsingSpiceJar
-action_roles: ['content','goal','action_verb']
+action_roles: ['content','goal','action_verb','unit','amount']
 cram_plan: "(perform (an action (type pour-from-spice-jar) (source (an object (type container.n.01) (contains (a substance (type {content}){content_props}))))(a location (to {goal}){goal_props})))"
 ---
 action_core: Waiting

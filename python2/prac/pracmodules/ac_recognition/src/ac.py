@@ -99,7 +99,8 @@ class ActionCoreIdentification(PRACModule):
             # Postprocessing
             # ==================================================================
             unified_db = resultdb.union(tmp_union_db, mln=self.prac.mln)
-            
+            # unified_db.retractall('has_sense')
+            # unified_db.retractall('is_a')
 #             infstep.outdbs
             infstep.outdbs.extend(self.extract_multiple_action_cores(self.prac, unified_db, wnmod, known_concepts))
             
@@ -108,9 +109,6 @@ class ActionCoreIdentification(PRACModule):
         infstep.applied_settings = ac_project.queryconf.config
         pred = None    
         for outdb in infstep.outdbs:
-#             out('in ac rec:')
-#             for w, ac in outdb.actioncores():
-#                 out(w, ac)
             for frame in node.pracinfer.buildframes(outdb, sidx, sentence):
                 node_ = FrameNode(node.pracinfer, frame, node, pred, indbs=[outdb], prevmod=self.name)
                 pred = node_

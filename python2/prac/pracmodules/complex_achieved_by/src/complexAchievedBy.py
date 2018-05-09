@@ -66,8 +66,9 @@ class ComplexAchievedBy(PRACModule):
             for howto in howtos:
                 print howto[1], ':', howto[0]
         if howtos:
-            maxscore = max([score for howto, score in howtos])
-            alternatives = [(h, s) for h, s in howtos if s == maxscore]
+            # maxscore = max([score for howto, score in howtos])
+            # alternatives = [(h, s) for h, s in howtos if s == maxscore]
+            alternatives = howtos
             return alternatives
 
     def __call__(self, node, worldmodel=None, **params):

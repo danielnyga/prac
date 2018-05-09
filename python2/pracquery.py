@@ -19,6 +19,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import argparse
+import json
 
 import sys
 from pprint import pprint
@@ -27,7 +28,7 @@ from dnutils import logs
 
 from prac.core.base import PRAC
 from prac.core.inference import PRACInference
-from prac.db.ies.models import Worldmodel, Object
+from prac.db.ies.models import Worldmodel, Object, toplan
 from prac.gui import PRACQueryGUI, DEFAULT_CONFIG
 from prac.pracutils.utils import prac_heading
 from pracmln.mln.util import headline
@@ -137,7 +138,7 @@ def main():
         exit(0)
 
     # regular PRAC pipeline
-    wm = Worldmodel(prac, cw=True)
+    wm = Worldmodel(prac, cw=False)
     wm.add(Object(prac, 'juice', 'carton.n.02', props={'fill_level': 'empty.a.01'}))
     wm.add(Object(prac, 'basket', 'basket.n.01'))
     wm.add(Object(prac, 'fridge', 'electric_refrigerator.n.01'))
@@ -146,12 +147,16 @@ def main():
     wm.add(Object(prac, 'milk-box-full', 'carton.n.02', props={'fill_level': 'full.a.01'}))
     wm.add(Object(prac, 'cereals-box', 'carton.n.02', props={'used_state': 'secondhand.s.01'}))
     wm.add(Object(prac, 'banana', 'banana.n.02'))
-    wm.add(Object(prac, 'apple', 'apple.n.01'))
-    wm.add(Object(prac, 'orange', 'orange.n.01'))
+    # wm.add(Object(prac, 'apple', 'apple.n.01'))
+    # wm.add(Object(prac, 'orange', 'orange.n.01'))
     wm.add(Object(prac, 'table', 'table.n.02'))
+    wm.add(Object(prac, 'cereal', 'grain.n.02'))
+    wm.add(Object(prac, 'bowl', 'bowl.n.03'))
 
     infer = PRACInference(prac, sentences, worldmodel=wm, similarity=args.sim)
     infer.run()
+    gnd = prac.module('grounding')
+    json.dumps(toplan(gnd(infer, wm), 'json'))
 
     print(headline('inference results'))
     print('instructions:')

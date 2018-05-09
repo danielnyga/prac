@@ -169,12 +169,15 @@ def number_synsets(word):
     :return:        a list of Wordnet synsets or a list containing a single
                     instance of RationalNumberSynset
     '''
-    word = word.replace('\\','')
+    word = word.replace('\\', '')
     if len(wordnet.synsets(word)) > 0:
         synsets = wordnet.synsets(word)
     else:
-        syn = number_synset(word)
-        synsets = [syn]
+        try:
+            syn = number_synset(word)
+            synsets = [syn]
+        except NoRationalNumberError:
+            synsets = []
     return synsets
 
 
