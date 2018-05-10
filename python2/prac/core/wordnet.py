@@ -98,7 +98,6 @@ class RationalNumberSynset(Synset):
         self._examples = []
         self.setup_synset(numstr)
 
-
     def setup_synset(self, numstr):
         '''
         Helper fct to determine the attributes of the RationalNumberSynset.
@@ -150,10 +149,8 @@ class RationalNumberSynset(Synset):
         self._examples = ['The number {} ({}).'.format(self.number,
                                                       str(num2words(self.number)))]
 
-
     def hypernyms(self):
         return [self.parent]
-
 
     def _hypernyms(self):
         return [self.parent]
@@ -239,6 +236,7 @@ class WordNet(object):
     Also provides a set of customized similarity measures for
     colors, shapes and sizes as introduced in Mareike's thesis.
     '''
+
     wordnetlock = RLock()
 
     @synchronized(wordnetlock)
@@ -257,7 +255,6 @@ class WordNet(object):
         self.initialize_similarities(shapesims, properties.shapespecs)
         self.initialize_similarities(sizesims, properties.sizespecs)
         self.lemmatizer = WordNetLemmatizer()
-
 
     @synchronized(wordnetlock)
     def initialize_similarities(self, simdct, specs):
@@ -281,7 +278,6 @@ class WordNet(object):
         for x in simdct:
             for y in simdct:
                 simdct[x][y] = 1 - (simdct[x][y] / maxdist)
-
 
     @synchronized(wordnetlock)
     def initialize_csimilarities(self, specs, achrspecs):
@@ -319,7 +315,6 @@ class WordNet(object):
             for y in colorsims:
                 temp = 1 - (colorsims[x][y] / maxdist)
                 colorsims[x][y] = temp
-
 
     @synchronized(wordnetlock)
     def initialize_taxonomy(self, concepts=None, collapse=True):
@@ -376,7 +371,6 @@ class WordNet(object):
                             c.parents.update(node.parents)
                 queue.extend(node.children)
 
-
     @synchronized(wordnetlock)
     def __extend_taxonomy_graph(self, concept, synset_path, direction):
         '''
@@ -404,7 +398,6 @@ class WordNet(object):
             raise Exception('Unkown direction: {}'.format(direction))
         self.__extend_taxonomy_graph(node, synset_path[1:], direction)
 
-
     @synchronized(wordnetlock)
     def synsets(self, word, pos):
         '''
@@ -424,7 +417,6 @@ class WordNet(object):
             if self.core_taxonomy is not None:
                 synsets = [s for s in synsets if s.name() in self.known_concepts]
         return synsets
-
 
     @synchronized(wordnetlock)
     def synset(self, synset_id):
@@ -446,7 +438,6 @@ class WordNet(object):
                 logger.error('Could not obtain synset with ID "{}"'.format(synset_id))
                 raise e
 
-
     @synchronized(wordnetlock)
     def wup_similarity(self, synset1, synset2):
         '''
@@ -454,15 +445,14 @@ class WordNet(object):
         may be given as strings of the synset id or the respective Synset
         objects themselves.
         '''
-        if type(synset1) is str:
+        if isinstance(synset1, basestring):
             synset1 = self.synset(synset1)
-        if type(synset2) is str:
+        if isinstance(synset2, basestring):
             synset2 = self.synset(synset2)
         if synset1 is None or synset2 is None:
             return 0.
         similarity = synset1.wup_similarity(synset2)
         return max(0.000, 0. if similarity is None else similarity)
-
 
     @synchronized(wordnetlock)
     def path_similarity(self, synset1, synset2):
@@ -480,7 +470,6 @@ class WordNet(object):
 
         similarity = synset1.path_similarity(synset2)
         return max(0.000, 0. if similarity is None else similarity)
-
 
     @synchronized(wordnetlock)
     def lowest_common_hypernyms(self, synset, other, simulate_root=False,
@@ -556,7 +545,6 @@ class WordNet(object):
         except ValueError:
             return []
 
-
     @synchronized(wordnetlock)
     def flatten(self, iterable):
         '''
@@ -580,7 +568,6 @@ class WordNet(object):
             except:
                 yield item
 
-
     @synchronized(wordnetlock)
     def unpacknoun(self, adjsyn):
         '''
@@ -591,7 +578,6 @@ class WordNet(object):
         :return:        a one-dimensional list of synsets without duplicates
         '''
         return list(set(self.flatten([drf.synset for drf in self.flatten([lemma.derivationally_related_forms() for lemma in adjsyn.lemmas])])))
-
 
     @synchronized(wordnetlock)
     def similarity(self, synset1, synset2, simtype='path'):
@@ -640,7 +626,6 @@ class WordNet(object):
             # sizes are maximially dissimilar to everything else
             return 0.
 
-
         if synset1.pos in ADJ_POS:
             syns1 = self.unpacknoun(synset1)
             if len(syns1) == 0: return 0.
@@ -678,7 +663,6 @@ class WordNet(object):
         else:
             return self.wup(synset1, synset2, posdiff)
 
-
     @synchronized(wordnetlock)
     def wup(self, synset1, synset2, posdiff=0.):
         '''
@@ -705,9 +689,7 @@ class WordNet(object):
         if ds1 is None or ds2 is None: return 0.
         ds1 += dlcs
         ds2 += dlcs
-
         return 2. * dlcs / (ds1 + ds2 + posdiff)
-
 
     @synchronized(wordnetlock)
     def syns_taxonomy_branch_relation(self, synset1, synset2):
@@ -721,7 +703,6 @@ class WordNet(object):
         '''
         if not synset1.lowest_common_hypernyms(synset2): return 0
         return min([x.min_depth() for x in synset1.lowest_common_hypernyms(synset2)]) / max(synset1.min_depth(), synset2.min_depth())
-
 
     @synchronized(wordnetlock)
     def syns_hyp_relation(self, syn1, syn2):
@@ -806,7 +787,6 @@ class WordNet(object):
         h_s = self.get_subtree_height(s)
         return (h_r - h_s) / (h_r - .5 * (h_a + h_b))
 
-
     @synchronized(wordnetlock)
     def get_subtree_height(self, synset):
         '''
@@ -824,7 +804,6 @@ class WordNet(object):
         height = self.__get_subtree_height(synset)
         return height
 
-
     @synchronized(wordnetlock)
     def __get_subtree_height(self, synset, current_height=0):
         hypos = synset.hyponyms()
@@ -837,7 +816,6 @@ class WordNet(object):
         for child in hypos:
             children_heights.append(self.__get_subtree_height(child, current_height + 1))
         return max(children_heights)
-
 
     @synchronized(wordnetlock)
     def hypernym_paths(self, synset):
@@ -889,7 +867,6 @@ class WordNet(object):
                 print('{:.4f} is_a(sense_{}, {})'.format(self.semilarity(unkwn, kwn), self.synset(unkwn).lemmas[0].name(), kwn))
             print()
 
-
     @synchronized(wordnetlock)
     def lemmatize(self, word, pos):
         '''
@@ -900,14 +877,12 @@ class WordNet(object):
         if pos in ('n', 'v', 'a', 's'):
             return self.lemmatizer.lemmatize(word, pos)
         return word
-        
-    
+
     def nltkpos(self, penntreepos):
         '''
         Converts a Penn Treebank part-of-speech tag into an NLTK POS tag.
         '''
         return POS_MAP.get(penntreepos)
-        
 
     @synchronized(wordnetlock)
     def graph(self):
@@ -930,7 +905,6 @@ class WordNet(object):
                 c_node = processed[c.data]
                 Edge(g, c_node, p_node)
         return g
-
 
     @synchronized(wordnetlock)
     def to_dot(self):
@@ -957,7 +931,6 @@ class WordNet(object):
                 g.edge(c_node, p_node, weight='1')
         return g
 
-
     @synchronized(wordnetlock)
     def to_svg(self):
         '''
@@ -967,7 +940,6 @@ class WordNet(object):
         '''
         g = self.to_dot()
         return render_gv(g)
-
 
     @synchronized(wordnetlock)
     def get_all_synsets(self):
