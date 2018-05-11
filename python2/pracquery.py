@@ -153,7 +153,7 @@ def main():
     wm.add(Object(prac, 'cereal', 'grain.n.02'))
     wm.add(Object(prac, 'bowl', 'bowl.n.03'))
 
-    infer = PRACInference(prac, sentences, worldmodel=wm, similarity=args.sim)
+    infer = PRACInference(prac, sentences, worldmodel=None, similarity=args.sim)
     infer.run()
     gnd = prac.module('grounding')
     json.dumps(toplan(gnd(infer, wm), 'json'))

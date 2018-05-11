@@ -65,7 +65,6 @@ class SensesAndRoles(PRACModule):
         actionroles = defaultdict(list)
         pngs = {}
         for n, olddb in enumerate(dbs):
-            olddb.write()
             db_copy = PRACDatabase(self.prac)  # olddb.copy(mln=self.prac.mln)
             # reconstruct the evidences ============================================
             for pred, args in olddb.syntax():  # syntactic evidendce

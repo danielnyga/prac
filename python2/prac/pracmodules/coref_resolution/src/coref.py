@@ -92,8 +92,6 @@ class CorefResolution(PRACModule):
         for pred in preds:
             logger.debug('unifying with %s' % pred)
             for db in pred.outdbs:
-                db.write()
-                stop(pred, db)
                 corefdb = corefdb.union(db, self.prac.mln)
         # remove all senses from the databases' domain that are not
         # assigned to any word.
@@ -102,9 +100,12 @@ class CorefResolution(PRACModule):
         try:
             # preprocessing: adding distance information for each
             # word in the instructions
+            words = set()
             for sidx, s in enumerate(sentences):
                 for w in s:
-                    corefdb << 'distance({},DIST{})'.format(w, sidx)
+                    if w not in words:
+                        corefdb << 'distance({},DIST{})'.format(w, sidx)
+                        words.add(w)
 
             # query action core to load corresponding project
             logger.debug('loading Project: {}'.format(colorize(actioncore, (None, 'cyan', True), True)))
@@ -116,12 +117,12 @@ class CorefResolution(PRACModule):
                             grammar=project.queryconf.get('grammar', 'PRACGrammar'))
         except MLNParsingError:
             logger.warning('Could not use MLN in project {} for coreference resolution'.format(colorize(actioncore, (None, 'cyan', True), True)))
-            # infstep.outdbs = [db.copy(self.prac.mln) for db in dbs]
+            infstep.outdbs = [db.copy(self.prac.mln) for db in infstep.indbs]
             infstep.png = node.parent.laststep.png
             infstep.applied_settings = node.parent.laststep.applied_settings
             return [node]
         except Exception:
-            # infstep.outdbs = [db.copy(self.prac.mln) for db in dbs]
+            infstep.outdbs = [db.copy(self.prac.mln) for db in infstep.indbs]
             infstep.png = node.parent.laststep.png
             infstep.applied_settings = node.parent.laststep.applied_settings
             logger.warning('Could not load project "{}". Passing dbs to next module...'.format(ac))
@@ -132,10 +133,6 @@ class CorefResolution(PRACModule):
         newdatabase = wnmod.add_sims(corefdb, mln)
 
         # update queries depending on missing roles
-        if not missingroles:
-            logger.debug('no missing roles. passing db.')
-            infstep.outdbs.append(db)
-            return [node]
         conf = project.queryconf
         conf.update({'queries': ','.join(['%s(?w,%s)' % (role, actioncore) for role in missingroles])})
         print colorize('querying for missing roles {}'.format(conf['queries']), (None, 'green', True), True)
@@ -146,15 +143,13 @@ class CorefResolution(PRACModule):
         ac_domains = [dom for dom in fulldom if '_ac' in dom]
         acs = list(set([v for a in ac_domains for v in fulldom[a]]))
         acs = filter(lambda ac_: ac_ != actioncore, acs)
-
         for ac1 in acs:
             for r in missingroles:
                 for w in newdatabase.domains['word']:
                     # words with no sense are asserted false
                     if list(corefdb.query('!(EXIST ?sense (has_sense({},?sense)))'.format(w))):
                         newdatabase << '!{}({},{})'.format(r, w, actioncore)
-                    # leave previously inferred information roles
-                    # untouched
+                    # leave previously inferred information roles untouched
                     if list(newdatabase.query('{}({},{})'.format(r, w, ac1))):
                         continue
                     else:
@@ -177,9 +172,9 @@ class CorefResolution(PRACModule):
             for db in infstep.indbs:
                 resultdb = db.copy()
                 for res in infer.results.keys():
-                    out(infer.results[res], res)
                     if infer.results[res] != 1.0:
                         continue
+                    logger.debug(str(res))
                     resultdb << str(res)
                     _, _, args = self.prac.mln.logic.parse_literal(res)
                     w = args[0]
@@ -195,8 +190,6 @@ class CorefResolution(PRACModule):
                             if p.frame.object(q['?w']) is not None:
                                 node.frame.actionroles[mrole] = p.frame.object(q['?w']) 
                                 break
-                resultdb.write()
-                stop('resultdb')
                 infstep.outdbs.append(resultdb)
             pprint(node.frame.tojson())
         except NoConstraintsError:

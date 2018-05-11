@@ -79,105 +79,106 @@ class RoleLookUp(PRACModule):
         howtodb = self.prac.mongodb.prac.howtos
         db_ = db.copy()
         # Assuming there is only one action core
-        for word, actioncore in db.actioncores():
-            # infer likely locations if a world model is given
-            wm = node.pracinfer.worldmodel
-            if wm:
-                for obj in node.frame.objects():
-                    if not wm.contains(obj.type) and obj.props.__dict__.get('in') is None and obj.__dict__.get('on') is None:
-                        out(obj.type, 'is not in world')
-                        frames = find_frames(self.prac, actioncore='Storing', actionroles={'obj_to_be_stored': obj.type}, similarity=.7)
-                        for frame, sim in frames:
-                            setattr(obj.props, 'in', frame.actionroles['location'].type)
-                            break
+        actioncore = node.frame.actioncore
+        # for word, actioncore in db.actioncores():
+        # infer likely locations if a world model is given
+        wm = node.pracinfer.worldmodel
+        if wm:
+            for obj in node.frame.objects():
+                if not wm.contains(obj.type) and obj.props.__dict__.get('in') is None and obj.__dict__.get('on') is None:
+                    out(obj.type, 'is not in world')
+                    frames = find_frames(self.prac, actioncore='Storing', actionroles={'obj_to_be_stored': obj.type}, similarity=.7)
+                    for frame, sim in frames:
+                        setattr(obj.props, 'in', frame.actionroles['location'].type)
+                        break
 
-            # ==================================================================
-            # Preprocessing & Lookup
-            # ==================================================================
-            missingroles = node.frame.missingroles()#set(allroles).difference(givenroles)
-            if 'action_verb' in missingroles:
-                missingroles.remove('action_verb')
-            # Build query: Query should return only frames which have the same actioncore as the instruction
-            # and all required action roles
-            if missingroles:
-                and_conditions = [{'$eq' : ["$$plan.{}".format(constants.JSON_FRAME_ACTIONCORE), actioncore]}]
+        # ==================================================================
+        # Preprocessing & Lookup
+        # ==================================================================
+        missingroles = node.frame.missingroles()#set(allroles).difference(givenroles)
+        if 'action_verb' in missingroles:
+            missingroles.remove('action_verb')
+        # Build query: Query should return only frames which have the same actioncore as the instruction
+        # and all required action roles
+        if missingroles:
+            and_conditions = [{'$eq' : ["$$plan.{}".format(constants.JSON_FRAME_ACTIONCORE), actioncore]}]
 #                 and_conditions.extend([{"$ifNull" : ["$$plan.{}.{}".format(constants.JSON_FRAME_ACTIONCORE_ROLES, r), False]} for r in givenroles])
 #                 and_conditions.extend([{"$eq" : ["$$plan.{}.{}.type".format(constants.JSON_FRAME_ACTIONCORE_ROLES, r), t]} for r, t in givenroles.items()])
-                roles_query ={"$and" : and_conditions}                
-                
-                stage_1 = {'$project' : {constants.JSON_HOWTO_STEPS: {
-                                    '$filter' :{
-                                        'input': "${}".format(constants.JSON_HOWTO_STEPS),
-                                        'as': "plan",
-                                        'cond': roles_query
-                                }
-                            }, '_id': 0
-                        }
-                }
-                stage_2 = {"$unwind": "${}".format(constants.JSON_HOWTO_STEPS)}
+            roles_query ={"$and" : and_conditions}
 
-                if self.prac.verbose > 2:
-                    print "Sending query to MONGO DB ..."
+            stage_1 = {'$project' : {constants.JSON_HOWTO_STEPS: {
+                                '$filter' :{
+                                    'input': "${}".format(constants.JSON_HOWTO_STEPS),
+                                    'as': "plan",
+                                    'cond': roles_query
+                            }
+                        }, '_id': 0
+                    }
+            }
+            stage_2 = {"$unwind": "${}".format(constants.JSON_HOWTO_STEPS)}
 
-                cursor_agg = howtodb.aggregate([stage_1, stage_2])
-                
-                # After once iterating through the query result 
-                # it is not possible to iterate again through the result.
-                # Therefore we keep the retrieved results in a separate list.
-                cursor = []
-                for document in cursor_agg:
-                    cursor.append(document[constants.JSON_HOWTO_STEPS])
-                for document in howtodb.find({constants.JSON_FRAME_ACTIONCORE: str(actioncore)}):
-                    cursor.append(document)
-                frames = [Frame.fromjson(self.prac, d) for d in cursor]
-                c = howtodb.find({constants.JSON_HOWTO_ACTIONCORE: str(actioncore)})
-                frames.extend([Frame.fromjson(self.prac, d) for d in c])
-                frames.sort(key=lambda f: f.specifity(), reverse=True)
-                frames.sort(key=lambda f: node.frame.sim(f), reverse=True)
-                if self.prac.verbose >= 2 or logger.level == logs.DEBUG:
-                    print 'found similar frames in the db [%s]:' % str(node.frame)
-                    for f in frames:
-                        print '%.2f: %s' % (node.frame.sim(f), f)
-                if frames:
-                    frame = frames[0]
-                    if node.frame.sim(frame) >= 0.7:
-                        i = 0
-                        for role in [m for m in missingroles if m in frame.actionroles]:
-                            newword = "{}-{}-skolem-{}".format(frame.actioncore, role, str(i))
-                            if self.prac.verbose:
-                                print "Found {} as {}".format(frame.actionroles[role], role)
-                            obj = frame.actionroles[role]
-                            newobj = Object(self.prac, newword, obj.type, props=obj.props, syntax=obj.syntax)
-                            node.frame.actionroles[role] = newobj
-                            atom_role = "{}({}, {})".format(role, newword, actioncore)
-                            atom_sense = "has_sense({}, {})".format(newword, obj.type)
-                            atom_has_pos = "has_pos({}, {})".format(newword, obj.syntax.pos)
-                            db_ << (atom_role, 1.0)
-                            db_ << (atom_sense, 1.0)
-                            db_ << (atom_has_pos, 1.0)
-    
-                            # Need to define that the retrieve role cannot be
-                            # asserted to other roles
-                            no_roles_set = set(self.prac.actioncores[actioncore].roles)
-                            no_roles_set.remove(role)
-                            for no_role in no_roles_set:
-                                atom_role = "{}({},{})".format(no_role, newword, actioncore)
-                                db_ << (atom_role, 0)
-                            i += 1
-                    else:
-                        if self.prac.verbose > 0:
-                            print "Confidence is too low."
+            if self.prac.verbose > 2:
+                print "Sending query to MONGO DB ..."
+
+            cursor_agg = howtodb.aggregate([stage_1, stage_2])
+
+            # After once iterating through the query result
+            # it is not possible to iterate again through the result.
+            # Therefore we keep the retrieved results in a separate list.
+            cursor = []
+            for document in cursor_agg:
+                cursor.append(document[constants.JSON_HOWTO_STEPS])
+            for document in howtodb.find({constants.JSON_FRAME_ACTIONCORE: str(actioncore)}):
+                cursor.append(document)
+            frames = [Frame.fromjson(self.prac, d) for d in cursor]
+            c = howtodb.find({constants.JSON_HOWTO_ACTIONCORE: str(actioncore)})
+            frames.extend([Frame.fromjson(self.prac, d) for d in c])
+            frames.sort(key=lambda f: f.specifity(), reverse=True)
+            frames.sort(key=lambda f: node.frame.sim(f), reverse=True)
+            if self.prac.verbose >= 2 or logger.level == logs.DEBUG:
+                print 'found similar frames in the db [%s]:' % str(node.frame)
+                for f in frames:
+                    print '%.2f: %s' % (node.frame.sim(f), f)
+            if frames:
+                frame = frames[0]
+                if node.frame.sim(frame) >= node.pracinfer.similarity:
+                    i = 0
+                    for role in [m for m in missingroles if m in frame.actionroles]:
+                        newword = "{}-{}-skolem-{}".format(frame.actioncore, role, str(i))
+                        if self.prac.verbose:
+                            print "Found {} as {}".format(frame.actionroles[role], role)
+                        obj = frame.actionroles[role]
+                        newobj = Object(self.prac, newword, obj.type, props=obj.props, syntax=obj.syntax)
+                        node.frame.actionroles[role] = newobj
+                        atom_role = "{}({}, {})".format(role, newword, actioncore)
+                        atom_sense = "has_sense({}, {})".format(newword, obj.type)
+                        atom_has_pos = "has_pos({}, {})".format(newword, obj.syntax.pos)
+                        db_ << (atom_role, 1.0)
+                        db_ << (atom_sense, 1.0)
+                        db_ << (atom_has_pos, 1.0)
+
+                        # Need to define that the retrieve role cannot be
+                        # asserted to other roles
+                        no_roles_set = set(self.prac.actioncores[actioncore].roles)
+                        no_roles_set.remove(role)
+                        for no_role in no_roles_set:
+                            atom_role = "{}({},{})".format(no_role, newword, actioncore)
+                            db_ << (atom_role, 0)
+                        i += 1
                 else:
                     if self.prac.verbose > 0:
-                        print "No suitable frames are available."
+                        print "Confidence is too low."
             else:
                 if self.prac.verbose > 0:
                     print "No suitable frames are available."
-            break
         else:
-            if self.prac.verbose > 2:
-                print 'no actioncore given. skipping.'
-            return db_, []
+            if self.prac.verbose > 0:
+                print "No suitable frames are available."
+            # break
+        # else:
+        #     if self.prac.verbose > 2:
+        #         print 'no actioncore given. skipping.'
+        #     return db_, []
         return db_, missingroles
 
 

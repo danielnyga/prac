@@ -80,7 +80,6 @@ class PropExtraction(PRACModule):
 
         pngs = {}
         for i, db in enumerate(dbs):
-            db.write()
             # ==================================================================
             # Preprocessing
             # ==================================================================

@@ -451,6 +451,8 @@ class WordNet(object):
             synset2 = self.synset(synset2)
         if synset1 is None or synset2 is None:
             return 0.
+        if synset1 == synset2:  # this is to prevent weird effects like water.n.06 ~ water.n.06 = .86 instead of 1.0
+            return 1
         similarity = synset1.wup_similarity(synset2)
         return max(0.000, 0. if similarity is None else similarity)
 

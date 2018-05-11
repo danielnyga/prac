@@ -54,17 +54,17 @@ class ComplexAchievedBy(PRACModule):
         # ==================================================================
         # Mongo Lookup
         # ==================================================================
-        logger.debug('querying the PRAC database for "%s" howtos...' % actioncore)
+        logger.debug('querying the PRAC database for howtos similar to %s' % frame)
         query = {constants.JSON_HOWTO_ACTIONCORE: str(actioncore)}
         docs = howtodb.find(query)
         howtos = [(h, frame.sim(h)) for h in [Howto.fromjson(self.prac, d) for d in docs]]
-        howtos = [h for h in howtos if h[1] >= similarity]
         howtos.sort(key=lambda h: h[0].specifity(), reverse=1)
         howtos.sort(key=lambda h: h[1], reverse=1)
         if self.prac.verbose > 1:
             print 'found %d matching howtos (threshold %s):' % (len(howtos), similarity)
             for howto in howtos:
                 print howto[1], ':', howto[0]
+        howtos = [h for h in howtos if h[1] >= similarity]
         if howtos:
             # maxscore = max([score for howto, score in howtos])
             # alternatives = [(h, s) for h, s in howtos if s == maxscore]
@@ -84,6 +84,7 @@ class ComplexAchievedBy(PRACModule):
         if not howtos:
             return
         alternatives = []
+        prevscore = -1
         for howto, score in howtos:
             subst = {}
             for role, obj in frame.actionroles.iteritems():
@@ -99,6 +100,9 @@ class ComplexAchievedBy(PRACModule):
                 if self.prac.verbose > 1:
                     logger.debug('discarding howto {}, since no adaptation is possible'.format(howto))
                 continue
+            if prevscore > score:
+                continue
+            prevscore = score
             pred = None
             steps = []
             for step in howto.steps:
@@ -111,6 +115,9 @@ class ComplexAchievedBy(PRACModule):
                 pred = step
                 steps.append(newnode)
             alternatives.append(steps)
+        logger.debug('chose the following alternatives:')
+        for a in alternatives:
+            logger.debug(a)
         if len(alternatives) > 1:
             alternative = AlternativeNode(node.pracinfer, node.frame, parent=node, alternatives=alternatives, indbs=node.indbs)
             for plan in alternatives:

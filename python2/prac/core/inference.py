@@ -331,7 +331,10 @@ class PRACInference(object):
         tokens = word.split('-')
         w = '-'.join(tokens[:-1])
         idx = int(tokens[-1])
-        pos = set(db.postag(word)).pop()
+        pos = set(db.postag(word))
+        if not pos:
+            return None
+        pos = pos.pop()
         sense = db.sense(word)
         nltkpos = db.prac.wordnet.nltkpos(pos)
         lemma = db.prac.wordnet.lemmatize(w, nltkpos) if nltkpos is not None else None

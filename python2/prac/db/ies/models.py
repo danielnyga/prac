@@ -95,8 +95,13 @@ class Frame(object):
         #------------------------------------------------------------------------------ 
         sims = []
         for rolename, rolevalue in self.actionroles.items():
-            if rolename in f.actionroles and rolename != 'action_verb':
-                sims.append(self.prac.wordnet.similarity(f.actionroles[rolename].type, rolevalue.type, simtype='wup'))
+            if rolename in f.actionroles:
+                if rolename == 'action_verb':
+                    continue
+                # sims.append(self.prac.wordnet.similarity(f.actionroles[rolename].type, rolevalue.type, simtype='wup'))
+                sims.append(self.prac.wordnet.wup_similarity(f.actionroles[rolename].type, rolevalue.type))
+            else:
+                return 0
                 #------------------------------------------------------------------------------ 
                 #Sometimes Stanford Parser parses some objects as adjectives
                 #due to the fact that nouns and adjectives cannot be compared

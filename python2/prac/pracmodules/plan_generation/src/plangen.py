@@ -58,7 +58,7 @@ class PlanGenerator(PRACModule):
             print prac_heading('Generating CRAM Plan(s)')
 
         if not hasattr(self.prac.actioncores[node.frame.actioncore], 'plan'):
-            raise ActionKnowledgeError('I don\'t know how to %s' % node.frame.sentence)
+            raise ActionKnowledgeError('I don\'t know how to %s' % node.frame)
         ac = self.prac.actioncores[node.frame.actioncore]
         # fill dictionary with all inferred roles...
         acdict = dict([(k, v.type) for k, v in node.frame.actionroles.items()])
