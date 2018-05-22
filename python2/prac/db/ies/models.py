@@ -27,7 +27,7 @@ from pprint import pprint
 from pracmln.mln.util import avg
 from scipy.stats import stats
 
-from dnutils import edict, trace, out
+from dnutils import edict, trace, out, ifnone
 from prac.db.ies import constants
 from dnutils import edict
 
@@ -154,7 +154,7 @@ class Frame(object):
         return [r for r in self.prac.actioncores[self.actioncore].roles if r not in self.actionroles]
 
     def objects(self):
-        return list(self.actionroles.values())
+        return list({self.actionroles[r] for r in self.actionroles if r != 'action_verb'})
 
     def itersyntax(self):
         for predname, tuples in self.syntax:
@@ -301,10 +301,10 @@ class Object(object):
     @staticmethod
     def fromjson(prac, data):
         return Object(prac,
-                      type_=data.get(constants.JSON_OBJECT_TYPE),
-                      id_=data.get(constants.JSON_OBJECT_ID),
+                      type_=str(data.get(constants.JSON_OBJECT_TYPE)),
+                      id_=str(data.get(constants.JSON_OBJECT_ID)),
                       props=PropertyStore.fromjson(prac, data.get(constants.JSON_OBJECT_PROPERTIES, {})),
-                      syntax=Word.fromjson(prac, data.get(constants.JSON_OBJECT_SYNTAX)))
+                      syntax=Word.fromjson(prac, data.get(constants.JSON_OBJECT_SYNTAX, {})))
     
     def __eq__(self, other):
         if other is None: return False
@@ -374,11 +374,12 @@ class Word(object):
 
 class Worldmodel(object):
 
-    def __init__(self, prac, cw=False):
+    def __init__(self, prac, cw=False, abstractions=None):
         self.prac = prac
         self.cw = cw
         self.available = {}
         self.unavailable = set()
+        self.abstractions = {s.encode('utf8') for s in ifnone(abstractions, set())}
 
     def contains(self, concept):
         hypernyms = reduce(lambda a, b: a | b, [set(self.prac.wordnet.hypernyms_names(o.type)) for o in self.available.values()])
@@ -425,6 +426,20 @@ class Worldmodel(object):
 
     def __str__(self):
         return str({o.id: o.type for o in self.available.values()}) + '{%s}' % ','.join(['!%s' % c for c in self.unavailable])
+
+    def tojson(self):
+        return {'available': [edict(o.tojson()) - {'syntax'} for o in self.available.values()],
+                'unavailable': [c for c in self.unavailable],
+                'abstractions': [c for c in self.abstractions],
+                'cw': self.cw}
+
+    @staticmethod
+    def fromjson(prac, data):
+        wm = Worldmodel(prac, data.get('cw', False), abstractions=set(data.get('abstractions', set())))
+        objects = [Object.fromjson(prac, d) for d in data.get('available', [])]
+        wm.available = {o.id: o for o in objects}
+        wm.unavailable = set(data.get('unavailable', set()))
+        return wm
 
 
 if __name__ == '__main__':

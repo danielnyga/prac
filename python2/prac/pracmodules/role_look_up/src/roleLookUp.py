@@ -85,8 +85,9 @@ class RoleLookUp(PRACModule):
         wm = node.pracinfer.worldmodel
         if wm:
             for obj in node.frame.objects():
-                if not wm.contains(obj.type) and obj.props.__dict__.get('in') is None and obj.__dict__.get('on') is None:
-                    out(obj.type, 'is not in world')
+                if obj.type not in wm.abstractions and not wm.contains(obj.type) and\
+                        obj.props.__dict__.get('in') is None and obj.__dict__.get('on') is None:
+                    logger.info(obj.type, 'is not in world')
                     frames = find_frames(self.prac, actioncore='Storing', actionroles={'obj_to_be_stored': obj.type}, similarity=.7)
                     for frame, sim in frames:
                         setattr(obj.props, 'in', frame.actionroles['location'].type)

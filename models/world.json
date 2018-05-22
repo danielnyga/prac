@@ -1,0 +1,11 @@
+{
+    "available": [{"id": "blender", "type": "blender.n.01"},
+                  {"id": "grain", "type": "cereal.n.03"},
+                  {"id": "table", "type": "table.n.02"},
+                  {"id": "glass", "type": "glass.n.02"},
+                  {"id": "button", "type": "push_button.n.01"},
+                  {"id": "milk", "type": "milk.n.01"}],
+    "unavailable": [],
+    "cw": false,
+    "abstractions": ["milliliter.n.01", "minute.n.01", "five_hundred.n.01"]
+}

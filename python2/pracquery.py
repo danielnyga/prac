@@ -20,9 +20,10 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import argparse
 import json
+import os
 
 import sys
-from pprint import pprint
+from pprint import pprint, pformat
 
 from dnutils import logs
 
@@ -82,7 +83,6 @@ def are_requirements_set_to_load_module(module_name):
     return True
 
 
-
 def main():
     logger.level = logs.DEBUG
 
@@ -93,6 +93,7 @@ def main():
     parser.add_argument("-i", "--interactive", dest="interactive", default=False, action='store_true', help="Starts PRAC inference with an interactive GUI tool.")
     parser.add_argument("-v", "--verbose", dest="verbose", default=1, type=int, action="store", help="Set verbosity level {0..3}. Default is 1.")
     parser.add_argument("-s", "--sim", default=1, type=float, help="Threshold for the similarity value for plan adaptation")
+    parser.add_argument('-w', '--world', default=None, type=str, help='Path to the world-model file')
 
     args = parser.parse_args()
     opts_ = vars(args)
@@ -136,27 +137,40 @@ def main():
             app = PRACQueryGUI(root, infer.prac, n, conf, directory=args[0] if args else None)
             root.mainloop()
         exit(0)
-
     # regular PRAC pipeline
-    wm = Worldmodel(prac, cw=False)
-    wm.add(Object(prac, 'juice', 'carton.n.02', props={'fill_level': 'empty.a.01'}))
-    wm.add(Object(prac, 'basket', 'basket.n.01'))
-    wm.add(Object(prac, 'fridge', 'electric_refrigerator.n.01'))
-    wm.add(Object(prac, 'trash', 'ashcan.n.01'))
+
+    # load the world model file if any is given
+    if args.world is not None:
+        with open(args.world, 'r') as f:
+            wm = Worldmodel.fromjson(prac, json.load(f))
+        logger.info('loaded world model from %s:' % os.path.abspath(args.world))
+        logger.debug(pformat(wm.tojson()))
+    else:
+        wm = None
+    # wm = Worldmodel(prac, cw=True)
+    # wm.add(Object(prac, 'juice', 'carton.n.02', props={'fill_level': 'empty.a.01'}))
+    # wm.add(Object(prac, 'basket', 'basket.n.01'))
+    # wm.add(Object(prac, 'fridge', 'electric_refrigerator.n.01'))
+    # wm.add(Object(prac, 'blender', 'blender.n.01'))
+    # wm.add(Object(prac, 'trash', 'ashcan.n.01'))
     # wm.add(Object(self.prac, 'cereals-unused', 'carton.n.02', props={'used_state': 'unused.s.01'}))
-    wm.add(Object(prac, 'milk-box-full', 'carton.n.02', props={'fill_level': 'full.a.01'}))
-    wm.add(Object(prac, 'cereals-box', 'carton.n.02', props={'used_state': 'secondhand.s.01'}))
-    wm.add(Object(prac, 'banana', 'banana.n.02'))
+    # wm.add(Object(prac, 'milk-box-full', 'carton.n.02', props={'fill_level': 'full.a.01'}))
+    # wm.add(Object(prac, 'cereals-box', 'carton.n.02', props={'used_state': 'secondhand.s.01'}))
+    # wm.add(Object(prac, 'banana', 'banana.n.02'))
     # wm.add(Object(prac, 'apple', 'apple.n.01'))
     # wm.add(Object(prac, 'orange', 'orange.n.01'))
-    wm.add(Object(prac, 'table', 'table.n.02'))
-    wm.add(Object(prac, 'cereal', 'grain.n.02'))
-    wm.add(Object(prac, 'bowl', 'bowl.n.03'))
+    # wm.add(Object(prac, 'table', 'table.n.02'))
+    # wm.add(Object(prac, 'cereal', 'grain.n.02'))
+    # wm.add(Object(prac, 'bowl', 'bowl.n.03'))
+    # wm.add(Object(prac, 'glass', 'glass.n.02'))
+    # wm.add(Object(prac, 'button', 'push_button.n.01'))
+    # wm.add(Object(prac, 'milk', 'milk.n.01'))
 
-    infer = PRACInference(prac, sentences, worldmodel=None, similarity=args.sim)
+    infer = PRACInference(prac, sentences, worldmodel=wm, similarity=args.sim)
     infer.run()
-    gnd = prac.module('grounding')
-    json.dumps(toplan(gnd(infer, wm), 'json'))
+    if wm is not None:
+        gnd = prac.module('grounding')
+        json.dumps(toplan(gnd(infer, wm), 'json'))
 
     print(headline('inference results'))
     print('instructions:')
