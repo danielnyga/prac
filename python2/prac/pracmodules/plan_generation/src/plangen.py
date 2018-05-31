@@ -103,10 +103,12 @@ class PlanOptimizer(PlanGenerator):
     def optimize(self, node):
         if not node.children:
             if self.worldmodel is not None:
-                unknown = set([obj.type for _, obj in node.frame.actionroles.items() if self.worldmodel.contains(obj.type) is None and obj.type is not None])
-                missing = set([obj.type for _, obj in node.frame.actionroles.items() if self.worldmodel.contains(obj.type) is False and obj.type is not None])
+                unknown = set([obj.type for _, obj in node.frame.actionrole_objects.items() if self.worldmodel.contains(obj.type) is None and obj.type is not None])
+                missing = set([obj.type for _, obj in node.frame.actionrole_objects.items() if self.worldmodel.contains(obj.type) is False and obj.type is not None])
             else:
                 unknown, missing = set(), set()
+            out(unknown)
+            out(node.frame.actionrole_objects)
             unknown = set([c for c in unknown if 'abstraction.n.06' not in self.prac.wordnet.hypernyms_names(c) and '.v.' not in c])
             node.eval = PlanEval(1, unknown, missing)
             return [node]

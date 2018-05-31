@@ -74,6 +74,10 @@ class Frame(object):
     def repstr(self):
         return '{} [{}]'.format(self.actioncore, ', '.join(['{}: {}'.format(k, v.repstr()) for k, v in self.actionroles.items() if k != 'action_verb' ]))
 
+    @property
+    def actionrole_objects(self):
+        return {k: v for k, v in self.actionroles.items() if k != 'action_verb'}
+
     def sim(self, f):
         '''
         Determines the frame similarity of this frame and another frame f.
@@ -99,6 +103,10 @@ class Frame(object):
                 if rolename == 'action_verb':
                     continue
                 # sims.append(self.prac.wordnet.similarity(f.actionroles[rolename].type, rolevalue.type, simtype='wup'))
+                if rolevalue.type is None:
+                    raise ValueError('role %s does not have a type (word %s)' % (rolename, rolevalue.syntax))
+                if f.actionroles[rolename].type is None:
+                    raise ValueError('role %s does not have a type (word %s)' % (rolename, f.actionroles[rolename].type))
                 sims.append(self.prac.wordnet.wup_similarity(f.actionroles[rolename].type, rolevalue.type))
             else:
                 return 0

@@ -35,6 +35,7 @@ class Grounding(PRACModule):
         for frame in frames:
             skipframe = False
             for role, obj in frame.actionroles.items():
+                if role == 'action_verb': continue
                 ntypes = list(set([o.type for o in worldmodel.getall(obj)]))
                 # out(frame.toplan(), frame.actionroles[role].type)
                 if not ntypes:
