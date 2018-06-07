@@ -174,7 +174,7 @@ class PRACInferenceNode(object):
         elif previous_module == 'senses_and_roles':
             return 'coref_resolution'
         elif previous_module == 'coref_resolution':
-            if self.frame.missingroles():
+            if self.frame.missingroles() or self.pracinfer.worldmodel is not None and not all([self.pracinfer.worldmodel.contains(o.type) for o in self.frame.objects()]):
                 return 'role_look_up'
             elif hasattr(self.pracinfer.prac.actioncores[self.frame.actioncore], 'plan'): 
                 return None  #'plan_generation'
@@ -383,7 +383,6 @@ class PRACInference(object):
                     g.node(sense)
                     g.edge(actioncore, sense, label=role)
         return render_gv(g, filename)
-
 
     def is_task_missing_roles(self, db):
         # Assuming there is only one action core

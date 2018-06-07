@@ -33,7 +33,7 @@ from prac.db.ies.models import constants, Frame, Object
 from prac.pracutils.utils import prac_heading, get_query_png
 
 
-logger = logs.getlogger(__name__, logs.DEBUG)
+logger = logs.getlogger(__name__)
 
 
 def transform_documents_to_actionrole_dict(cursor):
@@ -84,14 +84,27 @@ class RoleLookUp(PRACModule):
         # infer likely locations if a world model is given
         wm = node.pracinfer.worldmodel
         if wm:
+            # out('world model:')
+            # out(str(wm))
             for obj in node.frame.objects():
+                # out(obj.type)
                 if obj.type not in wm.abstractions and not wm.contains(obj.type) and\
                         obj.props.__dict__.get('in') is None and obj.__dict__.get('on') is None:
-                    logger.info(obj.type, 'is not in world')
+                    # out(obj.type, 'is not in world')
                     frames = find_frames(self.prac, actioncore='Storing', actionroles={'obj_to_be_stored': obj.type}, similarity=.7)
+                    # out('found', len(frames), 'potential locations:')
+                    logger.debug('found', len(frames), 'potential locations:')
                     for frame, sim in frames:
+                        # out(sim, frame)
                         setattr(obj.props, 'in', frame.actionroles['location'].type)
                         break
+                    # if obj.props.__dict__.get('in'):
+                    #     out('likely location:', obj.props.__dict__.get('in'))
+                # else:
+                #     out(obj.type, 'is in world')
+
+        else:
+            logger.debug('no world model given.')
 
         # ==================================================================
         # Preprocessing & Lookup
