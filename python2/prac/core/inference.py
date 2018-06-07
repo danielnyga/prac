@@ -187,6 +187,8 @@ class PRACInferenceNode(object):
         elif previous_module == 'achieved_by':
             return 'roles_transformation'
         elif previous_module == 'roles_transformation':
+	    if self.frame.missingroles() or self.pracinfer.worldmodel is not None and not all([self.pracinfer.worldmodel.contains(o.type) for o in self.frame.objects()]):
+                return 'role_look_up'
             if hasattr(self.pracinfer.prac.actioncores[self.frame.actioncore], 'plan'):
                 return None  # 'plan_generation'
             else:
