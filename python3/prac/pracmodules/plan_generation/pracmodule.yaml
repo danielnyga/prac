@@ -24,5 +24,5 @@
 module_name: "plan_generation"
 description: "Generates CRAM plans from action cores."
 dependencies: ['senses_and_roles']
-class_name: "plangen.PlanGenerator" 
+class_name: "plangen.PlanOptimizer"
 #declarations: ['predicates.mln']

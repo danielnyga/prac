@@ -24,6 +24,7 @@
 import copy
 from collections import Iterable
 
+
 class VarSet(object):
     '''
         Represents a set of positive and negative (binary) random variables
@@ -77,6 +78,7 @@ class VarSet(object):
         if len(self.neg()) > 0:
             retStr += ';$'
         return retStr + ';$'.join([str(x) for x in sorted(neg)])
+
 
 class Node(object):
     '''
@@ -152,7 +154,6 @@ class Node(object):
         return self.id == other.id
 
     
-    
 class DAG(object):
     '''
     Represents a (rooted) directed acyclic graph (DAG)
@@ -222,7 +223,6 @@ class DAG(object):
                 return n
         return None
             
-    
     def ancestorSubgraph(self, nodes):
         '''
         Returns the subgraph from the given node to the root node(s).
@@ -252,7 +252,8 @@ class DAG(object):
     def findNodeByID(self, node_id):
         for n in self.traverse(id=node_id,algo='DFS'): pass
         return n
-    
+
+
 def processNode(dag, node):
     if len(node.parents) == 0:
         return None
@@ -345,6 +346,7 @@ def processNode(dag, node):
                 par.children.remove(nn)
         nn.parents = newParents
     return newNode
+
 
 if __name__ == '__main__':
     pass

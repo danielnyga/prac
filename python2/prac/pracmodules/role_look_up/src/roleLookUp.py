@@ -195,8 +195,6 @@ class RoleLookUp(PRACModule):
         #     return db_, []
         return db_, missingroles
 
-
-#     @PRACPIPE
     def __call__(self, node, **params):
 
         # ======================================================================

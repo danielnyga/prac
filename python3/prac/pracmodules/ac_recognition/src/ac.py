@@ -35,8 +35,8 @@ from pracmln.utils.project import MLNProject
 from pracmln.utils.visualization import get_cond_prob_png
 
 
-
 logger = logs.getlogger(__name__, logs.DEBUG)
+
 
 class ActionCoreIdentification(PRACModule):
     '''
@@ -99,8 +99,6 @@ class ActionCoreIdentification(PRACModule):
             # Postprocessing
             # ==================================================================
             unified_db = resultdb.union(tmp_union_db, mln=self.prac.mln)
-            
-#             infstep.outdbs
             infstep.outdbs.extend(self.extract_multiple_action_cores(self.prac, unified_db, wnmod, known_concepts))
             
             pngs[unified_db.domains.get('actioncore', [None])[0]] = get_cond_prob_png(ac_project.queryconf.get('queries', ''), dbs, filename=self.name)
@@ -108,10 +106,7 @@ class ActionCoreIdentification(PRACModule):
         infstep.applied_settings = ac_project.queryconf.config
         pred = None    
         for outdb in infstep.outdbs:
-#             out('in ac rec:')
-#             for w, ac in outdb.actioncores():
-#                 out(w, ac)
-            for frame in node.pracinfer.buildframes(outdb, sidx, sentence): 
+            for frame in node.pracinfer.buildframes(outdb, sidx, sentence):
                 node_ = FrameNode(node.pracinfer, frame, node, pred, indbs=[outdb], prevmod=self.name)
                 pred = node_
                 yield node_
@@ -119,7 +114,6 @@ class ActionCoreIdentification(PRACModule):
             else: 
                 logger.error('no actioncore recognized in %s' % node)
                 raise Exception('no actioncore recognized in %s' % node)
-
 
     def extract_multiple_action_cores(self, prac, db, wordnet_module, known_concepts):
         '''
@@ -142,8 +136,6 @@ class ActionCoreIdentification(PRACModule):
 
         # sort list according to word ID to keep order of actions
         verb_list = sorted(verb_list, key=lambda x: x.split('-')[-1])
-
-
         # TODO improve the handling
         # Handle sentence with start with .....
         '''
@@ -165,9 +157,7 @@ class ActionCoreIdentification(PRACModule):
                 is_condition = False
 
                 for atom, truth in sorted(db.evidence.items()):
-                    
                     _, pred, args = db.mln.logic.parse_literal(atom)
-                    
                     if pred == "is_a" or pred == "has_sense":
                         continue
                     if pred == "action_core" and args[0] == processed_word:
@@ -178,13 +168,11 @@ class ActionCoreIdentification(PRACModule):
                     elif len(args) > 1:
                         word1 = args[0]
                         word2 = args[1]
-
                         dependency_word = ""
                         if word1 == processed_word:
                             dependency_word = word2
                         elif word2 == processed_word:
                             dependency_word = word1
-
                         if dependency_word and (
                                         dependency_word not in verb_list or
                                         pred == "event") and (
@@ -194,8 +182,6 @@ class ActionCoreIdentification(PRACModule):
                             if pred != 'has_pos' and pred != 'event':
                                 remaining_word_set.add(dependency_word)
                 processed_word_set.add(processed_word)
-            
-        
             #Add valid senses and is_a concepts
             temp_sense_db = wordnet_module.get_senses_and_similarities(db_, known_concepts)
             valid_sense_list = temp_sense_db.domain('sense')
@@ -212,41 +198,3 @@ class ActionCoreIdentification(PRACModule):
             dbs.append(db_)
             
         return dbs
-
-
-    @PRACPIPE
-    def train(self, praclearning):
-        prac = praclearning.prac
-        # get all the relevant training databases
-        db_files = prac.training_dbs()
-        nl_module = prac.module('nl_parsing')
-        syntactic_preds = nl_module.mln.predicates
-        logger.debug(db_files)
-        dbs = [x for x in [Database(self.mln, dbfile=name, ignore_unknown_preds=True) for name in db_files] if type(x) is Database]
-        logger.debug(dbs)
-        new_dbs = []
-        training_dbs = []
-        known_concepts = []
-        logger.debug(self.mln.domains)
-        for db in dbs:
-            if not 'actioncore' in db.domains: continue
-            if not 'concept' in db.domains: continue
-            for c in db.domains['concept']:
-                known_concepts.append(c)
-            new_dbs.append(db)
-        wordnet = prac.wordnet
-        for db in new_dbs:
-            new_db = db.duplicate()
-            for sol in db.query('has_sense(?w, ?s) ^ is_a(?s, ?c)'):
-                word = sol['?w']
-                sense = sol['?s']
-                concept = sol['?c']
-                synset = wordnet.synset(concept)
-                for known_concept in known_concepts:
-                    known_synset = wordnet.synset(known_concept)
-                    if known_synset is None or synset is None: sim = 0
-                    else: sim = wordnet.wup_similarity(synset, known_synset)
-                    new_db << ('is_a(%s,%s)' % (sense, known_concept), sim)
-            training_dbs.append(new_db)
-
-        logger.info('Starting training with %d databases'.format(len(training_dbs)))

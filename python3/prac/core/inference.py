@@ -23,7 +23,7 @@
 
 from collections import defaultdict
 
-from dnutils import logs, out
+from dnutils import logs, first, ifnone, out, stop
 from graphviz.dot import Digraph
 
 from prac.db.ies.models import Object, Frame, Word
@@ -34,6 +34,7 @@ from pracmln import Database
 
 
 logger = logs.getlogger(__name__, level=logs.INFO)
+
 
 class PRACInferenceStep(object):
     '''
@@ -56,7 +57,6 @@ class PRACInferenceStep(object):
         self.node.infchain.append(self)
         self.outdbs = []
         self.watch = StopWatch()
-
 
 
 class PRACInferenceNode(object):
@@ -87,7 +87,6 @@ class PRACInferenceNode(object):
             pred = pred.pred
         return preds
     
-    
     def iterpreds(self):
         '''
         Iterates over all predecessors of this node backwards.
@@ -96,8 +95,7 @@ class PRACInferenceNode(object):
         while pred is not None:
             yield pred
             pred = pred.pred
-    
-    
+
     def rdfs(self, goaltest, all=False):
         '''
         Performs a 'reverse' depth-first search starting from this node.
@@ -119,20 +117,17 @@ class PRACInferenceNode(object):
             if n not in parents:
                 q.extend(list(n.children))
     
-    
     def parentspath(self):
         parent = self.parent
         while parent is not None:
             yield parent 
             parent = parent.parent
-        
-    
+
     def nlinstr(self):
         if isinstance(self, NLInstruction): return self
         for par in self.parentspath():
             if isinstance(par, NLInstruction):
                 return par
-    
     
     @property
     def outdbs(self):
@@ -140,16 +135,13 @@ class PRACInferenceNode(object):
             return self.indbs
         return self.infchain[-1].outdbs
     
-    
     def copy(self, pred=None):
         return PRACInferenceNode(pracinfer=self.pracinfer, parent=self.parent, pred=pred)
     
-        
     @property
     def laststep(self):
         return self.infchain[-1]
-        
-    
+
     def next_module(self):
         '''
         Determines which module is to be executed next in the PRAC pipeline.
@@ -160,6 +152,8 @@ class PRACInferenceNode(object):
 #         out(previous_module)
 #         if isinstance(self, FrameNode):
 #             out(self.frame)
+        if isinstance(self, AlternativeNode):
+            return 'achieved_by'
         if previous_module is None:
             return 'nl_parsing'
         if previous_module == 'nl_parsing':
@@ -171,21 +165,23 @@ class PRACInferenceNode(object):
         elif previous_module == 'senses_and_roles':
             return 'coref_resolution'
         elif previous_module == 'coref_resolution':
-            if self.frame.missingroles():
+            if self.frame.missingroles() or self.pracinfer.worldmodel is not None and not all([self.pracinfer.worldmodel.contains(o.type) for o in self.frame.objects()]):
                 return 'role_look_up'
             elif hasattr(self.pracinfer.prac.actioncores[self.frame.actioncore], 'plan'): 
-                return 'plan_generation'
+                return None  #'plan_generation'
             else:
                 return 'achieved_by'
         elif previous_module == 'role_look_up':
             if hasattr(self.pracinfer.prac.actioncores[self.frame.actioncore], 'plan'):
-                return 'plan_generation'
+                return None  # 'plan_generation'
             else: return 'achieved_by'
         elif previous_module == 'achieved_by':
             return 'roles_transformation'
         elif previous_module == 'roles_transformation':
+            if self.frame.missingroles() or self.pracinfer.worldmodel is not None and not all([self.pracinfer.worldmodel.contains(o.type) for o in self.frame.objects()]):
+                return 'role_look_up'
             if hasattr(self.pracinfer.prac.actioncores[self.frame.actioncore], 'plan'):
-                return 'plan_generation'
+                return None  # 'plan_generation'
             else:
                 return 'achieved_by'
         elif previous_module == 'plan_generation':
@@ -198,8 +194,7 @@ class NLInstruction(PRACInferenceNode):
     def __init__(self, pracinfer, instr, pred=None, prevmod=None):
         PRACInferenceNode.__init__(self, pracinfer=pracinfer, parent=None, pred=pred, indbs=None, prevmod=prevmod)
         self.instr = instr
-    
-    
+
     def __str__(self):
         return '"%s"' % self.instr
         
@@ -214,15 +209,34 @@ class FrameNode(PRACInferenceNode):
     def __str__(self):
         return str(self.frame)
 
-
     def repstr(self):
         return self.frame.repstr()
+
+
+class AlternativeNode(FrameNode):
+    '''Node representing a alternative choice of (equivalent) action sequences.'''
+
+    def __init__(self, pracinfer, frame, parent=None, indbs=None, alternatives=None):
+        FrameNode.__init__(self, pracinfer=pracinfer, parent=parent, frame=frame, pred=None, indbs=indbs)
+        self.alternatives = ifnone(alternatives, [])
+
+    @property
+    def children(self):
+        return [s for a in self.alternatives for s in a]
+
+    @children.setter
+    def children(self, children):
+        pass
+
+    def __str__(self):
+        return '%s alternatives: %s' % (len(self.alternatives), ','.join(['%s steps' % len(a) for a in self.alternatives]))
 
 
 class PRACInference(object):
     '''
     Represents an inference chain in PRAC
     '''
+
     def __init__(self, prac, instr):
         '''
         PRAC inference initialization.
@@ -236,7 +250,7 @@ class PRACInference(object):
         self.watch = StopWatch()
         if type(instr) in {list, tuple}:
             instr_ = instr
-        elif isinstance(instr, str):
+        elif type(instr) is str:
             instr_ = [instr]
         self.fringe = []
         pred = None
@@ -245,24 +259,28 @@ class PRACInference(object):
             pred = self.fringe[-1]
         self.root = list(self.fringe)
         self.lastnode = None
-    
-    
+        self.worldmodel = worldmodel
+        self.similarity = ifnone(similarity, 1.0)
+
     def run(self, stopat=None):
         if type(stopat) not in (tuple, list):
             stopat = [stopat]
         while self.fringe:
             modname = self.next_module()
-            if modname in stopat: break
+            if modname in stopat:
+                self.fringe.pop(0)
+                continue
             self.runstep()
+        if stopat == [None]:
+            for rootnode in self.root:
+                self.prac.module('plan_generation')(rootnode, worldmodel=self.worldmodel)
         return self
 
-    
     def next_module(self):
         if not self.fringe:
             return None
         return self.fringe[0].next_module()
-    
-    
+
     def runstep(self):
         if not self.fringe: return
         node = self.fringe.pop(0)
@@ -270,15 +288,11 @@ class PRACInference(object):
         if modname:
             self._logger.debug('running %s' % modname)
             module = self.prac.module(modname)
-            nodes = list(module(node))
+            nodes = list(module(node, worldmodel=self.worldmodel))
             node.previous_module = modname
             self.fringe.extend(nodes)
         self.lastnode = node
-#         if type(node) == FrameNode:
-#             out('indbs:', list(node.indbs))
-#             out('outdbs:', list(node.outdbs))
         return node
-        
 
     def steps(self):
         q = list(self.root)
@@ -295,8 +309,6 @@ class PRACInference(object):
             print(' ' * len(list(n.parentspath())), n)
             q = n.children + q
 
-
-
     def buildframes(self, db, sidx, sentence):
         for _, actioncore in db.actioncores():
             roles = defaultdict(list)
@@ -308,26 +320,23 @@ class PRACInference(object):
             frames = splitd(roles)    
             for frame in frames:
                 yield Frame(self.prac, sidx, sentence, syntax=list(db.syntax()), words=self.buildwords(db), actioncore=actioncore, actionroles=frame)
-    
-    
+
     def buildword(self, db, word):
         tokens = word.split('-')
         w = '-'.join(tokens[:-1])
         idx = int(tokens[-1])
-        pos = set(db.postag(word)).pop()
+        pos = set(db.postag(word))
+        if not pos:
+            return None
+        pos = pos.pop()
         sense = db.sense(word)
         nltkpos = db.prac.wordnet.nltkpos(pos)
         lemma = db.prac.wordnet.lemmatize(w, nltkpos) if nltkpos is not None else None
         return Word(self.prac, word, w, idx, sense, pos, lemma)
-    
-                
+
     def buildwords(self, db):
         for word in db.words():
             yield self.buildword(db, word)
-            
-        
-
-    
 
     def finalgraph(self, filename=None):
         finaldb = Database(self.prac.mln)
@@ -368,7 +377,6 @@ class PRACInference(object):
                     g.node(sense)
                     g.edge(actioncore, sense, label=role)
         return render_gv(g, filename)
-
 
     def is_task_missing_roles(self, db):
         # Assuming there is only one action core

@@ -73,16 +73,11 @@ class AchievedBy(PRACModule):
 
         return db_
 
-
-#     @PRACPIPE
     def __call__(self, node, **params):
-
         # ======================================================================
         # Initialization
         # ======================================================================
-
         logger.debug('inference on {}'.format(self.name))
-
         if self.prac.verbose > 0:
             print(prac_heading('Refining Actioncores'))
         dbs = node.outdbs
@@ -94,7 +89,7 @@ class AchievedBy(PRACModule):
         # ======================================================================
         for olddb in dbs:
             infstep.indbs.append(olddb.copy())
-            #To handle multiple acs in one task, we have to check if the single 
+            # To handle multiple acs in one task, we have to check if the single
             # dbs contain achieved_bys which representing already plans
             pngs = {}
             actioncore = node.frame.actioncore
@@ -140,7 +135,6 @@ class AchievedBy(PRACModule):
                     projectpath = os.path.join(params.get('projectpath', None) or os.path.join(pracloc.pracmodules, self.name), params.get('project').name)
                     project = params.get('project')
                         
-    
                 mlntext = project.mlns.get(project.queryconf['mln'], None)
                 mln = parse_mln(mlntext, searchpaths=[self.module_path],
                                 projectpath=projectpath,
@@ -149,7 +143,7 @@ class AchievedBy(PRACModule):
                 known_concepts = mln.domains.get('concept', [])
                 wnmod = self.prac.module('wn_senses')
                 
-                #Merge domains of db and given mln to avoid errors due to role inference and the resulting missing fuzzy perdicates
+                # Merge domains of db and given mln to avoid errors due to role inference and the resulting missing fuzzy perdicates
                 known_concepts = list(set(known_concepts).union(set(db_.domains.get('concept', []))))
                 db = wnmod.get_senses_and_similarities(db_, known_concepts)
     
@@ -186,9 +180,7 @@ class AchievedBy(PRACModule):
                     unified_db << 'achieved_by({},{})'.format(qa['?ac1'], qa['?ac2'])
                     pngs[qa['?ac2']] = get_cond_prob_png(project.queryconf.get('queries', ''), dbs, filename=self.name)
                     newframe = Frame(self.prac, node.frame.sidx, '', words=[], syntax=[], actioncore=qa['?ac2'], actionroles={})
-#                     out('->', newframe)
                     infstep.outdbs.append(unified_db)
                     yield FrameNode(node.pracinfer, newframe, node, pred=None, indbs=[unified_db], prevmod=self.name)
                     return
                 infstep.outdbs.append(unified_db)
-#             raise ActionKnowledgeError('I don\'t know how to %s' % node.frame.sentence)

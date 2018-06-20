@@ -46,7 +46,8 @@ JSON_FRAME_SYNTAX = 'syntax'
 JSON_FRAME_ACTIONCORE = 'actioncore'
 JSON_FRAME_ACTIONCORE_ROLES = 'actionroles'
 JSON_FRAME_WORDS = 'words'
-#------------------------------------------------------------------------------ 
+JSON_FRAME_MANDATORY = 'mandatory'
+#------------------------------------------------------------------------------
 JSON_HOWTO_STEPS = 'steps'
 JSON_HOWTO_ACTIONROLES = JSON_FRAME_ACTIONCORE_ROLES
 JSON_HOWTO_ACTIONCORE = JSON_FRAME_ACTIONCORE

@@ -22,10 +22,12 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import datetime
+from numpy import mean
 from pprint import pprint
 
-from pracmln.mln.util import edict, avg
 from scipy.stats import stats
+
+from dnutils import edict
 
 from . import constants
 
@@ -37,15 +39,27 @@ def tojson(obj):
     if type(obj) in (list, tuple):
         return [tojson(e) for e in obj]
     elif isinstance(obj, dict):
-        return {str(k): tojson(v) for k, v in list(obj.items())}
+        return {str(k): tojson(v) for k, v in obj.items()}
     return obj
-        
+
+
+def toplan(obj, lang='json'):
+    '''Recursively generate a JSON or Lisp plan representation'''
+    if hasattr(obj, 'toplan'):
+        return obj.toplan(lang)
+    if type(obj) in (list, tuple):
+        return [toplan(e) for e in obj]
+    elif isinstance(obj, dict):
+        return {str(k): toplan(v) for k, v in obj.items()}
+    return obj
+
 
 class Frame(object):
     '''
     Represents a (partially) instantiated action core that is stored in the MongoDB. 
     '''
-    def __init__(self, prac, sidx, sentence, words, syntax, actioncore, actionroles):
+
+    def __init__(self, prac, sidx, sentence, words, syntax, actioncore, actionroles, mandatory=True):
         self.sidx = sidx
         self.sentence = sentence
         self.actionroles = actionroles
@@ -53,15 +67,17 @@ class Frame(object):
         self.syntax = syntax
         self.words = words
         self.prac = prac
+        self.mandatory = mandatory
 
-    
     def __str__(self):
-        return '%s [%s]' % (self.actioncore, ', '.join(['%s: %s' % (k, v) for k, v in list(self.actionroles.items())]))
-
+        return '%s [%s]' % (self.actioncore, ', '.join(['%s: %s' % (k, v) for k, v in self.actionroles.items()]))
 
     def repstr(self):
-        return '{} [{}]'.format(self.actioncore, ', '.join(['{}: {}'.format(k, v.repstr()) for k, v in list(self.actionroles.items()) if k != 'action_verb' ]))
+        return '{} [{}]'.format(self.actioncore, ', '.join(['{}: {}'.format(k, v.repstr()) for k, v in self.actionroles.items() if k != 'action_verb' ]))
 
+    @property
+    def actionrole_objects(self):
+        return {k: v for k, v in self.actionroles.items() if k != 'action_verb'}
 
     def sim(self, f):
         '''
@@ -72,55 +88,66 @@ class Frame(object):
         :param f:     The frame this frame shall be compared to.
         :return:      The frame similarity of this frame and ``f``.
         '''
-        if 'action_verb' in self.actionroles and 'action_verb' in f.actionroles:
-            verbsim = self.prac.wordnet.similarity(str(self.actionroles['action_verb'].type),
-                                            str(f.actionroles['action_verb'].type), simtype='wup')
-        else:
-            return 0
-        #------------------------------------------------------------------------------ 
+        # if 'action_verb' in self.actionroles and 'action_verb' in f.actionroles:
+        #     verbsim = self.prac.wordnet.similarity(str(self.actionroles['action_verb'].type),
+        #                                     str(f.actionroles['action_verb'].type), simtype='wup')
+        # else:
+        #     return 0
+        # ------------------------------------------------------------------------------
         # This is a sanity check to revoke false inferred 
         # frames during the information extraction process.
-        if verbsim  < 0.85: return 0
-        #------------------------------------------------------------------------------ 
+        # if verbsim  < 0.85: return 0
+        # ------------------------------------------------------------------------------
         sims = []
-        for rolename, rolevalue in list(self.actionroles.items()):
-            if rolename in f.actionroles and rolename != 'action_verb':
-                sims.append(self.prac.wordnet.similarity(f.actionroles[rolename].type, rolevalue.type, simtype='wup'))
-                #------------------------------------------------------------------------------ 
-                #Sometimes Stanford Parser parses some objects as adjectives
-                #due to the fact that nouns and adjectives cannot be compared
-                #we define the the similarity between the instruction and the frame as zero
-                #------------------------------------------------------------------------------ 
-                if sims[-1] == 0: return 0
-        return 0 if not sims else avg(*sims)
-    
-    
+        for rolename, rolevalue in self.actionroles.items():
+            if rolename in f.actionroles:
+                if rolename == 'action_verb':
+                    continue
+                # sims.append(self.prac.wordnet.similarity(f.actionroles[rolename].type, rolevalue.type, simtype='wup'))
+                if rolevalue.type is None:
+                    raise ValueError('role %s does not have a type (word %s)' % (rolename, rolevalue.syntax))
+                if f.actionroles[rolename].type is None:
+                    raise ValueError('role %s does not have a type (word %s)' % (rolename, f.actionroles[rolename].type))
+                sims.append(self.prac.wordnet.wup_similarity(f.actionroles[rolename].type, rolevalue.type))
+            else:
+                return 0
+                # ------------------------------------------------------------------------------
+                # Sometimes Stanford Parser parses some objects as adjectives
+                # due to the fact that nouns and adjectives cannot be compared
+                # we define the the similarity between the instruction and the frame as zero
+                # ------------------------------------------------------------------------------
+                # if sims[-1] == 0:
+                #     return 0
+        return 0 if not sims else mean(sims)
+
     def specifity(self):
         '''
         '''
         return 1.0 - float(len(self.missingroles()))/len(self.prac.actioncores[self.actioncore].roles)
 
-    
     def word(self, wid):
         for w in self.words:
             if w.wid == wid: return w
             
     def object(self, oid):
         for r, o in list(self.actionroles.items()):
-            if o.id == oid: return o
-        
+            if o.id == oid:
+                return o
         
     def copy(self):
         return Frame.fromjson(self.prac, self.tojson())
-    
-    
+
     def tojson(self):
         return tojson({constants.JSON_FRAME_SENTENCE: self.sentence,
                 constants.JSON_FRAME_ACTIONCORE: self.actioncore,
                 constants.JSON_FRAME_SYNTAX: self.syntax,
                 constants.JSON_FRAME_WORDS: [w.tojson() for w in self.words],
-                constants.JSON_FRAME_ACTIONCORE_ROLES: self.actionroles})
+                constants.JSON_FRAME_ACTIONCORE_ROLES: self.actionroles,
+                constants.JSON_FRAME_MANDATORY: self.mandatory})
 
+    def toplan(self, lang='json'):
+        return {constants.JSON_FRAME_ACTIONCORE: self.actioncore,
+                constants.JSON_FRAME_ACTIONCORE_ROLES: toplan(self.actionroles, lang=lang)}
 
     @staticmethod
     def fromjson(prac, data):
@@ -130,44 +157,46 @@ class Frame(object):
                      syntax=data.get(constants.JSON_FRAME_SYNTAX),
                      words=data.get(constants.JSON_FRAME_WORDS),
                      actioncore=data.get(constants.JSON_FRAME_ACTIONCORE),
-                     actionroles={r: Object.fromjson(prac, o) for r, o in list(data.get(constants.JSON_FRAME_ACTIONCORE_ROLES, {}).items())})
+                     actionroles={r: Object.fromjson(prac, o) for r, o in data.get(constants.JSON_FRAME_ACTIONCORE_ROLES, {}).iteritems()},
+                     mandatory=data.get(constants.JSON_FRAME_MANDATORY, True))
         
     def missingroles(self):
         return [r for r in self.prac.actioncores[self.actioncore].roles if r not in self.actionroles]
-        
 
-    
+    def objects(self):
+        return list({self.actionroles[r] for r in self.actionroles if r != 'action_verb'})
+
     def itersyntax(self):
         for predname, tuples in self.syntax:
             for w1, w2 in tuples:
                 yield '%s(%s,%s)' % (predname, w1, w2) 
-        
-    
+
     def todb(self):
         for a in self.itersyntax(): yield a
         if 'action_verb' in self.actionroles:
             yield 'action_core(%s,%s)' % (self.actionroles['action_verb'].id, self.actioncore)
-        for role, obj in list(self.actionroles.items()):
+        else:
+            yield 'action_core(ac-skolem,%s)' % self.actioncore
+        for role, obj in self.actionroles.iteritems():
             yield '%s(%s,%s)' %(role, obj.id, self.actioncore)
             yield 'has_sense(%s,%s)' % (obj.id, obj.type)
             yield 'is_a(%s,%s)' % (obj.type, obj.type)
             yield 'has_pos(%s,%s)' % (obj.id, obj.syntax.pos)
-            
-            
+
     def __eq__(self, other):
         if other is None: return False
         if self.actioncore != other.actioncore: return False
-        for role, obj in list(self.actionroles.items()):
-            if other.actionroles.get(role) != obj: return False
-        for role, obj in list(other.actionroles.items()):
-            if self.actionroles.get(role) != obj: return False
+        for role, obj in self.actionroles.items():
+            if other.actionroles.get(role) != obj:
+                return False
+        for role, obj in other.actionroles.items():
+            if self.actionroles.get(role) != obj:
+                return False
         return True
-    
-    
+
     def __ne__(self, other):
         return not self == other
-                
-            
+
 
 class Howto(Frame):
     '''
@@ -181,13 +210,11 @@ class Howto(Frame):
             self.import_date = datetime.datetime.now()
         else:
             self.import_date = import_date
-        
-        
+
     def tojson(self):
         return tojson(edict({constants.JSON_HOWTO_IMPORT_DATE: self.import_date}) +\
                edict(Frame.tojson(self)) + edict({constants.JSON_HOWTO_STEPS: tojson(self.steps)}))
-        
-    
+
     @staticmethod
     def fromjson(prac, data):
         return Howto(prac,
@@ -195,12 +222,13 @@ class Howto(Frame):
                      steps=[Frame.fromjson(prac, s) for s in data.get(constants.JSON_HOWTO_STEPS)],
                      import_date=data.get(constants.JSON_HOWTO_IMPORT_DATE))
 
+    def toplan(self, lang='json'):
+        return [toplan(step, lang=lang) for step in self.steps]
 
     def shortstr(self):
         s = 'Howto: %s\nSteps:\n' % Frame.__str__(self)
         s += '\n'.join([('  - %s' % f) for f in self.steps])
         return s
-
 
     def specifity(self):
         '''
@@ -213,41 +241,44 @@ class Howto(Frame):
         '''
         specs = [s.specifity() for s in self.steps]
         specs.append(Frame.specifity(self))
+        if any([s == 0 for s in specs]):
+            return 0
         return stats.hmean(specs)
+
+    def object_types(self):
+        return set([c for s in self.steps for r, c in s.actionroles.items()])
 
 
 class PropertyStore(object):
     '''Store for property values of objects'''
-    
-    __props = ['size', 'hypernym', 'color', 'hasa', 'shape', 'dimension', 
-                 'consistency', 'material']
-    
-    def __init__(self, prac):
-        self.size = None
-        self.hypernym = None
-        self.color = None
-        self.hasa = None
-        self.shape = None
-        self.dimension = None
-        self.consistency = None
-        self.material = None
-        self.prac = prac
 
+    def __init__(self, prac):
+        self.prac = prac
+        propmod = prac.module('prop_extraction')
+        self.__props = [p.name for p in propmod.mln.predicates]
+        for pred in self.__props:
+            setattr(self, pred, None)
 
     def tojson(self):
         return {k: tojson(getattr(self, k)) for k in self.__props if getattr(self, k) is not None}
 
-    
+    def toplan(self, lang='json'):
+        return {p: getattr(self, p) for p in self.__props if getattr(self, p) is not None}
+
+    def items(self):
+        for k, v in {p: getattr(self, p) for p in self.__props if getattr(self, p) is not None}.items():
+            yield k, v
+
     @staticmethod
     def fromjson(prac, data):
         s = PropertyStore(prac)
-        for k, v in list(data.items()): setattr(s, k, v)
+        for k, v in data.items():
+            setattr(s, k, v)
         return s
     
     def __eq__(self, other):
         return self.tojson() == other.tojson()
-    
-    
+
     def __ne__(self, other):
         return not self == other
     
@@ -264,47 +295,58 @@ class Object(object):
         else:
             self.props = PropertyStore(prac)
         if isinstance(props, dict):
-            for k, v in list(props.items()): setattr(self.props, k, v)
+            for k, v in list(props.items()):
+                setattr(self.props, k, v)
         self.syntax = syntax
         self.prac = prac
-    
-    
+
     def tojson(self):
         return tojson({constants.JSON_OBJECT_ID: self.id,
                 constants.JSON_OBJECT_TYPE: self.type,
                 constants.JSON_OBJECT_PROPERTIES: self.props,
                 constants.JSON_OBJECT_SYNTAX: self.syntax})
-        
-        
+
+    def toplan(self, lang='json'):
+        return toplan(edict({constants.JSON_OBJECT_TYPE: self.type}) + edict(self.props.toplan(lang=lang)))
+
+    def copy(self):
+        return Object.fromjson(self.prac, self.toplan())
+
     @staticmethod
     def fromjson(prac, data):
         return Object(prac,
-                      type_=data.get(constants.JSON_OBJECT_TYPE),
-                      id_=data.get(constants.JSON_OBJECT_ID),
+                      type_=str(data.get(constants.JSON_OBJECT_TYPE)),
+                      id_=str(data.get(constants.JSON_OBJECT_ID)),
                       props=PropertyStore.fromjson(prac, data.get(constants.JSON_OBJECT_PROPERTIES, {})),
-                      syntax=Word.fromjson(prac, data.get(constants.JSON_OBJECT_SYNTAX)))
+                      syntax=Word.fromjson(prac, data.get(constants.JSON_OBJECT_SYNTAX, {})))
     
     def __eq__(self, other):
         if other is None: return False
         if self.props != other.props: return False
         return self.type == other.type
-    
-    
+
     def __ne__(self, other):
         return not self == other    
     
     def __repr__(self):
-        return '<Object id={} type={} at 0x{}>'.format(self.id, self.type, hex(id(self)))
-
+        return '<Object id=%s type=%s at 0x%x>' % (self.id, self.type, hash(self))
 
     def repstr(self):
         return '{}'.format(self.type)
 
-
     def __str__(self):
         return repr(self)#'%s: %s' % (self.id, self.type)
-    
-        
+
+    def matches(self, obj):
+        if obj.type not in self.prac.wordnet.hypernyms_names(self.type):
+            return False
+        for prop, val in obj.props.items():
+            if val is None or prop in ('in', 'on'):
+                continue
+            if getattr(self.props, prop) is None or val != getattr(self.props, prop):
+                return False
+        return True
+
 
 class Word(object):
     '''
@@ -313,6 +355,7 @@ class Word(object):
     A sense object is always included in a frame, which contains a set of senses.
     WordNet is used to assign the senses.
     '''
+
     def __init__(self, prac, wid, word, widx, sense, pos, lemma, misc=None):
         self.wid = wid
         self.word = word
@@ -323,7 +366,6 @@ class Word(object):
         self.misc = misc
         self.prac = prac
 
-        
     def tojson(self):
         return tojson({constants.JSON_SENSE_WORD_ID: self.wid, 
                 constants.JSON_SENSE_WORD: self.word,
@@ -332,17 +374,86 @@ class Word(object):
                 constants.JSON_SENSE_WORD_IDX: self.widx,
                 constants.JSON_SENSE_SENSE: self.sense,
                 constants.JSON_SENSE_MISC: self.misc})
-    
-    
+
     @staticmethod    
     def fromjson(prac, data):
         return Word(prac, 
                     data.get(constants.JSON_SENSE_WORD),
-                    data.get(constants.JSON_SENSE_LEMMA),
-                    data.get(constants.JSON_SENSE_POS),
-                    data.get(constants.JSON_SENSE_SENSE),
+                    data.get(constants.JSON_SENSE_WORD),
                     data.get(constants.JSON_SENSE_WORD_IDX),
-                    data.get(constants.JSON_SENSE_WORD))
+                    data.get(constants.JSON_SENSE_SENSE),
+                    data.get(constants.JSON_SENSE_POS),
+                    data.get(constants.JSON_SENSE_LEMMA))
+
+
+class Worldmodel(object):
+
+    def __init__(self, prac, cw=False, abstractions=None):
+        self.prac = prac
+        self.cw = cw
+        self.available = {}
+        self.unavailable = set()
+        self.abstractions = {s.encode('utf8') for s in ifnone(abstractions, set())}
+
+    def contains(self, concept):
+        hypernyms = reduce(lambda a, b: a | b, [set(self.prac.wordnet.hypernyms_names(o.type)) for o in self.available.values()])
+        if concept in hypernyms:
+            return True
+        if concept in self.unavailable or self.cw:
+            return False
+
+    def __contains__(self, o):
+        return self.contains(o)
+
+    def add(self, obj):
+        self.available[obj.id] = obj
+        if obj.type in self.unavailable:
+            self.unavailable.remove(obj.type)
+
+    def remove(self, objid, cw=True):
+        obj = self.available.get(objid)
+        if obj is None: return
+        del self.available[objid]
+        if cw and obj.type not in self:
+            self.unavailable.add(obj.type)
+
+    def getall(self, obj):
+        if type(obj) is str:
+            obj = Object(self.prac, self.newid(), type_=obj)
+        objects = []
+        for id_, o in self.available.items():
+            if o.matches(obj):
+                objects.append(o)
+        return objects
+
+    def removeall(self, concept, cw=True):
+        for o in self.getall(concept):
+            self.remove(o.id)
+        if cw:
+            self.unavailable.add(concept)
+
+    def newid(self):
+        i = 0
+        while 'id-%s' % i in self.available:
+            i += 1
+        return 'id-%s' % i
+
+    def __str__(self):
+        return str({o.id: o.type for o in self.available.values()}) + '{%s}' % ','.join(['!%s' % c for c in self.unavailable])
+
+    def tojson(self):
+        return {'available': [edict(o.tojson()) - {'syntax'} for o in self.available.values()],
+                'unavailable': [c for c in self.unavailable],
+                'abstractions': [c for c in self.abstractions],
+                'cw': self.cw}
+
+    @staticmethod
+    def fromjson(prac, data):
+        wm = Worldmodel(prac, data.get('cw', False), abstractions=set(data.get('abstractions', set())))
+        objects = [Object.fromjson(prac, d) for d in data.get('available', [])]
+        wm.available = {o.id: o for o in objects}
+        wm.unavailable = set(data.get('unavailable', set()))
+        return wm
 
 
 if __name__ == '__main__':

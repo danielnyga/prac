@@ -52,7 +52,6 @@ def lexkey2synset(key):
 def readFromFile(filename):
     # load the parser
     parser = StanfordParser(grammarPath)
-    
     f = open(filename)
     lines = f.readlines()
     sentence = []
@@ -64,8 +63,8 @@ def readFromFile(filename):
     parsed_constants = set()
     nullsense_constants = set()
     for lineIdx, l in enumerate(lines):
-#         if sentenceIdx > 20:
-#             break
+        # if sentenceIdx > 20:
+        #   break
         tokens = l.strip().split('\t')
         sidx = int(tokens[0])
 #         widx = int(tokens[1])

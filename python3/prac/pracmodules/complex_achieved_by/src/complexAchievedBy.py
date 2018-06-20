@@ -23,11 +23,11 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 
-from dnutils import logs, out
+from dnutils import logs, out, first, ifnone
 
 import prac
 from prac.core.base import PRACModule, PRACDatabase
-from prac.core.inference import FrameNode
+from prac.core.inference import FrameNode, AlternativeNode
 from prac.db.ies.models import constants, Howto
 from prac.pracutils.utils import prac_heading
 
@@ -40,64 +40,92 @@ class ComplexAchievedBy(PRACModule):
     PRACModule used to perform action core refinement with a mongo database
     lookup.
     '''
-    def closest_howto(self, frame):
+
+    def closest_howtos(self, frame, similarity=None):
         '''
         Determines the howto which describes how to perform the complex task.
         
         :param db: A PRAC database which represents the complex instruction.
         :return: A list of databases which each represents a step how to perform the complex instruction.
         '''
+        similarity = ifnone(similarity, .9)
         actioncore = frame.actioncore
         howtodb = self.prac.mongodb.prac.howtos 
         # ==================================================================
         # Mongo Lookup
         # ==================================================================
-        logger.debug('querying the PRAC database for "%s" howtos...' % actioncore)
+        logger.debug('querying the PRAC database for howtos similar to %s' % frame)
         query = {constants.JSON_HOWTO_ACTIONCORE: str(actioncore)}
         docs = howtodb.find(query)
         howtos = [(h, frame.sim(h)) for h in [Howto.fromjson(self.prac, d) for d in docs]]
-        howtos = [h for h in howtos if h[1] >= 0.5]
         howtos.sort(key=lambda h: h[0].specifity(), reverse=1)
         howtos.sort(key=lambda h: h[1], reverse=1)
         if self.prac.verbose > 1:
-            print('found %d matching howtos:' % len(howtos))
+            print('found %d matching howtos (threshold %s):' % (len(howtos), similarity))
             for howto in howtos:
                 print(howto[1], ':', howto[0])
         if howtos:
-            howto = howtos[0][0]
-            return howto
-            
-#     @PRACPIPE
-    def __call__(self, node, **params):
+            # maxscore = max([score for howto, score in howtos])
+            # alternatives = [(h, s) for h, s in howtos if s == maxscore]
+            alternatives = howtos
+            return alternatives
 
+    def __call__(self, node, worldmodel=None, **params):
         # ======================================================================
         # Initialization
         # ======================================================================
         logger.debug('inference on {}'.format(self.name))
-
         if self.prac.verbose > 0:
             print(prac_heading('Processing complex Action Core refinement'))
         frame = node.frame
         pngs = {}
-        howto = self.closest_howto(node.frame)
-        if howto is None: return 
-        print(howto.shortstr())
-        subst = {}
-        for role, obj in list(frame.actionroles.items()):
-            obj_ = howto.actionroles.get(role)
-            if obj_ is not None and obj_.type != obj.type: subst[obj_.type] = obj
-        for step in howto.steps:
-            for role, obj in list(step.actionroles.items()):
-                if obj.type in subst: 
-                    step.actionroles[role] = subst[obj.type] 
-        pred = None
-        for step in howto.steps:
-            newnode = FrameNode(node.pracinfer, 
-                                step, 
-                                node, 
-                                pred, 
-                                indbs=[PRACDatabase(self.prac, evidence={a: 1 for a in step.todb()})])
-            newnode.previous_module = 'coref_resolution'
-            pred = step
-            yield newnode
+        howtos = self.closest_howtos(node.frame, node.pracinfer.similarity)
+        if not howtos:
+            return
+        alternatives = []
+        prevscore = -1
+        for howto, score in howtos:
+            subst = {}
+            for role, obj in frame.actionroles.iteritems():
+                obj_ = howto.actionroles.get(role)
+                if obj_ is not None and obj_.type != obj.type: subst[obj_.type] = obj
+            substitutions = 0
+            for step in howto.steps:
+                for role, obj in step.actionroles.iteritems():
+                    if obj.type in subst:
+                        step.actionroles[role] = subst[obj.type]
+                        substitutions += 1
+            if not substitutions and score < 1.0:
+                if self.prac.verbose > 1:
+                    logger.debug('discarding howto {}, since no adaptation is possible'.format(howto))
+                continue
+            if prevscore > score:
+                continue
+            prevscore = score
+            pred = None
+            steps = []
+            for step in howto.steps:
+                newnode = FrameNode(node.pracinfer,
+                                    step,
+                                    node,
+                                    pred,
+                                    indbs=[PRACDatabase(self.prac, evidence={a: 1 for a in step.todb()})])
+                newnode.previous_module = 'coref_resolution'
+                pred = step
+                steps.append(newnode)
+            alternatives.append(steps)
+        logger.debug('chose the following alternatives:')
+        for a in alternatives:
+            logger.debug(a)
+        if len(alternatives) > 1:
+            alternative = AlternativeNode(node.pracinfer, node.frame, parent=node, alternatives=alternatives, indbs=node.indbs)
+            for plan in alternatives:
+                for step in plan:
+                    step.parent.children = [alternative]
+                    step.parent = alternative
+                    step.previous_module = 'coref_resolution'
+            yield alternative
+        elif len(alternatives) == 1:
+            for c in first(alternatives):
+                yield c
         return

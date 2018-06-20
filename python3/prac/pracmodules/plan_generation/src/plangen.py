@@ -20,13 +20,14 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from collections import namedtuple
 
 from dnutils import logs
 from pracmln.mln.util import colorize
 
 from prac.core.base import PRACModule
 from prac.core.errors import ActionKnowledgeError
-from prac.core.inference import PRACInferenceStep
+from prac.core.inference import PRACInferenceStep, AlternativeNode
 from prac.pracutils.utils import prac_heading
 
 
@@ -40,7 +41,9 @@ class PlanGenerator(PRACModule):
     '''
 
     def __call__(self, node, **params):
+        return self.makeplan(node)
 
+    def makeplan(self, node, **params):
         # ======================================================================
         # Initialization
         # ======================================================================
@@ -55,21 +58,19 @@ class PlanGenerator(PRACModule):
             print(prac_heading('Generating CRAM Plan(s)'))
 
         if not hasattr(self.prac.actioncores[node.frame.actioncore], 'plan'):
-            raise ActionKnowledgeError('I don\'t know how to %s' % node.frame.sentence)
-            yield
+            raise ActionKnowledgeError('I don\'t know how to %s' % node.frame)
         ac = self.prac.actioncores[node.frame.actioncore]
         # fill dictionary with all inferred roles...
-        acdict = dict([(k, v.type) for k, v in list(node.frame.actionroles.items())])
+        acdict = dict([(k, v.type) for k, v in node.frame.actionroles.items()])
 
         # ..and their properties
-        acdict.update(dict([('{}_props'.format(k), ' '.join(['({} {})'.format(pkey, pval) for pkey, pval in list(v.props.tojson().items())])) for k, v in list(node.frame.actionroles.items())]))
+        acdict.update(dict([('{}_props'.format(k), ' '.join(['({} {})'.format(pkey, pval) for pkey, pval in v.props.tojson().items()])) for k, v in node.frame.actionroles.items()]))
 
         # update dictionary with missing roles and roles properties
         for role in ac.roles:
             if acdict.get(role) is None:
                 acdict[role] = 'Unknown'
                 acdict['{}_props'.format(role)] = ''
-
 
         node.plan = ac.parameterize_plan(**acdict)
 

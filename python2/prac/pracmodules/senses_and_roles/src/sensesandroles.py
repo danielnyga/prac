@@ -73,7 +73,6 @@ class SensesAndRoles(PRACModule):
             for q in olddb.query('action_core(?word,?actioncore)'):  # actioncore evidence
                 db_copy << 'action_core(%s,%s)' % (q['?word'], q['?actioncore'])
             for q in olddb.query('has_sense(?w,?s)'):
-                out(q)
                 db_copy << 'has_sense({},{})'.format(q['?w'], q['?s'])
             # ======================================================================
             actioncore = node.frame.actioncore
@@ -154,7 +153,7 @@ class SensesAndRoles(PRACModule):
 
             if self.prac.verbose > 1:
                 for q in unified_db.query('has_sense(?w, ?s)'):
-                # TODO Add additional formulas to avoid the using of null values
+                    # TODO Add additional formulas to avoid the using of null values
                     print colorize('  WORD:', (None, 'white', True), True), q['?w']
                     print colorize('  SENSE:', (None, 'white', True), True), q['?s']
                     wnmod.printWordSenses(wnmod.get_possible_meanings_of_word(
@@ -173,10 +172,7 @@ class SensesAndRoles(PRACModule):
             
             infstep.applied_settings = project.queryconf.config
         # TODO: this does not work as intended (creating multiple Frames if action role assignments are ambiguous
-        # out(actionroles)
         newframes = list(splitd(actionroles))
-        # out(newframes)
-        # newframes = actionroles
         pred = None
         for newframe in newframes:
             f = Frame(self.prac, node.frame.sidx, node.frame.sentence, syntax=list(olddb.syntax()),

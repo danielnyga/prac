@@ -56,7 +56,6 @@ class StanfordParser(object):
     natural-language parser.
     '''
 
-
     def __init__(self, pcfg_model_fname=None):
         self.pcfg_model_fname = pcfg_model_fname
         self.package_lexparser = jpype.JPackage("edu.stanford.nlp.parser.lexparser")
@@ -64,7 +63,6 @@ class StanfordParser(object):
         self.package = jpype.JPackage("edu.stanford.nlp")
         self.parser = self.package_lexparser.LexicalizedParser.loadModel(self.pcfg_model_fname, ['-retainTmpSubcategories', '-maxLength', '160'])
         self.parse = None
-
 
     def get_dependencies(self, sentence=None, collapsed=False):
         '''
@@ -87,7 +85,6 @@ class StanfordParser(object):
             deps = gs.typedDependencies()
         return deps
 
-
     def get_pos(self, sentence=None):
         '''
         Returns the part-of-speech tags for the sentence.
@@ -106,7 +103,6 @@ class StanfordParser(object):
                 continue
             pos[i + 1] = (['{}-{}'.format(w, i + 1 - commaoffset), p])
         return pos
-
 
     def print_info(self):
         '''
@@ -128,7 +124,6 @@ class StanfordParser(object):
         print("Test parameters")
         self.parser.op.tlpParams.display()
         self.package_lexparser.Test.display()
-
 
     def parse(self, sentence):
         '''
@@ -160,18 +155,15 @@ class NLParsing(PRACModule):
     'has_pos' and the stanford dependencies.
     '''
 
-
     def __init__(self, prac):
         PRACModule.__init__(self, prac)
         self.mln = None
-
 
     def initialize(self):
         logger.debug('initializing nl_parsing')
 
         self.mln = MLN(mlnfile=os.path.join(self.module_path, 'mln', 'predicates.mln'),
                        grammar='PRACGrammar', logic='FuzzyLogic')
-
 
     @staticmethod
     def is_aux_verb(word, db):
@@ -190,7 +182,6 @@ class NLParsing(PRACModule):
             return True
 
         return False
-
 
     def get_all_verbs(self, db):
         '''
@@ -212,7 +203,6 @@ class NLParsing(PRACModule):
 
         # Sort list by the order occurrence of the verbs
         return sorted(verb_list, key=lambda verb: int(verb.split('-')[-1]))
-
 
     @staticmethod
     def compounds(sentence):
@@ -236,7 +226,6 @@ class NLParsing(PRACModule):
         '''
         instr = word_tokenize(sentence)
         newinstr = []
-
         i = 0
         for _ in instr:
             found = False
@@ -270,7 +259,6 @@ class NLParsing(PRACModule):
         # untokenize sentence before returning.
         return "".join([" "+i if not i.startswith("'") and i not in string.punctuation else i for i in newinstr]).strip()
 
-    
     def parse(self, sentences):
         '''
         Accepts as arguments a sentence or a list of sentences. Returns the
@@ -291,16 +279,13 @@ class NLParsing(PRACModule):
 
         logger.debug('Calling Stanford Parser: '.format(cmd))
         envs = os.environ
-        envs.update({"PYTHONPATH": locations.code_base})
-        subprocess.call(cmd, env=envs, )
+        envs.update({"PYTHONPATH": os.path.pathsep.join((envs.get('PYTHONPATH', ''), locations.code_base))})
+        subprocess.call(cmd, env=envs,)
         with open(filepath, 'r') as f:
             c = f.read()
             return parse_db(self.mln, c)
 
-
-    
-#     @PRACPIPE
-    def __call__(self, node):
+    def __call__(self, node, **params):
         # ======================================================================
         # Initialization
         # ======================================================================

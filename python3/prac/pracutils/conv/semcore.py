@@ -38,6 +38,7 @@ logger = logs.getlogger(__name__)
 java.classpath.append(os.path.join('3rdparty', 'stanford-parser-2015-12-09', 'stanford-parser.jar'))
 grammarPath = os.path.join('3rdparty', 'stanford-parser-2015-12-09', 'grammar', 'englishPCFG.ser.gz')
 
+
 def readSemcor3File(filename):
     '''
     Reads an XML semcore3.0 file and returns a corresponding MLN database.
@@ -59,6 +60,7 @@ def readSemcor3File(filename):
             for d in depstr:
                 print(d) 
             print('---')
+
 
 def reconstruct(s_element):
     sentence = []
@@ -85,7 +87,8 @@ def reconstruct(s_element):
                     gnd_atoms.append('is_a({},{})'.format(sid, synset.name))
     sentence = ' '.join(sentence).strip()
     return sentence, gnd_atoms
-    
+
+
 if __name__ == '__main__':
     path = os.path.join('/', 'home', 'nyga', 'work', 'nl_corpora', 'semcor3.0', 'brown1', 'tagfiles')
     readSemcor3File(os.path.join(path, 'br-a01'))

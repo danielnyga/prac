@@ -48,7 +48,6 @@ class PropExtraction(PRACModule):
     def initialize(self):
         self.mln = MLN.load(os.path.join(self.module_path, 'mln', 'predicates.mln'))
 
-
     def __call__(self, node, **params):
 
         # ======================================================================
@@ -69,10 +68,8 @@ class PropExtraction(PRACModule):
             projectpath = os.path.join(params.get('projectpath', None) or os.path.join(pracloc.pracmodules, self.name), params.get('project').name)
             project = params.get('project')
 
-        
         dbs = node.outdbs
         infstep = PRACInferenceStep(node, self)
-        
 
         mlntext = project.mlns.get(project.queryconf['mln'], None)
         mln = parse_mln(mlntext, searchpaths=[self.module_path], projectpath=projectpath,
@@ -112,7 +109,6 @@ class PropExtraction(PRACModule):
                     for q in result_db.query('{}(?w1,?w2) ^ has_sense(?w2,?s2)'.format(p)):
                         unified_db << '{}({},{})'.format(p, q['?w1'], q['?w2'])
                         unified_db << 'has_sense({},{})'.format(q['?w2'], q['?s2'])
-
                 infstep.outdbs.append(unified_db)
             except NoConstraintsError:
                 logger.debug('No properties found. Passing db...')

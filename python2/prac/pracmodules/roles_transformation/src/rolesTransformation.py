@@ -74,12 +74,8 @@ class RolesTransformation(PRACModule):
 
         dbs = node.outdbs
         infstep = PRACInferenceStep(node, self)
-#         planlist = self.getPlanList()
-#         out(node.parent.frame, '->', node.frame)
         pngs = {}
         for i, db_ in enumerate(dbs):
-#             db = db_.copy()
-#             db = PRACDatabase(self.prac)
             # ==================================================================
             # Preprocessing
             # ==================================================================

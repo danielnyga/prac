@@ -50,7 +50,6 @@ class WNSenses(PRACModule):
                        grammar='PRACGrammar')
         self.wordnetKBs = {}
 
-
     @DB_TRANSFORM
     def get_senses_and_similarities(self, db, concepts, roles=None, actioncore=None):
         '''
@@ -120,7 +119,6 @@ class WNSenses(PRACModule):
                     db_ << '!has_sense({},{})'.format(word_const, s)
         return db_
 
-
     def add_sims(self, db_, mln):
         '''
         Adds for each sense s_db in the database the similarities to each
@@ -141,8 +139,6 @@ class WNSenses(PRACModule):
         db = db_.copy(self.prac.mln)
         mlndomains = mln.domains.get('concept', []) + db_.domains.get('concept', [])
         for s in db_.domains['sense']:
-            if s == 'None':
-                out(s)
             sense = self.prac.wordnet.synset(s)
             for c in mlndomains:
                 syn = self.prac.wordnet.synset(c)
@@ -152,7 +148,6 @@ class WNSenses(PRACModule):
                 # self.prac.wordnet.synset('make.v.39').name == 'cook.v.02'!
                 db << ('is_a(%s, %s)' % (s, c), self.prac.wordnet.similarity(sense, syn))
         return db
-
 
     def add_similarities(self, db, mln):
         '''
@@ -193,8 +188,6 @@ class WNSenses(PRACModule):
                                 sim)
         return db_
 
-
-
     def printWordSenses(self, synsets, tick):
         '''
         Prints the list of synsets or synset ids and ticks the one specified
@@ -217,7 +210,6 @@ class WNSenses(PRACModule):
                                                 sense.definition(),
                                                 ';'.join(sense.examples()))
 
-
     def get_possible_meanings_of_word(self, db, word):
         '''
         Returns a list of synsets for the given word (the constant with index)
@@ -233,7 +225,6 @@ class WNSenses(PRACModule):
             word = '-'.join(word.split('-')[:-1])
             return self.prac.wordnet.synsets(word, pos)
         return None
-
 
     def get_similarities(self, *dbs):
         '''
@@ -255,7 +246,6 @@ class WNSenses(PRACModule):
                     db_ << ('is_a({},{})'.format(sense, c), sim)
             yield db_
 
-
     def addFuzzyEvidenceToDBs(self, *dbs):
         '''
         Adds to the databases dbs all fuzzy 'is_a' relationships
@@ -275,7 +265,6 @@ class WNSenses(PRACModule):
                     logger.info('{} ~ {} = {:.2f}'.format(concept, c, similarity))
                     db << ('is_a({},{})'.format(sense, c), similarity)
         return dbs
-
 
     def addPossibleWordSensesToDBs(self, *dbs):
         '''
@@ -303,35 +292,5 @@ class WNSenses(PRACModule):
                     if word2 == word:
                         continue
                     else:
-                        for s in senses: db << (
-                            '!has_sense(%s,%s)' % (word, s))
-
-
-    @PRACPIPE
-    def infer(self, pracinference):
-        inf_step = PRACInferenceStep(pracinference, self)
-        for db in pracinference.get_inference_steps_of_module(
-                'nl_parsing').output_dbs:
-
-            database = Database(self.prac.mln)
-            for truth, gndLit in db.iterGroundLiteralStrings():
-                database << (gndLit, truth)
-                logger.info(gndLit)
-            logger.info('Adding all similarities...')
-            self.addPossibleWordSensesToDBs(database)
-            inf_step.output_dbs.append(database)
-        return inf_step
-
-
-    @PRACPIPE
-    def train(self, prac_learning):
-
-        training_dbs = []
-        if hasattr(prac_learning,
-                   'training_dbs') and prac_learning.training_dbs is not None:
-            for dbfile in prac_learning.training_dbs:
-                training_dbs.extend(Database(self.mln, dbfile=dbfile, ignore_unknown_preds=True))
-        else:
-            for dbfile in self.prac.training_dbs():
-                db = Database(self.mln, dbfile=dbfile, ignore_unknown_preds=True)
-                training_dbs.append(db)
+                        for s in senses:
+                            db << ('!has_sense(%s,%s)' % (word, s))

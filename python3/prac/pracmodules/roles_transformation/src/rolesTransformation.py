@@ -74,12 +74,8 @@ class RolesTransformation(PRACModule):
 
         dbs = node.outdbs
         infstep = PRACInferenceStep(node, self)
-#         planlist = self.getPlanList()
-#         out(node.parent.frame, '->', node.frame)
         pngs = {}
         for i, db_ in enumerate(dbs):
-#             db = db_.copy()
-#             db = PRACDatabase(self.prac)
             # ==================================================================
             # Preprocessing
             # ==================================================================
@@ -104,7 +100,7 @@ class RolesTransformation(PRACModule):
             for pdb in node.parent.outdbs:
                 db = pdb.copy()
                 db = db.union(db_)
-                objs = {o.id for o in list(node.parent.frame.actionroles.values())}
+                objs = {o.id for o in node.parent.frame.actionroles.values()}
                 for w in set(db.domains['word']):
                     if w not in objs:
                         db.rmval('word', w)

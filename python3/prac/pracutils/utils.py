@@ -20,6 +20,7 @@ def __splitdict(d, dnew):
         dnew_[key] = v
         for d_ in __splitdict(dict(d), dnew_): yield d_
 
+
 def splitd(d):
     return __splitdict(d, {})
 
@@ -109,11 +110,9 @@ def get_query_png(queries, dbs, filename='cond_prob', filedir='/tmp', skolemword
     return math2png(eq, filedir, declarations=declarations, filename=safefilename, size=10)
 
 
-#===============================================================================
+# ===============================================================================
 # main function for testing only!
-#===============================================================================
+# ===============================================================================
 
 if __name__ == '__main__':
-#     print list(partition(range(2), 3))
     print(splitd({1:[2,3,4], 2:[5,7], 3:[8]}))
-    

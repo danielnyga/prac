@@ -56,7 +56,6 @@ class StanfordParser(object):
     natural-language parser.
     '''
 
-
     def __init__(self, pcfg_model_fname=None):
         self.pcfg_model_fname = pcfg_model_fname
         self.package_lexparser = jpype.JPackage("edu.stanford.nlp.parser.lexparser")
@@ -64,7 +63,6 @@ class StanfordParser(object):
         self.package = jpype.JPackage("edu.stanford.nlp")
         self.parser = self.package_lexparser.LexicalizedParser.loadModel(self.pcfg_model_fname, ['-retainTmpSubcategories', '-maxLength', '160'])
         self.parse = None
-
 
     def get_dependencies(self, sentence=None, collapsed=False):
         '''
@@ -87,7 +85,6 @@ class StanfordParser(object):
             deps = gs.typedDependencies()
         return deps
 
-
     def get_pos(self, sentence=None):
         '''
         Returns the part-of-speech tags for the sentence.
@@ -106,7 +103,6 @@ class StanfordParser(object):
                 continue
             pos[i + 1] = (['{}-{}'.format(w, i + 1 - commaoffset), p])
         return pos
-
 
     def print_info(self):
         '''
@@ -128,7 +124,6 @@ class StanfordParser(object):
         print "Test parameters"
         self.parser.op.tlpParams.display()
         self.package_lexparser.Test.display()
-
 
     def parse(self, sentence):
         '''

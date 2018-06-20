@@ -24,7 +24,7 @@
 import os
 from collections import defaultdict
 
-from dnutils import logs
+from dnutils import logs, ifnone
 from nltk.corpus.reader.wordnet import Synset
 
 from prac.core.base import PRACModule, PRACPIPE, DB_TRANSFORM
@@ -50,9 +50,8 @@ class WNSenses(PRACModule):
                        grammar='PRACGrammar')
         self.wordnetKBs = {}
 
-
     @DB_TRANSFORM
-    def get_senses_and_similarities(self, db, concepts):
+    def get_senses_and_similarities(self, db, concepts, roles=None, actioncore=None):
         '''
         Returns a new database with possible senses and the pairwise
         semantic similarities asserted. Assumes the part-of-speeches
@@ -78,7 +77,7 @@ class WNSenses(PRACModule):
         wordnet = self.prac.wordnet
         word2senses = defaultdict(list)
         db_ = db.copy(self.prac.mln)
-
+        roles = ifnone(roles, [])
         for res in db.query('has_pos(?word,?pos)'):
             word_const = res['?word']
             pos = POS_MAP.get(res['?pos'], None)
@@ -95,7 +94,10 @@ class WNSenses(PRACModule):
                 for concept in concepts:
                     sim = wordnet.similarity(synset, concept, 'path')
                     db_ << ('is_a({},{})'.format(sense_id, concept), sim)
-
+        # assert all roles false for words without senses, if any
+        for word in [w for w in db_.domain('word') if w not in word2senses]:
+            for role in roles:
+                db_ << '!%s(%s,%s)' % (role, word, actioncore)
         for word in word2senses:
             for word2, senses in list(word2senses.items()):
                 if word2 == word:
@@ -112,11 +114,10 @@ class WNSenses(PRACModule):
             pos = POS_MAP.get(res['?pos'], None)
             # if no possible sense can be determined by WordNet, assert false
             # for all possible senses
-            if pos is None or not wordnet.synsets('-'.join(word_const.split('-')[:-1]),pos):
-                for s in db_.domain('sense'):
+            if pos is None or not wordnet.synsets('-'.join(word_const.split('-')[:-1]), pos):
+                for s in ifnone(db_.domain('sense'), []):
                     db_ << '!has_sense({},{})'.format(word_const, s)
         return db_
-
 
     def add_sims(self, db_, mln):
         '''
@@ -147,7 +148,6 @@ class WNSenses(PRACModule):
                 # self.prac.wordnet.synset('make.v.39').name == 'cook.v.02'!
                 db << ('is_a(%s, %s)' % (s, c), self.prac.wordnet.similarity(sense, syn))
         return db
-
 
     def add_similarities(self, db, mln):
         '''
@@ -188,8 +188,6 @@ class WNSenses(PRACModule):
                                 sim)
         return db_
 
-
-
     def printWordSenses(self, synsets, tick):
         '''
         Prints the list of synsets or synset ids and ticks the one specified
@@ -212,7 +210,6 @@ class WNSenses(PRACModule):
                                                 sense.definition(),
                                                 ';'.join(sense.examples())))
 
-
     def get_possible_meanings_of_word(self, db, word):
         '''
         Returns a list of synsets for the given word (the constant with index)
@@ -228,7 +225,6 @@ class WNSenses(PRACModule):
             word = '-'.join(word.split('-')[:-1])
             return self.prac.wordnet.synsets(word, pos)
         return None
-
 
     def get_similarities(self, *dbs):
         '''
@@ -250,7 +246,6 @@ class WNSenses(PRACModule):
                     db_ << ('is_a({},{})'.format(sense, c), sim)
             yield db_
 
-
     def addFuzzyEvidenceToDBs(self, *dbs):
         '''
         Adds to the databases dbs all fuzzy 'is_a' relationships
@@ -270,7 +265,6 @@ class WNSenses(PRACModule):
                     logger.info('{} ~ {} = {:.2f}'.format(concept, c, similarity))
                     db << ('is_a({},{})'.format(sense, c), similarity)
         return dbs
-
 
     def addPossibleWordSensesToDBs(self, *dbs):
         '''
@@ -298,35 +292,5 @@ class WNSenses(PRACModule):
                     if word2 == word:
                         continue
                     else:
-                        for s in senses: db << (
-                            '!has_sense(%s,%s)' % (word, s))
-
-
-    @PRACPIPE
-    def infer(self, pracinference):
-        inf_step = PRACInferenceStep(pracinference, self)
-        for db in pracinference.get_inference_steps_of_module(
-                'nl_parsing').output_dbs:
-
-            database = Database(self.prac.mln)
-            for truth, gndLit in db.iterGroundLiteralStrings():
-                database << (gndLit, truth)
-                logger.info(gndLit)
-            logger.info('Adding all similarities...')
-            self.addPossibleWordSensesToDBs(database)
-            inf_step.output_dbs.append(database)
-        return inf_step
-
-
-    @PRACPIPE
-    def train(self, prac_learning):
-
-        training_dbs = []
-        if hasattr(prac_learning,
-                   'training_dbs') and prac_learning.training_dbs is not None:
-            for dbfile in prac_learning.training_dbs:
-                training_dbs.extend(Database(self.mln, dbfile=dbfile, ignore_unknown_preds=True))
-        else:
-            for dbfile in self.prac.training_dbs():
-                db = Database(self.mln, dbfile=dbfile, ignore_unknown_preds=True)
-                training_dbs.append(db)
+                        for s in senses:
+                            db << ('!has_sense(%s,%s)' % (word, s))
