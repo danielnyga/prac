@@ -23,11 +23,11 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 
-from dnutils import logs
+from dnutils import logs, out
 
 from prac.core import locations as pracloc
 from prac.core.base import PRACModule, PRACDatabase
-from prac.core.inference import PRACInferenceStep, FrameNode
+from prac.core.inference import PRACInferenceStep, FrameNode, AlternativeNode
 from prac.db.ies.models import Frame
 from prac.pracutils.utils import prac_heading
 from pracmln.mln.base import parse_mln
@@ -77,7 +77,7 @@ class AchievedBy(PRACModule):
         # ======================================================================
         # Initialization
         # ======================================================================
-        logger.debug('inference on {}'.format(self.name))
+        logger.debug('inference on {}: {}'.format(self.name, node.frame))
         if self.prac.verbose > 0:
             print(prac_heading('Refining Actioncores'))
         dbs = node.outdbs
@@ -93,17 +93,26 @@ class AchievedBy(PRACModule):
             # dbs contain achieved_bys which representing already plans
             pngs = {}
             actioncore = node.frame.actioncore
+            if isinstance(node, AlternativeNode):
+                logger.debug('skipping %s for %s' % (node, node.frame))
+                yield from (n for a in node.alternatives for n in a)
+                return
+            logger.debug('running achieved_by on %s for %s' % (type(node).__name__, node.frame))
             mod = self.prac.module('complex_achieved_by')
             newnodes = list(mod(node))
             n = None
-            parentframes = [p.frame for p in node.parentspath() if isinstance(p, FrameNode)]
-            if any(n.frame in parentframes for n in newnodes):
+            parents = [p for p in node.parentspath() if isinstance(p, FrameNode)]
+            for f in newnodes:
+                out(f.frame)
+            parentframes = [p.frame for p in parents]
+            if any([n.frame in parentframes for n in newnodes]):
                 logger.error('aborting reasoning because of infinite loop. (%s)' % node.frame)
                 node.children = []
             else:
                 for n in newnodes:
                     yield n
-            if n is not None: return
+            if n is not None:
+                return
             if n is None:
                 # This list is used to avoid an infinite loop during the
                 # achieved by inference.

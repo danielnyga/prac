@@ -29,7 +29,7 @@ from pracmln.utils.project import MLNProject
 from pracmln.utils.visualization import get_cond_prob_png
 
 from prac.core import locations as pracloc
-from prac.core.base import PRACModule, PRACPIPE
+from prac.core.base import PRACModule
 from prac.core.inference import PRACInferenceStep
 from prac.pracutils.utils import prac_heading
 
@@ -43,8 +43,6 @@ class ControlStructureIdentification(PRACModule):
     instructions
     '''
 
-
-    @PRACPIPE
     def __call__(self, pracinference, **params):
 
         # ======================================================================

@@ -85,7 +85,6 @@ class PRACConfig(ConfigParser):
         if filename is not None:
             self.read(os.path.join(locations.user_data, filename))
 
-
     def write(self, filename=None):
         '''
         Saves this configuration file to disk.
@@ -764,3 +763,22 @@ class PRACDatabase(Database):
         for q in self.query('has_sense(%s, ?sense)' % word):
             return q['?sense']
 
+
+def DB_TRANSFORM(method):
+    '''
+    DB_TRANSFORM is a decorator which automates Database duplication with
+    adaptation to a new MLN.
+    :param method:  the decorated method to be executed
+    :return:        the result of the executed decorated method
+    '''
+
+    def wrapper(self, *args, **kwargs):
+        db = args[0]
+        if not isinstance(db, Database):
+            raise Exception('First argument must be a Database object but is {}.'.format(type(db)))
+        db_ = db.copy(self.mln)
+        args = list(args)
+        args[0] = db_
+        return method(self, *args, **kwargs)
+
+    return wrapper

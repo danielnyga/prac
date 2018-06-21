@@ -237,7 +237,7 @@ class PRACInference(object):
     Represents an inference chain in PRAC
     '''
 
-    def __init__(self, prac, instr):
+    def __init__(self, prac, instr, worldmodel=None, similarity=None):
         '''
         PRAC inference initialization.
         :param prac:     reference to the PRAC instance.

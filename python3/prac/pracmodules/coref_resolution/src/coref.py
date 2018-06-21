@@ -135,7 +135,7 @@ class CorefResolution(PRACModule):
         # update queries depending on missing roles
         conf = project.queryconf
         conf.update({'queries': ','.join(['%s(?w,%s)' % (role, actioncore) for role in missingroles])})
-        print colorize('querying for missing roles {}'.format(conf['queries']), (None, 'green', True), True)
+        print(colorize('querying for missing roles {}'.format(conf['queries']), (None, 'green', True), True))
 
         # asserting impossible role-ac combinations, leaving previously
         # inferred roles untouched

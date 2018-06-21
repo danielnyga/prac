@@ -86,12 +86,12 @@ class ComplexAchievedBy(PRACModule):
         prevscore = -1
         for howto, score in howtos:
             subst = {}
-            for role, obj in frame.actionroles.iteritems():
+            for role, obj in frame.actionroles.items():
                 obj_ = howto.actionroles.get(role)
                 if obj_ is not None and obj_.type != obj.type: subst[obj_.type] = obj
             substitutions = 0
             for step in howto.steps:
-                for role, obj in step.actionroles.iteritems():
+                for role, obj in step.actionroles.items():
                     if obj.type in subst:
                         step.actionroles[role] = subst[obj.type]
                         substitutions += 1
@@ -116,7 +116,7 @@ class ComplexAchievedBy(PRACModule):
             alternatives.append(steps)
         logger.debug('chose the following alternatives:')
         for a in alternatives:
-            logger.debug(a)
+            logger.debug(list(map(str, [n.frame for n in a])))
         if len(alternatives) > 1:
             alternative = AlternativeNode(node.pracinfer, node.frame, parent=node, alternatives=alternatives, indbs=node.indbs)
             for plan in alternatives:
@@ -126,6 +126,5 @@ class ComplexAchievedBy(PRACModule):
                     step.previous_module = 'coref_resolution'
             yield alternative
         elif len(alternatives) == 1:
-            for c in first(alternatives):
-                yield c
+            yield from first(alternatives)
         return

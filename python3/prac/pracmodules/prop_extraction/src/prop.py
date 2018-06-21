@@ -104,7 +104,7 @@ class PropExtraction(PRACModule):
                 # Postprocessing
                 # ==============================================================
                 unified_db = db.copy(self.prac.mln)
-                props = [p for p in project.queryconf.get('queries', '').split(',') if p != 'has_sense']
+                props = [p.name for p in self.mln.predicates]  # [p for p in project.queryconf.get('queries', '').split(',') if p != 'has_sense']
                 for p in props:
                     for q in result_db.query('{}(?w1,?w2) ^ has_sense(?w2,?s2)'.format(p)):
                         unified_db << '{}({},{})'.format(p, q['?w1'], q['?w2'])

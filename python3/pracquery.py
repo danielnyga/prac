@@ -146,43 +146,28 @@ def main():
         logger.debug(pformat(wm.tojson()))
     else:
         wm = None
-    # wm = Worldmodel(prac, cw=True)
-    # wm.add(Object(prac, 'juice', 'carton.n.02', props={'fill_level': 'empty.a.01'}))
-    # wm.add(Object(prac, 'basket', 'basket.n.01'))
-    # wm.add(Object(prac, 'fridge', 'electric_refrigerator.n.01'))
-    # wm.add(Object(prac, 'blender', 'blender.n.01'))
-    # wm.add(Object(prac, 'trash', 'ashcan.n.01'))
-    # wm.add(Object(self.prac, 'cereals-unused', 'carton.n.02', props={'used_state': 'unused.s.01'}))
-    # wm.add(Object(prac, 'milk-box-full', 'carton.n.02', props={'fill_level': 'full.a.01'}))
-    # wm.add(Object(prac, 'cereals-box', 'carton.n.02', props={'used_state': 'secondhand.s.01'}))
-    # wm.add(Object(prac, 'banana', 'banana.n.02'))
-    # wm.add(Object(prac, 'apple', 'apple.n.01'))
-    # wm.add(Object(prac, 'orange', 'orange.n.01'))
-    # wm.add(Object(prac, 'table', 'table.n.02'))
-    # wm.add(Object(prac, 'cereal', 'grain.n.02'))
-    # wm.add(Object(prac, 'bowl', 'bowl.n.03'))
-    # wm.add(Object(prac, 'glass', 'glass.n.02'))
-    # wm.add(Object(prac, 'button', 'push_button.n.01'))
-    # wm.add(Object(prac, 'milk', 'milk.n.01'))
-
     infer = PRACInference(prac, sentences, worldmodel=wm, similarity=args.sim)
     infer.run()
+    groundedplan = None
     if wm is not None:
         gnd = prac.module('grounding')
-        json.dumps(toplan(gnd(infer, wm), 'json'))
+        groundedplan = gnd(infer, wm)
+        if prac.verbose:
+            json.dumps(toplan([n.frame for n in groundedplan], 'json'))
 
     print(headline('inference results'))
     print('instructions:')
     for i in infer.root:
         print(i)
-    frames = []
-    for step in infer.steps():
-        pprint(step.frame.tojson())
-    print(prac_heading('cram plans', color='blue'))
+    print(prac_heading('intermediate plans', color='blue'))
     for step in infer.steps():
         if hasattr(step, 'plan'):
             print(step.plan)
-#     infer.write()
+    print(prac_heading('grounded plans', color='blue'))
+    if groundedplan is not None:
+        for step in groundedplan:
+            if hasattr(step, 'plan'):
+                print(step.plan)
     exit(0)
 
 

@@ -27,7 +27,7 @@ from collections import defaultdict
 from dnutils import logs, ifnone
 from nltk.corpus.reader.wordnet import Synset
 
-from prac.core.base import PRACModule, PRACPIPE, DB_TRANSFORM
+from prac.core.base import PRACModule, DB_TRANSFORM
 from prac.core.inference import PRACInferenceStep
 from prac.core.wordnet import WordNet, POS_MAP
 

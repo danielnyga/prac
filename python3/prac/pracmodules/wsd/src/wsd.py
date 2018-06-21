@@ -1,6 +1,6 @@
 from dnutils import logs
 
-from prac.core.base import PRACModule, PRACPIPE
+from prac.core.base import PRACModule
 from prac.core.inference import PRACInferenceStep
 from prac.pracutils.utils import prac_heading
 
@@ -13,8 +13,7 @@ class PRACWSD(PRACModule):
     PRACModule used to perform word-sense disambiguation
     '''
 
-    @PRACPIPE
-    def __call__(self,pracinference, **params):
+    def __call__(self, pracinference, **params):
 
         print(prac_heading('Word Sense Disambiguation'))
 

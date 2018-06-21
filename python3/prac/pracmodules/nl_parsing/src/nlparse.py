@@ -69,7 +69,7 @@ def main(args, options):
             db += '{}({})\n'.format(pred, ', '.join(args))
         postags = stanford_parser.get_pos()
         pos = []
-        for pos in postags.values():
+        for pos in list(postags.values()):
             if not pos[0] in words:
                 continue
             postagatom = 'has_pos({},{})'.format(pos[0], pos[1])

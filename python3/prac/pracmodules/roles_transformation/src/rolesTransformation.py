@@ -52,17 +52,12 @@ class RolesTransformation(PRACModule):
     def initialize(self):
         self.isLastActionCoreAPlan = False
 
-
     def getPlanList(self):
         planListFile = open(planListFilePath, 'r')
         yamlData = yaml.load(planListFile)
-
         return yamlData['planList']
 
-
-#     @PRACPIPE
     def __call__(self, node, **params):
-
         # ======================================================================
         # Initialization
         # ======================================================================

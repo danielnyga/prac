@@ -89,7 +89,7 @@ class RoleLookUp(PRACModule):
             for obj in node.frame.objects():
                 out(obj.type)
                 if obj.type not in wm.abstractions and not wm.contains(obj.type) and\
-                        obj.props.__dict__.get('in') is None and obj.__dict__.get('on') is None:
+                        obj.props.__dict__.get('in') is None and obj.props.__dict__.get('on') is None:
                     out(obj.type, 'is not in world')
                     frames = find_frames(self.prac, actioncore='Storing', actionroles={'obj_to_be_stored': obj.type}, similarity=.7)
                     out('found', len(frames), 'potential locations:')
@@ -150,9 +150,9 @@ class RoleLookUp(PRACModule):
             frames.sort(key=lambda f: f.specifity(), reverse=True)
             frames.sort(key=lambda f: node.frame.sim(f), reverse=True)
             if self.prac.verbose >= 2 or logger.level == logs.DEBUG:
-                print 'found similar frames in the db [%s]:' % str(node.frame)
+                print('found similar frames in the db [%s]:' % str(node.frame))
                 for f in frames:
-                    print '%.2f: %s' % (node.frame.sim(f), f)
+                    print('%.2f: %s' % (node.frame.sim(f), f))
             if frames:
                 frame = frames[0]
                 if node.frame.sim(frame) >= node.pracinfer.similarity:
@@ -160,7 +160,7 @@ class RoleLookUp(PRACModule):
                     for role in [m for m in missingroles if m in frame.actionroles]:
                         newword = "{}-{}-skolem-{}".format(frame.actioncore, role, str(i))
                         if self.prac.verbose:
-                            print "Found {} as {}".format(frame.actionroles[role], role)
+                            print("Found {} as {}".format(frame.actionroles[role], role))
                         obj = frame.actionroles[role]
                         newobj = Object(self.prac, newword, obj.type, props=obj.props, syntax=obj.syntax)
                         node.frame.actionroles[role] = newobj
@@ -181,26 +181,19 @@ class RoleLookUp(PRACModule):
                         i += 1
                 else:
                     if self.prac.verbose > 0:
-                        print "Confidence is too low."
+                        print("Confidence is too low.")
             else:
                 if self.prac.verbose > 0:
-                    print "No suitable frames are available."
+                    print("No suitable frames are available.")
         else:
             if self.prac.verbose > 0:
-                print "No suitable frames are available."
-            # break
-        # else:
-        #     if self.prac.verbose > 2:
-        #         print 'no actioncore given. skipping.'
-        #     return db_, []
+                print("No suitable frames are available.")
         return db_, missingroles
 
     def __call__(self, node, **params):
-
         # ======================================================================
         # Initialization
         # ======================================================================
-
         logger.debug('inference on {}'.format(self.name))
 
         if self.prac.verbose > 0:
@@ -221,7 +214,8 @@ class RoleLookUp(PRACModule):
                 print(prac_heading('ROLE COMPLETION RESULTS'))
                 for m in missingroles:
                     r = node.frame.actionroles.get(m)
-                    if r: print(m, r.type)
+                    if r:
+                        print(m, r.type)
             # ==================================================================
             # Postprocessing
             # ==================================================================

@@ -25,7 +25,7 @@ import os
 from dnutils import logs
 from prac.core import locations as pracloc
 
-from prac.core.base import PRACModule, PRACPIPE, PRACDatabase
+from prac.core.base import PRACModule, PRACDatabase
 from prac.core.inference import PRACInferenceStep, FrameNode
 from prac.pracutils.utils import prac_heading
 from pracmln import Database
@@ -42,7 +42,7 @@ class ActionCoreIdentification(PRACModule):
     '''
     PRACModule used to identify action cores in natural-language instructions
     '''
-#     @PRACPIPE
+
     def __call__(self, node, **params):
         # ======================================================================
         # Initialization

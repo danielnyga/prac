@@ -27,7 +27,7 @@ from pprint import pprint
 
 from scipy.stats import stats
 
-from dnutils import edict
+from dnutils import edict, ifnone, out
 
 from . import constants
 
@@ -157,7 +157,7 @@ class Frame(object):
                      syntax=data.get(constants.JSON_FRAME_SYNTAX),
                      words=data.get(constants.JSON_FRAME_WORDS),
                      actioncore=data.get(constants.JSON_FRAME_ACTIONCORE),
-                     actionroles={r: Object.fromjson(prac, o) for r, o in data.get(constants.JSON_FRAME_ACTIONCORE_ROLES, {}).iteritems()},
+                     actionroles={r: Object.fromjson(prac, o) for r, o in data.get(constants.JSON_FRAME_ACTIONCORE_ROLES, {}).items()},
                      mandatory=data.get(constants.JSON_FRAME_MANDATORY, True))
         
     def missingroles(self):
@@ -177,15 +177,17 @@ class Frame(object):
             yield 'action_core(%s,%s)' % (self.actionroles['action_verb'].id, self.actioncore)
         else:
             yield 'action_core(ac-skolem,%s)' % self.actioncore
-        for role, obj in self.actionroles.iteritems():
+        for role, obj in self.actionroles.items():
             yield '%s(%s,%s)' %(role, obj.id, self.actioncore)
             yield 'has_sense(%s,%s)' % (obj.id, obj.type)
             yield 'is_a(%s,%s)' % (obj.type, obj.type)
             yield 'has_pos(%s,%s)' % (obj.id, obj.syntax.pos)
 
     def __eq__(self, other):
-        if other is None: return False
-        if self.actioncore != other.actioncore: return False
+        if other is None:
+            return False
+        if self.actioncore != other.actioncore:
+            return False
         for role, obj in self.actionroles.items():
             if other.actionroles.get(role) != obj:
                 return False
@@ -195,7 +197,7 @@ class Frame(object):
         return True
 
     def __ne__(self, other):
-        return not self == other
+        return not (self == other)
 
 
 class Howto(Frame):
@@ -321,21 +323,26 @@ class Object(object):
                       syntax=Word.fromjson(prac, data.get(constants.JSON_OBJECT_SYNTAX, {})))
     
     def __eq__(self, other):
-        if other is None: return False
-        if self.props != other.props: return False
+        if other is None:
+            return False
+        if self.props != other.props:
+            return False
         return self.type == other.type
 
     def __ne__(self, other):
         return not self == other    
     
     def __repr__(self):
-        return '<Object id=%s type=%s at 0x%x>' % (self.id, self.type, hash(self))
+        return '<Object[%s]:%s at 0x%x>' % (self.id, self.type, id(self))
 
     def repstr(self):
         return '{}'.format(self.type)
 
     def __str__(self):
-        return repr(self)#'%s: %s' % (self.id, self.type)
+        return '<%s:%s>' % (self.id, self.type)
+
+    def __hash__(self):
+        return hash((type(self), self.id, self.type))
 
     def matches(self, obj):
         if obj.type not in self.prac.wordnet.hypernyms_names(self.type):
@@ -393,10 +400,10 @@ class Worldmodel(object):
         self.cw = cw
         self.available = {}
         self.unavailable = set()
-        self.abstractions = {s.encode('utf8') for s in ifnone(abstractions, set())}
+        self.abstractions = {s for s in ifnone(abstractions, set())}
 
     def contains(self, concept):
-        hypernyms = reduce(lambda a, b: a | b, [set(self.prac.wordnet.hypernyms_names(o.type)) for o in self.available.values()])
+        hypernyms = {n for o in self.available.values() for n in self.prac.wordnet.hypernyms_names(o.type)}
         if concept in hypernyms:
             return True
         if concept in self.unavailable or self.cw:
@@ -424,7 +431,14 @@ class Worldmodel(object):
         for id_, o in self.available.items():
             if o.matches(obj):
                 objects.append(o)
+        out(objects)
         return objects
+
+    def getsimilars(self, obj, sim):
+        if type(obj) is str:
+            obj = Object(self.prac, self.newid(), type_=obj)
+        return sorted([o for o in self.available.values() if self.prac.wordnet.wup_similarity(obj.type, o.type) >= sim],
+                      key=lambda o: self.prac.wordnet.wup_similarity(obj.type, o.type), reverse=True)
 
     def removeall(self, concept, cw=True):
         for o in self.getall(concept):
@@ -454,13 +468,3 @@ class Worldmodel(object):
         wm.available = {o.id: o for o in objects}
         wm.unavailable = set(data.get('unavailable', set()))
         return wm
-
-
-if __name__ == '__main__':
-    from prac.core.base import PRAC
-    prac = PRAC()
-    o1 = Object(prac, 'w1', 'cup.n.01', syntax=Word(prac, 'water-1', 'water', 1, 'water.n.06', 'NN', 'water'), props={'color': 'green.n.01'})
-    print(o1)
-    print(repr(o1))
-    pprint(o1.tojson())
-

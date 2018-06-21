@@ -22,7 +22,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from collections import namedtuple
 
-from dnutils import logs
+from dnutils import logs, first, out
 from pracmln.mln.util import colorize
 
 from prac.core.base import PRACModule
@@ -47,10 +47,10 @@ class PlanGenerator(PRACModule):
         # ======================================================================
         # Initialization
         # ======================================================================
-        dbs = node.outdbs
+        # dbs = node.outdbs
         infstep = PRACInferenceStep(node, self)
-        infstep.indbs = [db.copy() for db in dbs]
-        infstep.outdbs = [db.copy() for db in dbs]
+        # infstep.indbs = [db.copy() for db in dbs]
+        # infstep.outdbs = [db.copy() for db in dbs]
         
         logger.debug('Running {}'.format(self.name))
 
@@ -81,3 +81,61 @@ class PlanGenerator(PRACModule):
             print(colorize('assignments:', (None, 'white', True), True))
             for x in acdict:
                 print('\t{}: {}'.format(colorize(x, (None, 'white', True), True), colorize(acdict[x], (None, 'cyan', True), True)))
+        return node
+
+
+PlanEval = namedtuple('PlanEval', ['steps', 'unknown', 'missing'])
+
+
+class PlanOptimizer(PlanGenerator):
+
+    def __call__(self, node, **params):
+        self.worldmodel = params.get('worldmodel')
+        return [self.makeplan(n) for n in self.leaves(first(self.optimize(node)))]
+
+    def leaves(self, node):
+        if not node.children:
+            yield node
+        else:
+            for child in node.children:
+                for leaf in self.leaves(child):
+                    yield leaf
+
+    def optimize(self, node):
+        if not node.children:
+            if self.worldmodel is not None:
+                unknown = set([obj.type for _, obj in node.frame.actionrole_objects.items() if self.worldmodel.contains(obj.type) is None and obj.type is not None])
+                missing = set([obj.type for _, obj in node.frame.actionrole_objects.items() if self.worldmodel.contains(obj.type) is False and obj.type is not None])
+            else:
+                unknown, missing = set(), set()
+            out(unknown)
+            out(node.frame.actionrole_objects)
+            unknown = set([c for c in unknown if 'abstraction.n.06' not in self.prac.wordnet.hypernyms_names(c) and '.v.' not in c])
+            node.eval = PlanEval(1, unknown, missing)
+            return [node]
+        if isinstance(node, AlternativeNode):
+            evals = []
+            for i, plan in enumerate(node.alternatives):
+                plansteps = [s for step in plan for s in self.optimize(step)]
+                # out([n.eval.unknown for n in plansteps])
+                e = PlanEval(sum([n.eval.steps for n in plansteps]),
+                             set([u for n in plansteps for u in n.eval.unknown]),
+                             set([m for n in plansteps for m in n.eval.missing]))
+                evals.append(e)
+            indices = range(len(evals))
+            indices = sorted(indices, key=lambda i: evals[i].steps)
+            indices = sorted(indices, key=lambda i: len(evals[i].unknown))
+            indices = sorted(indices, key=lambda i: len(evals[i].missing))
+            # for e in evals:
+            #     out(e)
+            return node.alternatives[first(indices)]
+        else:
+            newchildren = []
+            for child in node.children:
+                children = self.optimize(child)
+                newchildren.extend(children)
+            node.children = newchildren
+            node.eval = PlanEval(sum([n.eval.steps for n in node.children]),
+                                 set([u for n in node.children for u in n.eval.unknown]),
+                                 set([m for n in node.children for m in n.eval.missing]))
+        return [node]

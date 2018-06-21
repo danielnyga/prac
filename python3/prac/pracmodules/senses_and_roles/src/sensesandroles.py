@@ -48,7 +48,6 @@ class SensesAndRoles(PRACModule):
     a simultaneous word sense disambiguation.
     '''
 
-#     @PRACPIPE
     def __call__(self, node, **params):
         # ======================================================================
         # Initialization
