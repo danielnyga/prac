@@ -59,7 +59,6 @@ class PRACInferenceStep(object):
         self.watch = StopWatch()
 
 
-
 class PRACInferenceNode(object):
     '''
     Abstract node in the inference tree spanned by the PRAC
@@ -87,8 +86,7 @@ class PRACInferenceNode(object):
             preds += 1
             pred = pred.pred
         return preds
-    
-    
+
     def iterpreds(self):
         '''
         Iterates over all predecessors of this node backwards.
@@ -97,8 +95,7 @@ class PRACInferenceNode(object):
         while pred is not None:
             yield pred
             pred = pred.pred
-    
-    
+
     def rdfs(self, goaltest, all=False):
         '''
         Performs a 'reverse' depth-first search starting from this node.
@@ -119,29 +116,25 @@ class PRACInferenceNode(object):
             q.extend(reversed(list(n.iterpreds())))
             if n not in parents:
                 q.extend(list(n.children))
-    
-    
+
     def parentspath(self):
         parent = self.parent
         while parent is not None:
             yield parent 
             parent = parent.parent
-        
-    
+
     def nlinstr(self):
         if isinstance(self, NLInstruction): return self
         for par in self.parentspath():
             if isinstance(par, NLInstruction):
                 return par
-    
-    
+
     @property
     def outdbs(self):
         if not self.infchain: 
             return self.indbs
         return self.infchain[-1].outdbs
-    
-    
+
     def copy(self, pred=None):
         return PRACInferenceNode(pracinfer=self.pracinfer, parent=self.parent, pred=pred)
     
@@ -149,8 +142,7 @@ class PRACInferenceNode(object):
     @property
     def laststep(self):
         return self.infchain[-1]
-        
-    
+
     def next_module(self):
         '''
         Determines which module is to be executed next in the PRAC pipeline.
