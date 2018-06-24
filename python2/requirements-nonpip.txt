@@ -1,4 +1,0 @@
-python-apt
-texlive-latex-base
-default-jre
-dvipng
