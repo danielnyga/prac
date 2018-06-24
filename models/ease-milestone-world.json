@@ -4,7 +4,10 @@
                   {"id": "strawberry", "type": "strawberry.n.01"},
                   {"id": "banana", "type": "banana.n.02"},
                   {"id": "fridge", "type": "electric_refrigerator.n.01"},
-                  {"id": "cup", "type": "cup.n.01"}],
+                  {"id": "cup", "type": "cup.n.01"},
+                  {"id": "cereal", "type": "cereal.n.03"},
+                  {"id": "bowl", "type": "bowl.n.03"},
+                  {"id": "drawer", "type": "drawer.n.01"}],
     "unavailable": [],
     "cw": false,
     "abstractions": ["milliliter.n.01", "minute.n.01", "five_hundred.n.01"]
