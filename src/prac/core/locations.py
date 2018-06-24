@@ -29,7 +29,7 @@ root = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 code_base = root
 user_data = appdirs.user_data_dir(APPNAME, APPAUTHOR)
 
-if os.path.basename(root).startswith('python'):
+if os.path.basename(root).startswith('src'):
     root = os.path.realpath(os.path.join(root, '..'))
     app_data = root
 else:
