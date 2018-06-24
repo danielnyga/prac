@@ -852,7 +852,7 @@ class WordNet(object):
         :param synset:
         :return:
         '''
-        return reduce(lambda a, b: a | b, [set(p) for p in self.hypernym_paths(synset)])
+        return {e for p in self.hypernym_paths(synset) for e in p}
 
     def hypernyms_names(self, synset):
         '''
