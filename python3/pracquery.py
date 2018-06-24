@@ -159,12 +159,12 @@ def main():
     print('instructions:')
     for i in infer.root:
         print(i)
-    print(prac_heading('intermediate plans', color='blue'))
+    print(prac_heading('cram plans', color='blue'))
     for step in infer.steps():
         if hasattr(step, 'plan'):
             print(step.plan)
-    print(prac_heading('grounded plans', color='blue'))
     if groundedplan is not None:
+        print(prac_heading('grounded plans', color='blue'))
         for step in groundedplan:
             if hasattr(step, 'plan'):
                 print(step.plan)
