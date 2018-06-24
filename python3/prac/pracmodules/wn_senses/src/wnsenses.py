@@ -88,12 +88,15 @@ class WNSenses(PRACModule):
             # extract everything except the number (e.g. compound words like
             # heart-shaped from heart-shaped-4)
             word = '-'.join(word_const.split('-')[:-1])
-            for i, synset in enumerate(wordnet.synsets(word, pos)):
-                sense_id = synset.name()
-                word2senses[word_const].append(sense_id)
-                for concept in concepts:
-                    sim = wordnet.similarity(synset, concept, 'path')
-                    db_ << ('is_a({},{})'.format(sense_id, concept), sim)
+            try:
+                for i, synset in enumerate(wordnet.synsets(word, pos)):
+                    sense_id = synset.name()
+                    word2senses[word_const].append(sense_id)
+                    for concept in concepts:
+                        sim = wordnet.similarity(synset, concept, 'path')
+                        db_ << ('is_a({},{})'.format(sense_id, concept), sim)
+            except ValueError as e:
+                logger.warning('%s (%s)' % (e, word))
         # assert all roles false for words without senses, if any
         for word in [w for w in db_.domain('word') if w not in word2senses]:
             for role in roles:
@@ -114,9 +117,12 @@ class WNSenses(PRACModule):
             pos = POS_MAP.get(res['?pos'], None)
             # if no possible sense can be determined by WordNet, assert false
             # for all possible senses
-            if pos is None or not wordnet.synsets('-'.join(word_const.split('-')[:-1]), pos):
-                for s in ifnone(db_.domain('sense'), []):
-                    db_ << '!has_sense({},{})'.format(word_const, s)
+            try:
+                if pos is None or not wordnet.synsets('-'.join(word_const.split('-')[:-1]), pos):
+                    for s in ifnone(db_.domain('sense'), []):
+                        db_ << '!has_sense({},{})'.format(word_const, s)
+            except ValueError as e:
+                logger.warning('%s (%s)' % (e, word))
         return db_
 
     def add_sims(self, db_, mln):
