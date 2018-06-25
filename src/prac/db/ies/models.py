@@ -468,3 +468,6 @@ class Worldmodel(object):
         wm.available = {o.id: o for o in objects}
         wm.unavailable = set(data.get('unavailable', set()))
         return wm
+
+    def pformat(self):
+        return 'World model -- available objects\n' + '\n'.join(map(str, self.available.values()))

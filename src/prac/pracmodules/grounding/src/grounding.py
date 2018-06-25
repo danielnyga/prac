@@ -2,6 +2,8 @@ import os
 
 from collections import defaultdict
 from dnutils import logs, out, ifnone
+
+from prac.core.errors import ActionKnowledgeError
 from pracmln import MLNQuery
 from pracmln.mln.base import parse_mln
 from pracmln.utils.project import MLNProject
@@ -58,7 +60,7 @@ class Grounding(PRACModule):
                             # out('substituting %s by %s' % (obj.type, similars[0].type))
                             frame.actionroles[role] = similars[0]
                         elif worldmodel.cw:
-                            raise Exception(str(frame) + ' is not executable, since %s is missing in the world' % obj.type)
+                            raise ActionKnowledgeError(str(frame) + ' is not executable, since %s is missing in the world' % obj.type)
 
                         else:
                             frame.actionroles[role].type = [frame.actionroles[role].type]

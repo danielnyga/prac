@@ -173,7 +173,7 @@ class PRACInferenceNode(object):
                 return 'achieved_by'
         elif previous_module == 'role_look_up':
             if hasattr(self.pracinfer.prac.actioncores[self.frame.actioncore], 'plan'):
-                return None  # 'plan_generation'
+                return 'plan_generation'
             else: return 'achieved_by'
         elif previous_module == 'achieved_by':
             return 'roles_transformation'
@@ -301,6 +301,14 @@ class PRACInference(object):
             if isinstance(n, FrameNode) and not n.children:
                 yield n
             q = n.children + q
+
+    def iternodes(self):
+        q = list(self.root)
+        while q:
+            n = q.pop(0)
+            if n.children:
+                q.extend(n.children)
+            yield n
 
     def write(self):
         q = list(self.root)
