@@ -202,8 +202,10 @@ class Frame(object):
         if self.actioncore != other.actioncore:
             return False
         for role, obj in other.actionroles.items():
+            if role == 'action_verb':
+                continue
             obj_ = self.actionroles.get(role)
-            if obj_ is not None and not obj_.matches(obj):
+            if obj_ is None or not obj_.matches(obj):
                 return False
         return True
 
@@ -294,6 +296,9 @@ class PropertyStore(object):
 
     def __ne__(self, other):
         return not self == other
+
+    def __str__(self):
+        return ','.join(['%s:%s' % (k, v) for k, v in self.__dict__.items() if k in self.__props and v is not None])
     
         
 class Object(object):
@@ -350,7 +355,7 @@ class Object(object):
         return '{}'.format(self.type)
 
     def __str__(self):
-        return '<%s:%s>' % (self.id, self.type)
+        return '<%s:%s, %s>' % (self.id, self.type, str(self.props))
 
     def __hash__(self):
         return hash((type(self), self.id, self.type))
