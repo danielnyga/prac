@@ -196,6 +196,17 @@ class Frame(object):
                 return False
         return True
 
+    def matches(self, other):
+        if other is None:
+            return False
+        if self.actioncore != other.actioncore:
+            return False
+        for role, obj in other.actionroles.items():
+            obj_ = self.actionroles.get(role)
+            if obj_ is not None and not obj_.matches(obj):
+                return False
+        return True
+
     def __ne__(self, other):
         return not (self == other)
 
