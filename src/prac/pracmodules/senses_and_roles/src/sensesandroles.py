@@ -23,7 +23,7 @@
 import os
 from collections import defaultdict
 
-from dnutils import logs
+from dnutils import logs, out
 from pracmln.mln.base import parse_mln
 from pracmln.mln.util import colorize
 from pracmln.utils.project import MLNProject
@@ -73,6 +73,12 @@ class SensesAndRoles(PRACModule):
                 db_copy << 'action_core(%s,%s)' % (q['?word'], q['?actioncore'])
             for q in olddb.query('has_sense(?w,?s)'):
                 db_copy << 'has_sense({},{})'.format(q['?w'], q['?s'])
+            for word in olddb.words():
+                for prop in [p.name for p in self.prac.module('prop_extraction').mln.predicates]:  # copy the properties
+                    for q in olddb.query('%s(%s,?value)' % (prop, word)):
+                        # out('{prop}({word},{value})'.format(prop=prop, word=word, value=q['value']))
+                        db_copy << '{prop}({word},{value})'.format(prop=prop, word=word, value=q['?value'])
+
             # ======================================================================
             actioncore = node.frame.actioncore
             logger.debug(actioncore)
