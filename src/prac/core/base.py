@@ -121,11 +121,11 @@ class PRAC(object):
             if not os.path.exists(manifest_file_name):
                 self.logger.warning('No module manifest file in path "{}".'.format(module_path))
                 continue
-            manifest_file = open(manifest_file_name, 'r')
+            with open(manifest_file_name, 'r') as manifest_file:
+                module = PRACModuleManifest.read(manifest_file)
+                module.module_path = os.path.join(praclocations.pracmodules, module_path)
             modulessrc = os.path.abspath(os.path.join(praclocations.pracmodules, module_path, 'src'))
             sys.path.append(modulessrc)
-            module = PRACModuleManifest.read(manifest_file)
-            module.module_path = os.path.join(praclocations.pracmodules, module_path)
             self._manifests.append(module)
             self._manifests_by_name[module.name] = module
             self.logger.debug('Read manifest file for module "{}".'.format(module.name))
@@ -134,8 +134,8 @@ class PRAC(object):
         # TODO: replace this by real action core definitions
         self.wordnet = WordNet()
         self.mln = self.construct_global_mln()
-        self.mongodb =  MongoClient(host=self.config.get('mongodb', 'host'),
-                                    port=self.config.getint('mongodb', 'port'))
+        self.mongodb = MongoClient(host=self.config.get('mongodb', 'host'),
+                                   port=self.config.getint('mongodb', 'port'))
 
     def construct_global_mln(self):
         '''
