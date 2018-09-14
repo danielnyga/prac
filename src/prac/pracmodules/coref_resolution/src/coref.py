@@ -199,7 +199,7 @@ class CorefResolution(PRACModule):
             logger.error('Something went wrong')
             traceback.print_exc()
 
-        pngs['Coref - ' + str(node)] = get_cond_prob_png(project.queryconf.get('queries', ''), dbs, filename=self.name)
+        pngs['Coref - ' + str(node)] = get_cond_prob_png(project.queryconf.get('queries', ''), infstep.indbs, filename=self.name)
         infstep.png = pngs
         infstep.applied_settings = project.queryconf.config
         return [node]
