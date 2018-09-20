@@ -309,22 +309,22 @@ class ActionCore(object):
         path = os.path.dirname(filepath)
         with open(filepath) as f:
             alldocs = yaml.load_all(f)
-        actioncores = {}
-        for content in alldocs:
-            action_core = ActionCore()
-            action_core.name = content[ActionCore.NAME].strip(whitespace + '"')#TODO check if this does what it should
-            action_core.definition = content.get(ActionCore.DEFINITION)
-            actionroles = content.get(ActionCore.ACTION_ROLES)
-            for role in actionroles:
-                action_core.roles.append(role)
-            aclogger.debug('Read action core: {} (roles: {})'.format(action_core.name, ', '.join(action_core.roles)))
-            requiredroles = content.get(ActionCore.REQUIRED_ROLES)
-            if requiredroles:
-                for rc in requiredroles:
-                    action_core.required_roles.append(rc)
-            if content.get(ActionCore.PLAN):
-                action_core.plan = content.get(ActionCore.PLAN)
-            actioncores[action_core.name] = action_core
+            actioncores = {}
+            for content in alldocs:
+                action_core = ActionCore()
+                action_core.name = content[ActionCore.NAME].strip(whitespace + '"')#TODO check if this does what it should
+                action_core.definition = content.get(ActionCore.DEFINITION)
+                actionroles = content.get(ActionCore.ACTION_ROLES)
+                for role in actionroles:
+                    action_core.roles.append(role)
+                aclogger.debug('Read action core: {} (roles: {})'.format(action_core.name, ', '.join(action_core.roles)))
+                requiredroles = content.get(ActionCore.REQUIRED_ROLES)
+                if requiredroles:
+                    for rc in requiredroles:
+                        action_core.required_roles.append(rc)
+                if content.get(ActionCore.PLAN):
+                    action_core.plan = content.get(ActionCore.PLAN)
+                actioncores[action_core.name] = action_core
         return actioncores
 
     def tofile(self):
