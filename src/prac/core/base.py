@@ -390,6 +390,15 @@ class PRACModule(object):
         self._defproject = None
         self._module_path = None
 
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        del d['prac']
+        return d
+
+    def __setstate__(self, d):
+        d['prac'] = PRAC()
+        return d
+
     def initialize(self):
         '''
         Called after the PRAC module has been loaded.
