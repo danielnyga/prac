@@ -307,7 +307,8 @@ class ActionCore(object):
         must be given in YAML format. Returns an ActionCore object.
         '''
         path = os.path.dirname(filepath)
-        alldocs = yaml.load_all(open(filepath))
+        with open(filepath) as f:
+            alldocs = yaml.load_all(f)
         actioncores = {}
         for content in alldocs:
             action_core = ActionCore()
