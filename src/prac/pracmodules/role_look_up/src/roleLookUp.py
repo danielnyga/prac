@@ -22,6 +22,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
+from collections import OrderedDict
 
 from dnutils import logs, out
 
@@ -30,6 +31,7 @@ from prac.core.base import PRACModule
 from prac.core.inference import PRACInferenceStep
 from prac.db.ies.extraction import find_frames
 from prac.db.ies.models import constants, Frame, Object
+from prac.pracmodules.plan_generation.src.plangen import normalized
 from prac.pracutils.utils import prac_heading, get_query_png
 
 
@@ -67,7 +69,7 @@ class RoleLookUp(PRACModule):
     instructions.
     '''
 
-    def determine_missing_roles(self, node, db):
+    def determine_missing_roles(self, node, db, sim):
         '''
         Checks if the given database contains all required actionroles to 
         execute the representing actioncore successfully. If this is not the case
@@ -91,18 +93,24 @@ class RoleLookUp(PRACModule):
                 if obj.type not in wm.abstractions and not wm.contains(obj.type) and\
                         obj.props.__dict__.get('in') is None and obj.props.__dict__.get('on') is None:
                     out(obj.type, 'is not in world')
-                    frames = find_frames(self.prac, actioncore='Storing', actionroles={'obj_to_be_stored': obj.type}, similarity=.7)
+                    frames = find_frames(self.prac, actioncore='Storing', actionroles={'obj_to_be_stored': obj.type}, similarity=sim)
                     out('found', len(frames), 'potential locations:')
                     logger.debug('found', len(frames), 'potential locations:')
+                    locations = OrderedDict()
                     for frame, sim in frames:
+                        if 'location' not in frame.actionroles or frame.actionroles['location'].type == 'electric_refrigerator.n.01':
+                            continue
                         out(sim, frame)
-                        setattr(obj.props, 'in', frame.actionroles['location'].type)
-                        break
+                        locations[frame.actionroles['location'].type] = locations.get(frame.actionroles['location'].type, 0) + sim
+                    if locations:
+                        dist = normalized(list(locations.values()))
+                        locations = OrderedDict((l, d) for l, d in zip(locations.keys(), dist))
+                        out('location distribution:', locations)
+                        setattr(obj.props, 'in', max(locations, key=locations.__getitem__))
                     if obj.props.__dict__.get('in'):
                         out('likely location:', obj.props.__dict__.get('in'))
                 else:
                     out(obj.type, 'is in world')
-
         else:
             logger.debug('no world model given.')
 
@@ -208,7 +216,7 @@ class RoleLookUp(PRACModule):
             # Mongo Lookup
             # ==================================================================
             infstep.indbs.append(db.copy())
-            db_, missingroles = self.determine_missing_roles(node, db)
+            db_, missingroles = self.determine_missing_roles(node, db, node.pracinfer.similarity)
             if self.prac.verbose > 1:
                 print()
                 print(prac_heading('ROLE COMPLETION RESULTS'))

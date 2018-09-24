@@ -18,6 +18,8 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import pickle
+
 import argparse
 import json
 import os
@@ -25,13 +27,15 @@ import os
 import sys
 from pprint import pprint, pformat
 
+import dill as dill
 from dnutils import logs
 
 from prac.core.base import PRAC
 from prac.core.inference import PRACInference
 from prac.db.ies.models import Worldmodel, Object, toplan
 from prac.gui import PRACQueryGUI, DEFAULT_CONFIG
-from prac.pracutils.utils import prac_heading
+from prac.pracmodules.plan_generation.src.plangen import PlanOptimizer
+from prac.pracutils.utils import prac_heading, treetable
 from pracmln.mln.util import headline
 from pracmln.utils.project import PRACMLNConfig
 
@@ -88,11 +92,21 @@ def main():
     usage = 'PRAC Query Tool'
 
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument("instructions", help="The instructions.", nargs='+')
-    parser.add_argument("-i", "--interactive", dest="interactive", default=False, action='store_true', help="Starts PRAC inference with an interactive GUI tool.")
-    parser.add_argument("-v", "--verbose", dest="verbose", default=1, type=int, action="store", help="Set verbosity level {0..3}. Default is 1.")
-    parser.add_argument("-s", "--sim", default=1, type=float, help="Threshold for the similarity value for plan adaptation")
-    parser.add_argument('-w', '--world', default=None, type=str, help='Path to the world-model file')
+    parser.add_argument("instructions", help="The instructions.", nargs='*')
+    # parser.add_argument("-i", "--interactive", dest="interactive", default=False, action='store_true', help="Starts PRAC inference with an interactive GUI tool.")
+    parser.add_argument("-v", "--verbose", dest="verbose", default=1, type=int, action="store",
+                        help="Set verbosity level {0..3}. Default is 1.")
+    parser.add_argument("-s", "--sim", default=1, type=float,
+                        help="Threshold for the similarity value for plan adaptation")
+    parser.add_argument('-w', '--world', default=None, type=str,
+                        help='Path to the world-model file')
+    parser.add_argument('-o', '--output', default=None, type=str,
+                        help='Save inference to binary file.')
+    parser.add_argument('-l', '--load', default=None, type=str,
+                        help='Load a saved (ungrounded) inference file from disk.')
+    parser.add_argument('-d', '--dist', default=None, type=str,
+                        help='Compute the distribution over multiple plan hypotheses instead of picking the most probable one.')
+
 
     args = parser.parse_args()
     opts_ = vars(args)
@@ -103,42 +117,9 @@ def main():
 
     conf = PRACMLNConfig(DEFAULT_CONFIG)
 
-    if args.interactive:  # use the GUI
-        from tkinter import Tk
-        root = Tk()
-        # in case we have natural-language parameters, parse them
-        infer = PRACInference(prac, sentences)
-        if len(sentences) > 0:
-            # module = prac.module('nl_parsing')
-            # prac.run(infer, module)
-            n = infer.runstep()
-
-            # print parsing result
-            for odb in n.outdbs:
-                odb.write()
-
-            # print input sentence
-            print(n.nlinstr())
-
-            # Started control structure handling
-            '''
-            cs_recognition = prac.module('cs_recognition')
-            prac.run(inference, cs_recognition)
-            
-            
-            dbs = inference.inference_steps[-1].output_dbs
-            dbs_ = []
-            
-            for db in dbs:
-                dbs_.extend(parser.extract_multiple_action_cores(db)) 
-            inference.inference_steps[-1].output_dbs = dbs_
-            '''
-            app = PRACQueryGUI(root, infer.prac, n, conf, directory=args[0] if args else None)
-            root.mainloop()
-        exit(0)
-    # regular PRAC pipeline
-
+    # ------------------------------------------------------------------------------------------------------------------
     # load the world model file if any is given
+    # ------------------------------------------------------------------------------------------------------------------
     if args.world is not None:
         with open(args.world, 'r') as f:
             wm = Worldmodel.fromjson(prac, json.load(f))
@@ -146,29 +127,67 @@ def main():
         logger.debug(pformat(wm.tojson()))
     else:
         wm = None
-    infer = PRACInference(prac, sentences, worldmodel=wm, similarity=args.sim)
-    infer.run()
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # load a saved inference tree if "load" argument is given
+    # ------------------------------------------------------------------------------------------------------------------
+    if args.load is not None:
+        if args.instructions:
+            raise ValueError('No instructions are allowed when loading an existing inference tree.')
+        with open(args.load, 'rb') as f:
+            infer = pickle.load(f)
+            logger.info('Loaded existing inference result from "%s":' % args.load)
+            print(treetable(infer.traverse()))
+            infer.worldmodel = wm
+    else:
+        # start a new inference if instructions are given
+        if not args.instructions:
+            raise ValueError('No instruction to parse.')
+        infer = PRACInference(prac, sentences, worldmodel=wm, similarity=args.sim)
+        infer.run(stopat='plan_generation')
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # process the "output" argument to serialize the ungrounded inference result.
+    # ------------------------------------------------------------------------------------------------------------------
+    if args.output is not None:
+        print(infer.lastnode)
+        with open(args.output, 'wb+') as f:
+            pickle.dump(infer, f)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # find the best plan if a world model is given
+    # ------------------------------------------------------------------------------------------------------------------
+    planopt = prac.module('plan_generation')
+    planopt(infer.root[0], worldmodel=infer.worldmodel)
+    print(treetable(infer.traverse()))
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # ground the plan if a world model is given
+    # ------------------------------------------------------------------------------------------------------------------
     groundedplan = None
     if wm is not None:
         gnd = prac.module('grounding')
         groundedplan = gnd(infer, wm)
+        for step in groundedplan:
+            print(step)
         if prac.verbose:
             json.dumps(toplan([n.frame for n in groundedplan], 'json'))
 
-    print(headline('inference results'))
-    print('instructions:')
-    for i in infer.root:
-        print(i)
-    print(prac_heading('cram plans', color='blue'))
-    for step in infer.steps():
-        if hasattr(step, 'plan'):
-            print(step.plan)
-    if groundedplan is not None:
-        print(prac_heading('grounded plans', color='blue'))
-        for step in groundedplan:
-            if hasattr(step, 'plan'):
-                print(step.plan)
-    exit(0)
+    # print(headline('inference results'))
+    # print('instructions:')
+    # for i in infer.root:
+    #     print(i)
+    # print(prac_heading('cram plans', color='blue'))
+    # for step in infer.steps():
+    #     if hasattr(step, 'plan'):
+    #         print(step.plan)
+    #
+    # if groundedplan is not None:
+    #     print(prac_heading('grounded plans', color='blue'))
+    #     for step in groundedplan:
+    #         if hasattr(step, 'plan'):
+    #             print(step.plan)
+    # exit(0)
 
 
 if __name__ == '__main__':

@@ -20,6 +20,7 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from operator import itemgetter
 
 import datetime
 from numpy import mean
@@ -27,8 +28,9 @@ from pprint import pprint
 
 from scipy.stats import stats
 
-from dnutils import edict, ifnone, out
+from dnutils import edict, ifnone, out, first
 
+import prac
 from . import constants
 
 
@@ -54,18 +56,37 @@ def toplan(obj, lang='json'):
     return obj
 
 
-class Frame(object):
+class PRACObject:
+    '''
+    Abstract base class for all semantic PRAC data structures.
+    '''
+
+    def __init__(self, prac):
+        self.prac = prac
+
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        del d['prac']
+        return d
+
+    def __setstate__(self, d):
+        self.__dict__ = d
+        self.prac = prac.core.base._prac_instance
+
+
+class Frame(PRACObject):
     '''
     Represents a (partially) instantiated action core that is stored in the MongoDB. 
     '''
 
     def __init__(self, prac, sidx, sentence, words, syntax, actioncore, actionroles, mandatory=True):
+        super(Frame, self).__init__(prac)
         self.sidx = sidx
         self.sentence = sentence
-        self.actionroles = actionroles
+        self.actionroles = dict(actionroles)
         self.actioncore = actioncore
         self.syntax = syntax
-        self.words = words
+        self.words = ifnone(words, None, list)
         self.prac = prac
         self.mandatory = mandatory
 
@@ -218,8 +239,8 @@ class Howto(Frame):
     Wrapper class representing a howto in PRAC.
     '''
     def __init__(self, prac, instr, steps, import_date=None):
-        Frame.__init__(self, prac, sidx=instr.sidx, sentence=instr.sentence, syntax=instr.syntax,
-                       words=instr.words, actioncore=instr.actioncore, actionroles=instr.actionroles)
+        super(Howto, self).__init__(prac, sidx=instr.sidx, sentence=instr.sentence, syntax=instr.syntax,
+                                    words=instr.words, actioncore=instr.actioncore, actionroles=instr.actionroles)
         self.steps = steps
         if import_date is None:
             self.import_date = datetime.datetime.now()
@@ -264,10 +285,11 @@ class Howto(Frame):
         return set([c for s in self.steps for r, c in s.actionroles.items()])
 
 
-class PropertyStore(object):
+class PropertyStore(PRACObject):
     '''Store for property values of objects'''
 
     def __init__(self, prac):
+        super(PropertyStore, self).__init__(prac)
         self.prac = prac
         propmod = prac.module('prop_extraction')
         self.__props = [p.name for p in propmod.mln.predicates]
@@ -301,11 +323,12 @@ class PropertyStore(object):
         return ','.join(['%s:%s' % (k, v) for k, v in self.__dict__.items() if k in self.__props and v is not None])
     
         
-class Object(object):
+class Object(PRACObject):
     '''
     Representation of a generic object that has an id and a type.
     '''
     def __init__(self, prac, id_, type_, props=None, syntax=None):
+        super(Object, self).__init__(prac)
         self.type = type_
         self.id = id_
         if isinstance(props, PropertyStore):
@@ -371,7 +394,7 @@ class Object(object):
         return True
 
 
-class Word(object):
+class Word(PRACObject):
     '''
     This class represents a data structure of a word in a sentence.
     Sense objects are used to determine the meaning of a sentence.
@@ -380,6 +403,7 @@ class Word(object):
     '''
 
     def __init__(self, prac, wid, word, widx, sense, pos, lemma, misc=None):
+        super(Word, self).__init__(prac)
         self.wid = wid
         self.word = word
         self.widx = widx
@@ -409,9 +433,10 @@ class Word(object):
                     data.get(constants.JSON_SENSE_LEMMA))
 
 
-class Worldmodel(object):
+class Worldmodel(PRACObject):
 
     def __init__(self, prac, cw=False, abstractions=None):
+        super(Worldmodel, self).__init__(prac)
         self.prac = prac
         self.cw = cw
         self.available = {}
@@ -455,6 +480,12 @@ class Worldmodel(object):
             obj = Object(self.prac, self.newid(), type_=obj)
         return sorted([o for o in self.available.values() if self.prac.wordnet.wup_similarity(obj.type, o.type) >= sim],
                       key=lambda o: self.prac.wordnet.wup_similarity(obj.type, o.type), reverse=True)
+
+    def get_most_similar(self, obj):
+        if type(obj) is str:
+            obj = Object(self.prac, self.newid(), type_=obj)
+        objects = [(self.prac.wordnet.wup_similarity(obj.type, o.type), o) for o in self.available.values()]
+        return first(sorted(objects, key=itemgetter(0), reverse=True))
 
     def removeall(self, concept, cw=True):
         for o in self.getall(concept):

@@ -28,7 +28,7 @@ from configparser import ConfigParser
 from string import whitespace
 
 import yaml
-from dnutils import ifnone, logs
+from dnutils import ifnone, logs, out
 from pymongo.mongo_client import MongoClient
 
 from . import locations
@@ -100,7 +100,17 @@ class PRACConfig(ConfigParser):
         return list(filter(bool, [s.strip() for s in self.get(section, key).split(separator)]))
 
 
-class PRAC(object):
+_prac_instance = None
+
+
+def PRAC():
+    global _prac_instance
+    if _prac_instance is None:
+        _prac_instance = _PRAC()
+    return _prac_instance
+
+
+class _PRAC(object):
     '''
     The PRAC reasoning system.
     '''
@@ -500,6 +510,15 @@ class PRACDatabase(Database):
             evidence = {}
         Database.__init__(self, prac.mln, evidence=evidence, dbfile=None,
                           ignore_unknown_preds=ignore_unknown_preds)
+
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        del d['prac']
+        return d
+
+    def __setstate__(self, d):
+        d['prac'] = PRAC()
+        return d
 
     def copy(self, mln=None):
         '''

@@ -21,19 +21,17 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from collections import defaultdict
+from collections import defaultdict, deque
 
 from dnutils import logs, first, ifnone, out, stop
 from graphviz.dot import Digraph
 
+import prac
 from prac.db.ies.models import Object, Frame, Word
 from prac.pracutils import StopWatch
 from prac.pracutils.pracgraphviz import render_gv
 from prac.pracutils.utils import splitd
 from pracmln import Database
-
-
-logger = logs.getlogger(__name__, level=logs.INFO)
 
 
 class PRACInferenceStep(object):
@@ -75,7 +73,14 @@ class PRACInferenceNode(object):
         self.pred = pred
         self.children = []
         self.indbs = indbs
-    
+
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        return d
+
+    def __setstate__(self, d):
+        self.__dict__ = d
+
     def idx(self):
         '''
         The index of the inference node 
@@ -219,6 +224,7 @@ class AlternativeNode(FrameNode):
     def __init__(self, pracinfer, frame, parent=None, indbs=None, alternatives=None):
         FrameNode.__init__(self, pracinfer=pracinfer, parent=parent, frame=frame, pred=None, indbs=indbs)
         self.alternatives = ifnone(alternatives, [])
+        self.evals = []
 
     @property
     def children(self):
@@ -229,10 +235,13 @@ class AlternativeNode(FrameNode):
         pass
 
     def __str__(self):
-        return '%s alternatives: %s' % (len(self.alternatives), ','.join(['%s steps' % len(a) for a in self.alternatives]))
+        if not self.evals:
+            return '%s alternatives: %s' % (len(self.alternatives), ','.join(['%s steps' % len(a) for a in self.alternatives]))
+        else:
+            return '; '.join(map(str, self.evals))
 
 
-class PRACInference(object):
+class PRACInference:
     '''
     Represents an inference chain in PRAC
     '''
@@ -244,7 +253,7 @@ class PRACInference(object):
         :param instr:    (str/iterable) list of natural-language sentences subject to
                          inference.
         '''
-        self._logger = logs.getlogger(self.__class__.__name__, level=logs.DEBUG)
+        self._logger = logs.getlogger('/prac/inference')
         self.prac = prac
         prac.deinit_modules()
         self.watch = StopWatch()
@@ -261,6 +270,42 @@ class PRACInference(object):
         self.lastnode = None
         self.worldmodel = worldmodel
         self.similarity = ifnone(similarity, 1.0)
+
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        del d['prac']
+        del d['_logger']
+        return d
+
+    def __setstate__(self, d):
+        self.__dict__ = d
+        self.prac = prac.core.base._prac_instance
+        self._logger = logs.getlogger('/prac/inference')
+
+    @property
+    def tree(self):
+        return self.root
+
+    def traverse(self):
+        '''
+        Generates a
+        :return:
+        '''
+        queue = deque(self.tree)
+        stack = deque([0])
+        while queue:
+            node = queue.pop()
+            level = stack.pop()
+            yield level, [node]
+            if hasattr(node, 'children') and node.children and not isinstance(node, AlternativeNode):
+                queue.extend(reversed(node.children))
+                stack.extend([level+1] * len(node.children))
+            elif hasattr(node, 'alternatives') and node.alternatives and isinstance(node, AlternativeNode):
+                queue.extend(reversed(node.alternatives))
+                stack.extend([level+1] * len(node.alternatives))
+            elif type(node) is list:
+                queue.extend(reversed(node))
+                stack.extend([level+1] * len(node))
 
     def run(self, stopat=None):
         if type(stopat) not in (tuple, list):

@@ -1,6 +1,10 @@
 import os
 
 import _thread
+from collections import deque
+
+import tabulate
+from dnutils import ifnone
 
 from pracmln.mln.util import colorize
 from pracmln.utils.latexmath2png import math2png
@@ -110,9 +114,36 @@ def get_query_png(queries, dbs, filename='cond_prob', filedir='/tmp', skolemword
     return math2png(eq, filedir, declarations=declarations, filename=safefilename, size=10)
 
 
+def treetable(data_generator, headers=None, tablefmt=None):
+    '''
+    Computes a string representation of the ``data`` in the style of a tree/table combination.
+
+    Data is passed in the form of a generator object that yields ``(level, row)`` pairs, where each
+    ``level`` is an integer specifying the level on which the data row ``row`` resides in the tree.
+    ``row`` is then a ``list`` or ``tuple`` holding the single table entries.
+
+    :param tablefmt:
+    :param headers:
+    :param data_generator:
+    '''
+    preserve_whitespace = tabulate.PRESERVE_WHITESPACE
+    tabulate.PRESERVE_WHITESPACE = True
+    data = deque()
+    lastlevel = 0
+    for level, item in data_generator:
+        if level - 1 > lastlevel:
+            raise ValueError('illegal level: can only increment level by one.')
+        lastlevel = level
+        data.append([((' ' * (2 * level)) + '+ %s' % item[0])] + list(item[1:]))
+    s = tabulate.tabulate(list(data), headers=ifnone(headers, ()), tablefmt=tablefmt)
+    tabulate.PRESERVE_WHITESPACE = preserve_whitespace
+    return s
+
+
 # ===============================================================================
 # main function for testing only!
 # ===============================================================================
+
 
 if __name__ == '__main__':
     print(splitd({1:[2,3,4], 2:[5,7], 3:[8]}))

@@ -25,10 +25,10 @@ import itertools
 import re
 from itertools import chain
 from scipy import spatial
-from threading import RLock
+# from threading import RLock
 
 import graphviz as gv
-from dnutils import logs, edict
+from dnutils import logs, edict, trace, RLock
 from num2words import num2words
 from word2number import w2n
 
@@ -227,6 +227,9 @@ def number_synset(numstr):
     return syn
 
 
+wordnetlock = RLock()
+
+
 class WordNet(object):
     '''
     Wrapper class for WordNet, which may be initialized with
@@ -236,8 +239,6 @@ class WordNet(object):
     Also provides a set of customized similarity measures for
     colors, shapes and sizes as introduced in Mareike's thesis.
     '''
-
-    wordnetlock = RLock()
 
     @synchronized(wordnetlock)
     def __init__(self, concepts=None):
@@ -959,8 +960,6 @@ if __name__ == '__main__':
     exit(0)
     s1 = wn.synsets('150', 'c')[0]
     s2 = wn.synsets('155.6', 'c')[0]
-
-
 
     # s1 = wn.synset('24.c.01')
     # s2 = wn.synset('25.c.01')
