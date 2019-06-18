@@ -63,8 +63,9 @@ class PRACConfig(ConfigParser):
         'mongodb': {
             'host': 'localhost',
             'port': 27017,
-            'user': '',
-            'password': ''
+            'username': '',
+            'password': '',
+            'auth': 'SCRAM-SHA-1'
         },
         'wordnet': {
             'concepts': '''water.n.06
@@ -145,7 +146,10 @@ class _PRAC(object):
         self.wordnet = WordNet()
         self.mln = self.construct_global_mln()
         self.mongodb = MongoClient(host=self.config.get('mongodb', 'host'),
-                                   port=self.config.getint('mongodb', 'port'))
+                                   port=self.config.getint('mongodb', 'port'),
+                                   username=self.config.get('mongodb', 'username'),
+                                   password=self.config.get('mongodb', 'password'),
+                                   authMechanism=self.config.get('mongodb', 'auth'))
 
     def construct_global_mln(self):
         '''

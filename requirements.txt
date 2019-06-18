@@ -4,7 +4,6 @@ graphviz
 beautifulsoup4
 lxml
 pyyaml
-pracmln
 num2words
 word2number
 appdirs
