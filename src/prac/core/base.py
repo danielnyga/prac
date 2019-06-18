@@ -84,6 +84,7 @@ class PRACConfig(ConfigParser):
             for key, value in list(values.items()):
                 self.set(section, key, str(value))
         if filename is not None:
+            logger.info('Opening config file: %s' % os.path.join(locations.user_data, filename))
             self.read(os.path.join(locations.user_data, filename))
 
     def write(self, filename=None):
