@@ -63,9 +63,9 @@ class PRACConfig(ConfigParser):
         'mongodb': {
             'host': 'localhost',
             'port': 27017,
-            'username': '',
-            'password': '',
-            'auth': 'SCRAM-SHA-1'
+            'username': None,
+            'password': None,
+            'auth': None  # 'DEFAULT',  # 'SCRAM-SHA-1'
         },
         'wordnet': {
             'concepts': '''water.n.06
@@ -82,6 +82,7 @@ class PRACConfig(ConfigParser):
         for section, values in list(self.DEFAULTS.items()):
             self.add_section(section)
             for key, value in list(values.items()):
+                if value is None: continue
                 self.set(section, key, str(value))
         if filename is not None:
             logger.info('Opening config file: %s' % os.path.join(locations.user_data, filename))
@@ -146,11 +147,21 @@ class _PRAC(object):
         # TODO: replace this by real action core definitions
         self.wordnet = WordNet()
         self.mln = self.construct_global_mln()
-        self.mongodb = MongoClient(host=self.config.get('mongodb', 'host'),
-                                   port=self.config.getint('mongodb', 'port'),
-                                   username=self.config.get('mongodb', 'username'),
-                                   password=self.config.get('mongodb', 'password'),
-                                   authMechanism=self.config.get('mongodb', 'auth'))
+        args = {}
+        if 'host' in self.config.options('mongodb') and self.config.get('mongodb', 'host') is not None:
+            args['host'] = self.config.get('mongodb', 'host')
+        if 'port' in self.config.options('mongodb') and self.config.getint('mongodb', 'port') is not None:
+            args['port'] = self.config.getint('mongodb', 'port')
+        if 'username' in self.config.options('mongodb') and self.config.get('mongodb', 'username') is not None:
+            args['username'] = self.config.get('mongodb', 'username')
+        if 'password' in self.config.options('mongodb') and self.config.get('mongodb', 'password') is not None:
+            args['password'] = self.config.get('mongodb', 'password')
+        if 'auth' in self.config.options('mongodb') and self.config.get('mongodb', 'auth') is not None:
+            args['authMechanism'] = self.config.get('mongodb', 'auth')
+        print(args)
+        self.mongodb = MongoClient(**args)
+        if self.verbose:
+            print(self.mongodb)
 
     def construct_global_mln(self):
         '''

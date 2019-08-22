@@ -131,7 +131,7 @@ class Frame(PRACObject):
                     raise ValueError('role %s does not have a type (word %s)' % (rolename, f.actionroles[rolename].type))
                 sims.append(self.prac.wordnet.wup_similarity(f.actionroles[rolename].type, rolevalue.type))
             else:
-                return 0
+                continue  # return 0
                 # ------------------------------------------------------------------------------
                 # Sometimes Stanford Parser parses some objects as adjectives
                 # due to the fact that nouns and adjectives cannot be compared

@@ -158,7 +158,7 @@ def main():
     # find the best plan if a world model is given
     # ------------------------------------------------------------------------------------------------------------------
     planopt = prac.module('plan_generation')
-    planopt(infer.root[0], worldmodel=infer.worldmodel)
+    planopt(infer.root[0], worldmodel=infer.worldmodel, do_select=False)
     print(treetable(infer.traverse()))
 
     # ------------------------------------------------------------------------------------------------------------------
