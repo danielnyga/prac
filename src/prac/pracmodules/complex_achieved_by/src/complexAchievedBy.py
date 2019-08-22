@@ -80,7 +80,7 @@ class ComplexAchievedBy(PRACModule):
         frame = node.frame
         pngs = {}
         howtos = self.closest_howtos(node.frame, node.pracinfer.similarity)
-        if not howtos:
+        if not howtos or any([n.frame.matches(frame) for n in node.parentspath() if isinstance(n, FrameNode)]):
             return
         alternatives = []
         prevscore = -1
